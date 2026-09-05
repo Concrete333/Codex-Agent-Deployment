@@ -13,7 +13,7 @@ Complex projects can need several models. An unknown production bug may need Ast
 | Sol (`gpt-5.6-sol`) | You understand the goal, but the implementation or debugging work is difficult and spans existing architecture. | The implementation is hard. |
 | Astra (`gpt-6-astra`) | The agent must locate the problem, determine the right approach, make architectural tradeoffs, or perform a nuanced review. | Figuring out what to do is hard. |
 
-The skill assigns the lowest-cost model that can own each task without creating extra supervision or rework.
+The skill optimizes for the expected total cost of a correct result. It considers token use, retries, supervision, and rework instead of comparing token prices alone.
 
 ## How it works
 
@@ -22,11 +22,20 @@ Agent Deployment asks Codex to:
 1. Split the request into bounded tasks with clear outputs and acceptance checks.
 2. Separate discovery difficulty from implementation difficulty.
 3. Assign a model to each task instead of pricing the whole project at its hardest tier.
-4. Promote tasks with ambiguity, architectural risk, or expensive failure modes.
-5. Demote tasks once another agent has turned them into precise, verifiable instructions.
-6. Keep final integration with an agent capable of judging the complete result.
+4. Treat open-ended inspect, run, observe, revise, and verify loops as an Astra signal.
+5. Promote tasks with ambiguity, architectural risk, or expensive failure modes.
+6. Demote tasks once another agent has turned them into precise, verifiable instructions.
+7. Keep final integration with an agent capable of judging the complete result.
 
 The skill guides model selection. Codex follows the user's instructions and creates subagents when the request or project instructions call for delegation.
+
+Repository size and context length do not determine the model. A large batch of exact edits can remain Luna work. Cross-system uncertainty or long-horizon decisions may require Astra.
+
+## Astra assignments
+
+An Astra prompt should state the objective, owned scope, dependencies, required output, acceptance checks, and stopping condition. It should also say whether Astra may delegate, which work can run in parallel, and whether its subagents may delegate again.
+
+The prompt should tell Astra to finish authorized work through proportionate verification. Astra can make routine, reversible assumptions and should ask for user input when missing information could change correctness, scope, or authorization. Targeted checks suit small changes; failures and unresolved concerns justify broader testing.
 
 ## Example deployment
 
@@ -74,6 +83,12 @@ $agent-deployment Check this delegation plan for agents that are overpowered, un
 
 - `SKILL.md` contains the model-selection rules and deployment method.
 - `agents/openai.yaml` provides the Codex display name and default prompt.
+
+## Sources and acknowledgements
+
+Reddit user [`u/emir_morris`](https://www.reddit.com/user/emir_morris/) proposed the original four-tier model ladder, summaries, and examples in ["GPT-6 Astra: Everything You Need to Know"](https://www.reddit.com/r/codex/comments/1w6rqgf/gpt6_astra_everything_you_need_to_know/). This skill adapts that framework into deployment instructions for Codex.
+
+Reddit user [`u/Icy_Piece6643`](https://www.reddit.com/user/Icy_Piece6643/) highlighted Astra's prompting behavior in ["Before blaming GPT-6 Astra, read its prompting guide"](https://www.reddit.com/r/codex/comments/1w7x57n/before_blaming_gpt6_astra_read_its_prompting_guide/). The deployment refinements also follow [OpenAI's official GPT-6 Astra model guidance](https://developers.openai.com/api/docs/guides/latest-model).
 
 ## Scope
 

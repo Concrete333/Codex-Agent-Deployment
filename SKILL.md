@@ -5,9 +5,9 @@ description: Select the appropriate Codex model for a complex task and each of i
 
 # Agent Deployment
 
-Choose models per bounded task, not once for the entire project. Use the least expensive model that can reliably own the task, including its uncertainty, judgment, implementation difficulty, and validation burden.
+Choose models per bounded task, not once for the entire project. Optimize for the expected total cost of a correct result, including token use, retries, supervision, and rework. A higher per-token price can cost less when it prevents failed attempts or shortens a long investigation.
 
-This skill selects models; it does not itself authorize delegation. Spawn subagents only when the user's request or applicable instructions call for subagents, delegation, or parallel agent work. Preserve any model the user explicitly requests.
+The user's explicit instructions take precedence over this skill. Preserve any model the user explicitly requests. This skill selects models; it does not itself authorize delegation. Spawn subagents only when the user's request or applicable instructions call for subagents, delegation, or parallel agent work.
 
 ## Model ladder
 
@@ -37,7 +37,7 @@ Example: Find why offline sync occasionally creates duplicates, fix the root cau
 
 ### Astra — Figure it out and get it done (`gpt-6-astra`)
 
-Use when even determining the right work is difficult: unknown or poorly localized bugs, architectural changes, large migrations, infrastructure and DevOps, cross-system investigations, ambiguous requirements with material tradeoffs, and nuanced review work.
+Use when even determining the right work is difficult: unknown or poorly localized bugs, architectural changes, large migrations, infrastructure and DevOps, cross-system investigations, ambiguous requirements with material tradeoffs, and nuanced review work. Astra also fits long tool-driven workflows where each observation determines the next action: inspect, run, observe, revise, and verify.
 
 Test: **The agent must discover the problem, choose the approach, and then deliver the solution.**
 
@@ -54,9 +54,19 @@ Example: Investigate an unlocalized failure, reproduce it, identify the root cau
 
 For mixed work, use Astra or Sol to investigate, define interfaces, or integrate; use Terra for routine implementation; and use Luna for deterministic follow-through. Do not assign every subagent the coordinator's tier merely because the overall project is complex.
 
-Avoid false economy. If a cheaper worker would need extensive supervision, lacks enough context to notice failure, or could cause costly rework, use the next tier. Conversely, do not use Astra merely because a task is large: a large batch of exact edits can still be Luna work.
+Repository size and context length do not determine the tier. Promote work in a large repository when unknown relationships or long-horizon decisions require stronger reasoning. Keep precise, verifiable work at the lower tier that can own it.
+
+Estimate total expected cost from token use, retries, supervision, and rework. Promote the task when a cheaper worker would need extensive supervision, lacks enough context to notice failure, or could cause costly rework.
 
 If a named model is unavailable, choose the nearest available model with at least the required capability and state the substitution.
+
+## Astra assignment contract
+
+When Astra owns or coordinates work, state the objective, owned scope, dependencies, required output, acceptance checks, and stopping condition. State whether delegation is authorized, which work can run in parallel, and whether subagents may delegate again.
+
+Tell Astra to carry authorized work through implementation and proportionate verification. Allow routine, reversible assumptions. Ask for user input when missing information could materially change correctness, scope, or authorization.
+
+Match verification to the scope and impact of the change. Give Astra targeted checks for small changes. Broaden or repeat testing when a failure, new change, or unresolved concern justifies it.
 
 ## Communicating the plan
 
