@@ -1,53 +1,68 @@
 # Agent Deployment
 
-A Codex skill for assigning Luna, Terra, Sol, or Astra to each part of a multi-agent task based on uncertainty, implementation difficulty, and verification cost.
+A cost-first Codex skill that uses Astra to plan and review, Luna for most implementation, and Sol to review each iteration.
 
-Complex projects can need several models. An unknown production bug may need Astra to find the problem, Sol to implement the fix, Terra to add routine coverage, and Luna to handle exact follow-up edits. Agent Deployment gives Codex a consistent way to make those assignments.
+```text
+Astra plan -> Luna implementation -> Sol review -> Luna correction -> Astra final review
+```
 
-## Model ladder
+The basic idea is simple: spend premium-model time where judgment has the most leverage. Astra decides what should be done and judges the finished result. Luna does the work. Sol catches problems while they are still cheap to fix.
 
-| Model | Use it when | Short version |
+## Default roles
+
+| Role | Model | What it does |
 | --- | --- | --- |
-| Luna (`gpt-5.6-luna`) | You know the target, method, and acceptance check. The work consists of renames, boilerplate, copy changes, lint fixes, or repetitive edits. | We know what to do. Use the low-cost model. |
-| Terra (`gpt-5.6-terra`) | The task follows familiar development patterns, such as screens, endpoints, existing API integrations, and straightforward tests. | Normal software development. |
-| Sol (`gpt-5.6-sol`) | You understand the goal, but the implementation or debugging work is difficult and spans existing architecture. | The implementation is hard. |
-| Astra (`gpt-6-astra`) | The agent must locate the problem, determine the right approach, make architectural tradeoffs, or perform a nuanced review. | Figuring out what to do is hard. |
+| Initial planner | Astra (`gpt-6-astra`) | Inspects the task, resolves uncertainty, and produces bounded assignments with dependencies and acceptance checks. |
+| Implementation worker | Luna (`gpt-5.6-luna`) | Handles almost all implementation. Increase its reasoning effort when the work gets harder. |
+| Iterative reviewer | Sol (`gpt-5.6-sol`) | Reviews each meaningful Luna batch and returns evidence-backed corrections. |
+| Final reviewer | Astra (`gpt-6-astra`) | Judges the integrated result against the original goal and either accepts it or requests bounded corrections. |
+| Exception implementer | Terra (`gpt-5.6-terra`) | Steps in only when Luna is unavailable or repeatedly fails a narrowed assignment. |
 
-The skill optimizes for the expected total cost of a correct result. It considers token use, retries, supervision, and rework instead of comparing token prices alone.
+## Luna reasoning effort
 
-## How it works
+The skill promotes Luna's reasoning effort before promoting the implementation model:
 
-Agent Deployment asks Codex to:
+| Effort | Typical work |
+| --- | --- |
+| `low` or `medium` | Renames, boilerplate, copy changes, lint fixes, and routine edits. |
+| `high` | Normal features, endpoints, integrations, and tests. |
+| `xhigh` | Difficult but bounded debugging or changes across several modules. |
+| `max` | The toughest implementation jobs when the scope and acceptance checks are still clear. |
 
-1. Split the request into bounded tasks with clear outputs and acceptance checks.
-2. Separate discovery difficulty from implementation difficulty.
-3. Assign a model to each task instead of pricing the whole project at its hardest tier.
-4. Treat open-ended inspect, run, observe, revise, and verify loops as an Astra signal.
-5. Promote tasks with ambiguity, architectural risk, or expensive failure modes.
-6. Demote tasks once another agent has turned them into precise, verifiable instructions.
-7. Keep final integration with an agent capable of judging the complete result.
+This is an intentional cost tradeoff. OpenAI describes Luna as suited to cost-sensitive, high-volume workloads, and Luna supports both `xhigh` and `max` reasoning. That makes it practical to give Luna several focused attempts while keeping stronger judgment around the work. See the [official GPT-5.6 Luna model page](https://developers.openai.com/api/docs/models/gpt-5.6-luna).
 
-The skill guides model selection. Codex follows the user's instructions and creates subagents when the request or project instructions call for delegation.
+Repository size does not decide the model. A large, exact task can still be Luna work. What matters is whether the assignment is bounded and testable.
 
-Repository size and context length do not determine the model. A large batch of exact edits can remain Luna work. Cross-system uncertainty or long-horizon decisions may require Astra.
+## How the loop works
 
-## Astra assignments
+1. Astra inspects the goal and produces the initial task graph.
+2. The coordinator turns that plan into bounded Luna assignments.
+3. Independent Luna agents work in parallel when they do not share files or unfinished dependencies.
+4. Sol reviews each meaningful implementation batch.
+5. Luna applies Sol's corrections.
+6. The Luna and Sol loop continues until Sol finds no material issue or the escalation rule applies.
+7. Astra reviews the complete result, review history, and verification evidence.
+8. Any final correction goes back to Luna before Astra makes the final decision.
 
-An Astra prompt should state the objective, owned scope, dependencies, required output, acceptance checks, and stopping condition. It should also say whether Astra may delegate, which work can run in parallel, and whether its subagents may delegate again.
+Keep integration ownership with the coordinating agent. Correct subtask outputs can still conflict when combined.
 
-The prompt should tell Astra to finish authorized work through proportionate verification. Astra can make routine, reversible assumptions and should ask for user input when missing information could change correctness, scope, or authorization. Targeted checks suit small changes; failures and unresolved concerns justify broader testing.
+## Escalation rule
+
+If Luna fails the same acceptance check twice, Sol rewrites the assignment with narrower scope and stronger evidence. If Luna fails that revised assignment, Terra can take the implementation task as an exception.
+
+Astra does not become the implementation worker by default. Its time stays concentrated at the two points where broad judgment matters most: the plan and the final review.
 
 ## Example deployment
 
-For a report that an offline-sync system creates duplicate records with no known reproduction steps:
+For an offline-sync bug that creates duplicate records without reliable reproduction steps:
 
-| Task | Model | Reason |
+| Stage | Model | Assignment |
 | --- | --- | --- |
-| Reproduce and localize the failure | Astra | The cause and owning subsystem are unknown. |
-| Implement the cross-module fix | Sol | The investigating agent identified the root cause, but the change remains difficult. |
-| Add routine endpoint and fixture coverage | Terra | The interfaces and expected behavior are clear. |
-| Rename affected helpers and update imports | Luna | The edits are exact and easy to verify. |
-| Review the integrated result | Sol or Astra | The reviewer must assess interactions across the full change. |
+| Initial plan | Astra | Locate the uncertainty, define the investigation, split the work, and state the acceptance checks. |
+| Implementation | Luna at `xhigh` | Reproduce the bug, implement the bounded fix, and add regression coverage. |
+| Iterative review | Sol at `xhigh` | Check the root-cause claim, cross-module effects, and test evidence. |
+| Correction | Luna at `xhigh` or `max` | Apply Sol's bounded corrections and rerun the required checks. |
+| Final review | Astra | Compare the integrated result with the original goal and accept it or request a final bounded correction. |
 
 ## Installation
 
@@ -70,26 +85,28 @@ git clone https://github.com/Concrete333/Codex-Agent-Deployment.git "$env:USERPR
 Invoke the skill in Codex:
 
 ```text
-$agent-deployment Plan a subagent deployment for this task, choose a model for each assignment, and explain each choice.
+$agent-deployment Build a cost-first agent team for this task. Use Astra to plan and give final review, Luna for implementation, and Sol for iterative review.
 ```
 
-You can also ask it to review an existing plan:
+You can also ask it to review an existing deployment:
 
 ```text
-$agent-deployment Check this delegation plan for agents that are overpowered, underpowered, or carrying tasks with unclear acceptance criteria.
+$agent-deployment Check whether this plan keeps implementation with Luna, gives Sol clear review contracts, and reserves Astra for the initial plan and final review.
 ```
+
+The skill selects roles and reasoning effort. Codex still follows your instructions and only creates subagents when you or the active project instructions authorize delegation.
 
 ## Repository contents
 
-- `SKILL.md` contains the model-selection rules and deployment method.
+- `SKILL.md` contains the deployment rules, review contracts, and escalation policy.
 - `agents/openai.yaml` provides the Codex display name and default prompt.
 
 ## Sources and acknowledgements
 
-Reddit user [`u/emir_morris`](https://www.reddit.com/user/emir_morris/) proposed the original four-tier model ladder, summaries, and examples in ["GPT-6 Astra: Everything You Need to Know"](https://www.reddit.com/r/codex/comments/1w6rqgf/gpt6_astra_everything_you_need_to_know/). This skill adapts that framework into deployment instructions for Codex.
+Reddit user [`u/emir_morris`](https://www.reddit.com/user/emir_morris/) proposed the four-tier model ladder and its practical model summaries in ["GPT-6 Astra: Everything You Need to Know"](https://www.reddit.com/r/codex/comments/1w6rqgf/gpt6_astra_everything_you_need_to_know/). That post gave me the starting point for thinking about task difficulty and model choice.
 
-Reddit user [`u/Icy_Piece6643`](https://www.reddit.com/user/Icy_Piece6643/) highlighted Astra's prompting behavior in ["Before blaming GPT-6 Astra, read its prompting guide"](https://www.reddit.com/r/codex/comments/1w7x57n/before_blaming_gpt6_astra_read_its_prompting_guide/). The deployment refinements also follow [OpenAI's official GPT-6 Astra model guidance](https://developers.openai.com/api/docs/guides/latest-model).
+Reddit user [`u/Icy_Piece6643`](https://www.reddit.com/user/Icy_Piece6643/) drew attention to Astra's delegation and prompting behavior in ["Before blaming GPT-6 Astra, read its prompting guide"](https://www.reddit.com/r/codex/comments/1w7x57n/before_blaming_gpt6_astra_read_its_prompting_guide/). This project turns those ideas into a cost-first deployment loop rather than reproducing either post. The Astra-specific guidance also follows [OpenAI's official model guidance](https://developers.openai.com/api/docs/guides/latest-model).
 
 ## Scope
 
-This project focuses on model assignment for complex Codex tasks that use subagents. It does not replace project planning, grant permission to delegate work, or make model availability guarantees.
+This project focuses on model and reasoning-effort assignments for complex Codex tasks with subagents. It does not replace project planning, grant permission to delegate, or guarantee that every model is available in every environment.
