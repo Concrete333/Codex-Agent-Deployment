@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agent Deployment"
+  short_description: "Choose the right Codex model for each subagent"
+  default_prompt: "Use $agent-deployment to assign appropriate Codex models to this complex task and its subtasks."
