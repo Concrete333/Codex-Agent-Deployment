@@ -1,86 +1,89 @@
 ---
 name: agent-deployment
-description: Deploy cost-first Codex subagent teams with Astra for initial planning and final review, Luna for most implementation, and Sol for iterative review. Use when planning or executing multi-agent work or choosing a model and reasoning effort for each role. Do not use for single-agent model comparisons.
+description: Route authorized subagent work to Luna at max for context-heavy, large-repository, or repetitive tasks and to Astra at low for harder well-specified implementation where correctness matters more. Use when planning or executing delegated work or reviewing deployment efficiency. Do not use for single-agent model comparisons.
 ---
 
 # Agent Deployment
 
-Use this cost-first pipeline for complex work:
+Minimize total usage while meeting the task's correctness and safety requirements. Model price alone does not determine the route. User model choices, effort choices, budgets, and authorization take precedence. This skill does not authorize delegation.
+
+## Routing policy
+
+### Luna at max (`gpt-5.6-luna`)
+
+Use Luna only at `max` reasoning effort. Do not assign Luna at `low`, `medium`, `high`, or `xhigh`.
+
+Choose Luna when the assignment is dominated by at least one of these burdens:
+
+- Reading or loading a large amount of context.
+- Exploring or mapping a large or unfamiliar repository.
+- Repetitive, mechanical, or bulk work with an objective check.
+
+Luna may investigate, extract evidence, or implement when one of those burdens dominates. Give it clear boundaries, entry points, search targets, and acceptance checks instead of sending the conversation history or a repository dump.
+
+### Astra at low (`gpt-6-astra`)
+
+Choose Astra at `low` for harder implementation when the task is already well specified and correctness matters more than the model-cost difference. This includes subtle logic, consequential state changes, difficult integration, and work where a plausible but wrong patch would be expensive.
+
+Settle the contract before dispatch: expected behavior, owned scope, interfaces, compatibility requirements, and acceptance checks. Do not pay Astra to rediscover broad repository context that Luna can map first.
+
+When a task combines broad discovery with difficult implementation, use Luna at `max` to produce a concise evidence packet, then give the specified implementation to Astra at `low`.
+
+### Sol review (`gpt-5.6-sol`)
+
+Sol is optional. Use one consolidated independent review when risk, unfamiliarity, or cross-module effects justify it. A Sol review replaces duplicate detailed review by the coordinator; it is not a mandatory extra stage.
+
+### Terra
+
+Do not assign Terra under this policy.
+
+## Smallest useful team
+
+- Finish trivial work locally when delegation would cost more than the task.
+- Default to one worker. Add another only for independent work with settled interfaces and separate ownership.
+- Keep tightly coupled work with one owner. Do not create agents merely to occupy available slots.
+- The coordinator owns integration and final acceptance unless the user requires an independent reviewer.
+
+## Assignment contract
+
+Send a self-contained assignment, normally no more than 500 words:
 
 ```text
-Astra plan -> Luna implementation -> Sol review -> Luna correction -> Astra final review
+Outcome and scope:
+Owned files; dependencies and interfaces:
+Context entry points and search targets:
+Constraints and behavior to preserve:
+Acceptance checks and commands:
+Return: changed files or evidence, check results, unresolved risks (normally <=200 words).
 ```
 
-Route most implementation to Luna, including difficult bounded work at `xhigh` or `max` reasoning. Use Sol as the reviewer during implementation. Reserve Astra for the initial plan and final review.
+For Astra implementation, include the settled design and the smallest evidence packet needed to act. For Luna exploration, ask for exact file, symbol, command, and failure references that another worker can use without repeating the search.
 
-The user's explicit instructions take precedence over this skill. Preserve any model or reasoning effort the user requests. This skill selects deployment roles; it does not grant permission to create subagents. Delegate when the user's request or applicable instructions authorize subagent work.
+Use fresh workers without inherited history where supported. Preserve essential user constraints explicitly. Point to source files and evidence rather than pasting large content. For substantial history-heavy work, read [context-management.md](../../context-management.md).
 
-## Roles
+## Escalate after one Luna failure
 
-### Astra: initial planner and final reviewer (`gpt-6-astra`)
+A substantive Luna failure is one failed required acceptance check, a wrong architectural assumption, a missed core requirement, or an incomplete non-trivial result after Luna has used its first assignment to investigate and self-correct.
 
-At the start, Astra may inspect the available context and repository to create the task graph. Its plan must define ownership, dependencies, interfaces, acceptance checks, review points, and integration risks. Astra should return assignments rather than implement them.
+After one substantive failure on a non-trivial task:
 
-At the end, Astra reviews the integrated result, Sol's findings, and verification evidence against the original goal. It either accepts the result or returns bounded correction assignments for Luna. Send corrected work back to Astra for the final decision.
+1. Preserve the exact failure and useful evidence.
+2. Stop Luna correction rounds for that task.
+3. Settle or narrow any remaining contract ambiguity.
+4. Assign the implementation to Astra at `low` with Luna's evidence and the failed acceptance check.
 
-Keep Astra out of implementation unless the user requests a different role.
+Do not spend another Luna activation hoping for a different result. A clearly transient tool or environment failure may be rerun without counting as a model failure. For a trivial Luna failure, the coordinator may make the small correction directly.
 
-### Luna: default implementation worker (`gpt-5.6-luna`)
+If Astra at `low` also fails, inspect the concrete cause before changing effort or adding agents. Any further escalation needs evidence that the current model or effort is the limiting factor.
 
-Assign Luna almost all implementation. Split work into bounded tasks with enough context for Luna to act without rediscovering the architecture.
+## Context and handoffs
 
-Choose reasoning effort from the implementation burden:
-
-- `low` or `medium`: mechanical edits, boilerplate, copy, lint, and routine changes.
-- `high`: normal features, endpoints, integrations, and test work.
-- `xhigh`: difficult but bounded debugging or changes across modules.
-- `max`: the toughest implementation assignments when the plan, scope, and acceptance checks remain clear.
-
-Raise Luna's reasoning effort before changing the implementation model. Use several Luna agents in parallel when their tasks do not share files or depend on unfinished outputs.
-
-Each Luna assignment must include the objective, owned scope, required interfaces, acceptance checks, verification commands, dependencies, and files or behavior that must remain unchanged.
-
-### Sol: iterative reviewer (`gpt-5.6-sol`)
-
-Use Sol after each meaningful Luna implementation batch. Sol checks correctness, architecture fit, integration, missed requirements, and verification gaps.
-
-Sol returns evidence-backed findings and bounded correction instructions. It should not rewrite the implementation by default. Send corrections back to Luna, then ask Sol to review the new result.
-
-Use `high` for routine review and `xhigh` or `max` when the review requires deep debugging, cross-module reasoning, or subtle judgment.
-
-### Terra: exception implementer (`gpt-5.6-terra`)
-
-Terra sits outside the default pipeline. Use it when Luna is unavailable or when repeated Luna correction rounds show that a bounded assignment needs a capability bridge. Keep Sol as reviewer and Astra as final reviewer.
-
-## Deployment workflow
-
-1. Give Astra the full goal and ask for the initial task graph.
-2. Convert the plan into bounded Luna assignments. Select `xhigh` or `max` for tough implementation rather than promoting the worker by habit.
-3. Run independent Luna assignments in parallel.
-4. Give each meaningful implementation batch to Sol for review.
-5. Return Sol's correction instructions to Luna.
-6. Repeat the Luna and Sol loop until Sol finds no material issue or the escalation rule applies.
-7. Give Astra the complete result, review history, and verification evidence for final review.
-8. If Astra finds a defect, route the bounded correction to Luna, review it with Sol when warranted, and return the result to Astra.
-
-Keep integration ownership with the coordinating agent. Correct subtask outputs can still conflict when combined.
-
-## Cost and escalation
-
-Favor Luna because the cost gap can support more implementation attempts and higher reasoning effort. Estimate the complete workflow cost, including Luna retries, Sol reviews, and Astra gates.
-
-Repository size does not select the implementation model. A large, precise task can still belong to Luna.
-
-If Luna fails the same acceptance check in two correction rounds, ask Sol to rewrite the assignment with narrower scope and stronger evidence. If the revised assignment fails again, use Terra as the exception implementer or report that the task needs a user-approved deployment change. Do not move implementation to Astra by default.
-
-## Review contracts
-
-Give Sol the relevant plan, diff or artifact, Luna's explanation, and test output. Require findings with severity, evidence, and a concrete correction target. A clean review should say which acceptance checks Sol evaluated.
-
-Give Astra the original goal, initial plan, integrated result, Sol review history, and verification evidence. Require a clear accept decision or a list of bounded corrections. Astra should judge the complete result rather than redo Sol's iteration review.
-
-Match verification to the scope and impact of each change. Use targeted checks for small changes. Broaden testing when failures, shared interfaces, or unresolved concerns justify it.
+- Reuse inspected evidence until a relevant edit or observation invalidates it.
+- Let Luna read the large source set once. Hand Astra a bounded map of relevant files, symbols, invariants, and exact failures.
+- Batch findings into one correction or review packet. Avoid acknowledgement messages, repeated status reads, and full passing logs.
+- Workers run focused checks before returning. Run broader integrated checks only when the change, a failure, or unresolved risk justifies them.
+- Stop accepted work from being reopened unless a dependency changed or new evidence appeared.
 
 ## Communicating the deployment
 
-When the user asks for a plan, present a compact table with task, role, model, reasoning effort, dependencies, and acceptance check. State the default pipeline and call out any Terra exception.
+When the user asks for a plan, list each task, model, effort, reason, dependencies, and acceptance check. State why any Sol review or additional worker is worth its context and handoff cost.

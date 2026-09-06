@@ -1,4 +1,4 @@
 interface:
   display_name: "Agent Deployment"
-  short_description: "Run a cost-first multi-agent model pipeline"
-  default_prompt: "Use $agent-deployment to run a cost-first agent team with Astra planning and final review, Luna implementation, and Sol iterative review."
+  short_description: "Route Luna Max and Astra Low subagents"
+  default_prompt: "Use $agent-deployment to route context-heavy or repetitive work to Luna at max and harder well-specified implementation to Astra at low, escalating after one substantive Luna failure."
