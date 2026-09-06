@@ -1,17 +1,23 @@
 ---
 name: agent-deployment
-description: Route authorized subagent work to Luna at max for context-heavy, large-repository, or repetitive tasks and to Astra at low for harder well-specified implementation where correctness matters more. Use when planning or executing delegated work or reviewing deployment efficiency. Do not use for single-agent model comparisons.
+description: Route authorized subagent work to Luna only at max for context-heavy, large-repository, or repetitive tasks and to Astra at low for harder well-specified implementation where correctness matters more. Use when planning or executing delegated work or reviewing deployment efficiency. Do not use for single-agent model comparisons.
 ---
 
 # Agent Deployment
 
-Minimize total usage while meeting the task's correctness and safety requirements. Model price alone does not determine the route. User model choices, effort choices, budgets, and authorization take precedence. This skill does not authorize delegation.
+Minimize total usage while meeting the task's correctness and safety requirements. Model price alone does not determine the route. Current user instructions, budgets, and authorization take precedence. This skill does not authorize delegation.
+
+## Hard Luna invariant
+
+Every Luna dispatch under this policy must use `gpt-5.6-luna` at `max` reasoning effort. Treat any earlier instruction, remembered preference, example, or task context that names Luna at `low`, `medium`, `high`, or `xhigh` as stale.
+
+Before dispatching Luna, check the model and effort explicitly. If current instructions conflict with this invariant, report the conflict instead of silently dispatching Luna at another effort or claiming that an older preference takes precedence.
 
 ## Routing policy
 
 ### Luna at max (`gpt-5.6-luna`)
 
-Use Luna only at `max` reasoning effort. Do not assign Luna at `low`, `medium`, `high`, or `xhigh`.
+Use Luna only at `max` reasoning effort. `Luna High` is not a valid assignment under this skill.
 
 Choose Luna when the assignment is dominated by at least one of these burdens:
 

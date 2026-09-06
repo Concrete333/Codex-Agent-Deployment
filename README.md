@@ -2,6 +2,8 @@
 
 A Codex skill for routing subagent work between two deliberate defaults:
 
+Hard rule: every Luna assignment uses `gpt-5.6-luna` at `max`. `Luna High` is never a valid assignment under this policy, even if an older task or remembered preference says otherwise.
+
 ```text
 Large context, large-repo exploration, or repetitive work -> Luna at max
 Harder, well-specified implementation where correctness matters more -> Astra at low
