@@ -35,15 +35,15 @@ Luna Max, Sol High, and Astra Low are deliberate workflow defaults. A large cont
 
 Repository size alone does not decide ownership. A subtle concurrency bug in a large repository belongs with Sol for diagnosis; Luna can gather bounded evidence if that helps. Skip exploration when the coordinator already has adequate evidence. Small tasks usually stay local.
 
-Sol's diagnosis should include discriminating checks, rejected hypotheses, remaining uncertainty, and a proposed contract. Review is read-only, with corrections owned by the implementer and focused rechecks as needed. Use a fresh reviewer when independence from the original diagnosis or design matters.
+Sol's diagnosis should include discriminating checks, remaining uncertainty, and a proposed contract. It does not include production implementation; explicitly assign any scratch/test edits needed for reproduction. Review is read-only, with corrections routed to the appropriate implementation owner and focused rechecks as needed. Use a fresh reviewer when independence from the original diagnosis or design matters.
 
 ## What counts as failure?
 
-One unsuccessful **bounded assignment** triggers escalation. An ordinary failing test during implementation, including a regression test written before the fix, does not.
+One substantive failure of a **bounded Luna assignment or Sol diagnosis** triggers escalation. An ordinary failing test during implementation, including a regression test written before the fix, does not. Trivial Luna corrections can stay local.
 
-Allow reasonable local correction within an agreed work budget. Stop when the same approach fails again without new evidence, or the budget is exhausted. Report unresolved acceptance failures, incorrect assumptions, missing requirements, and useful partial work. Do not hide unlimited retries inside the first assignment.
+Allow reasonable local correction within an agreed work budget. Stop and report when the same approach fails again without new evidence or a hard budget is exhausted. At a checkpoint, useful progress can justify a revised estimate within user limits; lateness alone is not model failure. Report unresolved acceptance failures, incorrect assumptions, missing requirements, and useful partial work.
 
-Luna failures and unsuccessful Sol diagnoses go directly to Astra Low. Transient tool failures and external blockers do not prove model failure. If Astra also fails, inspect the cause before changing effort or adding workers.
+Substantive non-trivial Luna failures and substantive Sol diagnosis failures go directly to Astra Low. Transient tool failures and external blockers do not prove model failure. A reviewer finding defects has succeeded. If Astra also fails, inspect the cause before changing effort or adding workers. The coordinator owns these decisions; workers do not redelegate unless explicitly assigned that authority.
 
 ## Waiting and worker health
 
@@ -53,15 +53,15 @@ When supported **and permitted by higher-priority instructions**, 25 minutes (`1
 
 An empty timeout proves neither failure nor health. Re-enter the wait unless a blocker, due checkpoint, or exhausted budget requires action. Never wake solely to preserve cache: OpenAI documents at least 30 minutes of cache eligibility, potentially longer, but this does not establish Codex allowance behavior or an optimal waiting interval. [Official caching documentation](https://developers.openai.com/api/docs/guides/prompt-caching)
 
-For substantial assignments, set a rough duration estimate and a meaningful checkpoint or work budget. Workers report blockers immediately and send a compact progress update if they reach the checkpoint before finishing. No periodic "still running" messages are needed.
+For substantial assignments, set a rough duration estimate and a meaningful checkpoint or work budget. Workers report blockers promptly and send a compact checkpoint update when able; do not interrupt a blocking tool merely to send one. No periodic "still running" messages are needed.
 
-If a checkpoint arrives without a useful signal, make one compact, non-interrupting check. Use milestone evidence, active operations, and the agreed budget to decide whether to continue, narrow the work, or stop it. A running flag alone is not proof of progress. Scheduled automations are not part of this waiting policy.
+If a checkpoint arrives without a useful signal, make one compact, non-interrupting check if supported. Use milestone evidence, active operations, and the agreed budget to decide whether to continue, narrow the work, or stop it. A running flag alone is not proof of progress. Scheduled automations are not part of this waiting policy.
 
 ## Safe assignments and handoffs
 
 ```text
 Outcome and scope:
-Owned files; dependencies and interfaces:
+Owned files; read/write permissions; dependencies and interfaces:
 Context entry points and search targets:
 Constraints and behavior to preserve:
 Acceptance checks and commands:
@@ -69,7 +69,7 @@ Expected duration; checkpoint or bounded work budget; blocker reporting:
 Return: evidence or changed files, check results, unresolved risks.
 ```
 
-Use minimal inherited history. Preserve relevant instructions and authorization explicitly. Keep handoffs concise, but retain exact failures and decision-critical evidence; link longer artifacts. Sol and Astra should read relevant source directly when deciding correctness.
+Use minimal inherited history for new workers, and reuse suitable workers for in-scope continuations. Preserve relevant instructions and authorization explicitly. Keep handoffs concise, but retain exact failures and decision-critical evidence; link longer artifacts. Sol and Astra should read relevant source directly when deciding correctness.
 
 Before a replacement writes to the same files, confirm the previous worker and its writing commands have stopped. Preserve partial changes and unrelated user edits, then transfer ownership with the current diff, evidence, checks, and unresolved questions. Never run competing writers during escalation.
 
