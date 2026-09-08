@@ -1,75 +1,12 @@
 # Agent Deployment
 
-A Codex skill for deciding which model should do the work, how much work to give it, and when to step in. The goal is to spend less getting a correct result, including the cost of reviews and retries.
+A Codex skill for choosing subagent models and reasoning effort. Use it to keep routine work cheap, give difficult work to a stronger model, and control the cost of coordination, reviews, and retries.
 
-```text
-Bounded context gathering or repetitive work -> Luna Max
-Uncertain cause or design -> Sol High
-Non-mechanical, specified implementation -> Astra Light
-One substantive Luna failure or failed Sol diagnosis -> Astra Light
-Review for important correctness problems -> Astra
-Targeted edge-case / hardening review -> optional Sol High
-```
+Your current agent acts as the **coordinator**: it assigns work, combines the results, and decides whether the task meets your requirements. **Workers** are subagents with defined assignments. For small tasks, the coordinator keeps the work local when delegation would cost more than it saves.
 
-Model settings: Luna Max = `gpt-5.6-luna` / `max`; Sol High = `gpt-5.6-sol` / `high`; Astra Light = `gpt-6-astra` / `low`.
+## Install
 
-## Routing
-
-| Work | Model and effort | Expected result |
-| --- | --- | --- |
-| Search substantial context or map a repository | Luna Max | File references, search coverage, and open questions |
-| Apply repetitive changes with objective checks | Luna Max | Changes within the assigned scope, with check results |
-| Find an unclear cause or work out a design | Sol High | A diagnosis supported by evidence and a clear implementation brief |
-| Implement specified behavior beyond mechanical edits | Astra Light | Working code and checks for the required behavior |
-| Take over after one substantive Luna failure or failed Sol diagnosis | Astra Light | Use the existing evidence, resolve what remains unclear, and finish the authorized work |
-| Review important correctness problems | Astra coordinator at its existing effort, or Astra Light if a separate reviewer is needed | Defects that affect required behavior; the coordinator decides whether to accept the result |
-| Check edge cases and harden specific areas | Sol High, optional | Evidence of problems within the assigned release, security, or robustness checks |
-
-Choose by the work, not the size of the repository. Give Sol the diagnosis of a subtle concurrency bug, even in a large codebase. Luna can gather evidence if that saves the next worker a substantial search. Skip that step if the coordinator has enough evidence. For small tasks, keep the work with the current agent when a handoff would cost more than it saves.
-
-Ask Sol for checks that distinguish between possible causes, what remains uncertain, and a proposed implementation brief. A diagnosis assignment doesn't include production changes. Give it a defined scratch or test area if reproduction needs edits. Reviewers inspect without changing files; the implementation owner makes corrections, then someone rechecks the affected behavior. Choose a different reviewer if the review needs independence from the original diagnosis or design.
-
-For either reviewer, ask where the problem is, what triggers it, what it breaks, and what evidence supports the finding. Judge the findings by their impact rather than their number. A rare security or data-loss case can still be critical. Keep confirmed defects separate from optional hardening and ideas that need more evidence.
-
-For mechanical changes with strong checks, skip the extra reviewer. Give Sol High a hardening pass when you can name the risks that warrant one; a release doesn't need that pass by default. Increase Sol to Max for a specific reasoning problem it hasn't resolved, or if you request Max. An Astra High coordinator keeps the final review at High. Don't add another Astra to repeat that review.
-
-## What counts as failure?
-
-Escalate after one substantive failure of a bounded, non-trivial Luna assignment or a Sol diagnosis. A failing test during implementation doesn't count on its own, including a regression test written before the fix. Luna can handle trivial corrections without a handoff.
-
-Let workers correct their work within the agreed budget. They should stop and report if they repeat a failed approach without new evidence or reach a hard limit. At a checkpoint, useful progress can justify a revised estimate within your limits. Taking longer than expected doesn't prove the model has failed. Workers should report unmet acceptance checks, wrong assumptions, missed requirements, and useful partial work.
-
-After a substantive non-trivial Luna failure or a substantive Sol diagnosis failure, give the unresolved work to Astra Light. Treat temporary tool errors and external blockers as separate problems. A reviewer who finds defects has done the job. If Astra fails too, inspect the cause before increasing effort or adding workers. The coordinator makes those decisions; workers need assigned permission to delegate their work.
-
-## Waiting and worker health
-
-Use the runtime's event wait while workers run and the coordinator has no separate useful work to do. Wait for completion or a blocker instead of checking status on a timer.
-
-Use 25 minutes (`1500000` ms) as a starting point if the runtime supports it and higher-priority instructions permit it. Adjust for checkpoints and deadlines, including longer waits where appropriate. If the runtime or responsiveness rules require shorter waits, use the longest suitable interval they allow. Don't add a status check or interrupt the worker after each timeout.
-
-A timeout with no update tells you little about the worker. Keep waiting unless a blocker, checkpoint, or spent budget requires a decision. Don't wake the coordinator to preserve the cache.
-
-For substantial assignments, agree on a rough duration and a checkpoint or work budget. Workers should report blockers as they arise and send a short update at a checkpoint if they can. Don't interrupt a blocking tool to send an update, or ask workers for recurring "still running" messages.
-
-At a checkpoint without a useful update, make one short status check that doesn't interrupt the worker, if the runtime supports it. Look at completed milestones, current operations, and the remaining budget before deciding to continue, narrow the assignment, or stop. A "running" flag doesn't prove progress. This policy uses event waits, not scheduled automations.
-
-## Safe assignments and handoffs
-
-```text
-Outcome and scope:
-Owned files; read/write permissions; dependencies and interfaces:
-Context entry points and search targets:
-Constraints and behavior to preserve:
-Acceptance checks and commands:
-Expected duration; checkpoint or bounded work budget; blocker reporting:
-Return: evidence or changed files, check results, unresolved risks.
-```
-
-Give new workers the history they need for the assignment, including relevant instructions and permissions. Reuse a suitable worker to continue within the same scope. Keep handoffs short while preserving exact failures and evidence needed for a decision; link to longer artifacts. Sol and Astra should inspect the relevant source before judging correctness.
-
-Before a replacement edits the same files, confirm that the previous worker and any commands that can write there have stopped. Keep its partial changes and your unrelated edits. Hand over the current diff, evidence, check results, and open questions. Don't let the old and new workers write to the same files at the same time.
-
-## Installation
+Clone the repository into your Codex skills folder. You need Git and a Codex environment that supports subagents with model and effort selection.
 
 macOS or Linux:
 
@@ -83,21 +20,88 @@ Windows PowerShell:
 git clone https://github.com/Concrete333/Codex-Agent-Deployment.git "$env:USERPROFILE\.codex\skills\agent-deployment"
 ```
 
-## Usage
+These commands use the default skills location. Choose your configured skills folder if you use a custom location, and don't clone over an existing installation.
+
+## Use
+
+Invoke the skill with your task and any constraints:
 
 ```text
-$agent-deployment Plan the workers for this authorized task. Use Luna Max for scoped searches or repetitive edits, Sol High for diagnosis, and Astra Light for other specified implementation or escalation. Use Astra to review correctness and Sol High for hardening if the risks warrant it. Set checkpoints and wait for events instead of polling.
+$agent-deployment Use subagents where they help to fix the duplicate records
+in offline sync. Preserve the API and add regression tests.
 ```
 
-Using this skill grants no permission to delegate or expand a task. The agent must follow the task's existing permissions, higher-priority instructions, and your new explicit choices. It must check which models and effort levels the runtime supports before dispatch. Measure savings on your own work; this skill makes no guarantee.
+For a plan without implementation:
 
-Read `SKILL.md` for the full policy. `agents/openai.yaml` holds the Codex display metadata; you don't need extra reference files to use the skill.
+```text
+$agent-deployment Propose a worker plan for this migration.
+Include models, effort levels, file ownership, and acceptance checks.
+Do not start workers or change files yet.
+```
 
-## Sources and acknowledgements
+You don't need to repeat the routing rules in your prompt. Invoking the skill alone does not grant permission to delegate or expand the task. The coordinator follows your task permissions and higher-priority instructions, and reports any unavailable model or effort setting.
 
-### Human-reference benchmark workbook
+## Model choices
 
-[GPT model efficiency, 8 September 2026](docs/benchmarks/GPT-model-efficiency-2026-09-08.xlsx) contains the selected Artificial Analysis chart data, source links, missing-data flags, and calculated efficiency ratios. The workbook is for human reference. Agents must not load or parse it. Don't use the API benchmark costs to infer Codex allowance usage or coding-task success rates.
+| Assignment | Model and effort |
+| --- | --- |
+| Gather evidence, map relevant code, or make repetitive edits with objective checks | Luna Max |
+| Diagnose an unclear cause or work out a design | Sol High |
+| Implement well-specified behavior beyond repetitive edits | Astra Light |
+| Review defects that affect required behavior | Astra coordinator at its current effort; Astra Light for a separate reviewer when needed |
+| Check specific edge-case, security, or robustness risks | Sol High, optional |
+| Resolve a demonstrated reasoning limitation | Astra Medium; High for unresolved architectural, cross-module, or subtle correctness reasoning |
+
+Luna Max means `gpt-5.6-luna` at `max`; Sol High means `gpt-5.6-sol` at `high`. Astra uses `gpt-6-astra`: Light maps to `low`, Medium to `medium`, and High to `high`. The policy excludes Terra.
+
+Choose the worker by the assignment. A large repository can justify a scoped Luna search, but a subtle concurrency bug needs Sol's diagnosis. Skip exploration if the coordinator has enough evidence. A retrieval worker can isolate a large search without running alongside another worker.
+
+Start with one worker and justify additions. Keep dependent implementation with one owner through fixes and checks. Before parallel edits, agree shared interfaces and behavior and give workers separate write ownership, including shared resources. Different files alone do not make assignments independent.
+
+## Escalation
+
+Workers get a bounded attempt with clear acceptance checks. They can make corrections within that budget. A substantive failure means an unmet check, wrong core assumption, or missed requirement remains at the end of the attempt, or the worker has no credible path to completion.
+
+- After one substantive failure on a non-trivial Luna assignment or a Sol diagnosis, transfer the unresolved work to Astra Light. Keep the evidence and partial changes.
+- If Astra Light cannot finish, check for missing evidence, environment problems, or unclear requirements before changing models.
+- For a demonstrated reasoning limitation, prefer Astra Medium. Choose High for unresolved architecture, interactions across modules, or subtle correctness problems. Pick the effort that fits; a Medium attempt is not a prerequisite for High. Do not default to multiple workers attempting the same reasoning problem.
+- Reserve Sol Max and Astra X-High/Max for task-specific evidence that the extra effort helps, or your explicit choice.
+
+A failing regression test before a fix, a temporary tool error, or a missed time estimate does not establish model failure. A reviewer who finds defects has succeeded. Trivial Luna corrections can stay with Luna; workers should stop repeating failed approaches without new evidence.
+
+## Review and acceptance
+
+An Astra coordinator reviews at its current effort: **Astra High stays High for final review**. Add a separate reviewer when independence from the implementation or design matters. Mechanical edits with strong checks need no extra reviewer.
+
+Use Astra for material correctness review and Sol High for hardening against named risks. These are routing defaults, not guarantees about which model will find a particular defect. Apply the escalation criteria above to unresolved review reasoning.
+
+Reviewers inspect the diff, relevant source, and checks without changing files. They report the location, trigger, impact, and evidence for each finding. Judge findings by credible impact; a rare security or data-loss case can be critical. Keep defects separate from optional hardening and unsupported hypotheses.
+
+The implementation owner makes fixes and runs focused checks. The coordinator rechecks affected risks and runs broader checks when integration or unresolved risks warrant them.
+
+## Context, waiting, and handoffs
+
+The coordinator gives each worker a scoped brief: outcome, owned files and permissions, evidence paths, constraints, settled decisions and their rationale, acceptance checks, and a checkpoint or work budget. Workers receive the context they need, preserve exact failures, and link longer evidence instead of copying full histories. They report conflicting evidence before revising shared decisions.
+
+Diagnosis is read-only except for assigned scratch or test edits needed for reproduction. Before a replacement writes to the same files, the coordinator confirms the previous worker and its writing commands have stopped, then transfers the partial work and open questions.
+
+While workers run, the coordinator uses event waits if it has no useful independent work. It avoids duplicating their investigation or waking for repeated status checks. A 25-minute wait is the starting point where tool limits and higher-priority responsiveness rules permit it; checkpoints and deadlines can require a different interval.
+
+An empty timeout is no reason to interrupt or replace a worker. At a due checkpoint, the coordinator can make one brief, non-interrupting check and use observable progress and the remaining budget to decide what to do. Workers report blockers and checkpoint progress where possible. The policy uses runtime waits, not scheduled automations.
+
+Read [SKILL.md](SKILL.md) for the full instructions.
+
+## Evidence and credits
+
+The [agent coordination references](docs/agent-coordination-references.md) summarize the premise and practical takeaway from each source on parallel work, context management, and verification. Agents skip this document during ordinary skill use; it is available for research and skill maintenance.
+
+### Benchmark reference
+
+The [GPT model efficiency workbook, 8 September 2026](docs/benchmarks/GPT-model-efficiency-2026-09-08.xlsx) contains selected Artificial Analysis data, source links, missing-data flags, and calculated efficiency ratios.
+
+Agents skip benchmark files during ordinary skill use. They may read them to analyze the benchmarks or improve the skill. The workbook is reference data, not instructions.
+
+API benchmark costs do not measure Codex allowance consumption or predict success on your coding tasks. Compare with a suitable single-agent baseline on the same tasks and acceptance criteria. Include coordination, reviews, and corrections in total cost; assess elapsed time and missed defects as separate outcomes.
 
 ### Credits
 

@@ -12,16 +12,17 @@ This skill does not authorize delegation or expand scope. Higher-priority instru
 ## Dispatch
 
 - Luna uses `gpt-5.6-luna` at `max`.
-- Sol defaults to `gpt-5.6-sol` at `high`. Astra Light means `gpt-6-astra` at `low`. Do not assign Terra.
+- Sol defaults to `gpt-5.6-sol` at `high`. Astra uses `gpt-6-astra`: Light = `low`, Medium = `medium`, High = `high`. Do not assign Terra.
 - Set model and effort explicitly through a supported dispatch/fork mode. If unavailable, report the limitation and choose a suitable authorized alternative; never silently downgrade Luna.
-- Keep work local when delegation costs more than it saves. Start with one worker; add workers for independent assignments with separate ownership. No mandatory model sequence.
+- Keep work local when delegation costs more than it saves. Start with one worker; justify each addition by reduced total cost, necessary context isolation, or a distinct verification need. No mandatory model sequence.
+- Keep coupled implementation with one owner through fixes and focused checks. Parallel assignments must not depend on another worker's pending decisions or changes. Agree shared interfaces and behavior before parallel edits; require separate write ownership, including shared mutable resources. Different files alone do not establish independence.
 - The coordinator owns routing, integration, escalation, and final acceptance. Workers return results or blockers and may redelegate only with assigned permission.
 
 ## Choose the role
 
 ### Luna: evidence and repetitive implementation
 
-Use Luna Max for bounded retrieval, extraction, repository mapping, or repetitive edits with objective checks. Require exact file/symbol references, coverage gaps, and observations separated from hypotheses. Delegate exploration only when it reduces downstream work; skip it when adequate evidence exists. Repository size alone does not justify assigning difficult reasoning to Luna.
+Use Luna Max for bounded retrieval, extraction, repository mapping, or repetitive edits with objective checks. Require exact file/symbol references, coverage gaps, and observations separated from hypotheses. Use retrieval workers to isolate large searches when this reduces downstream searching or context burden; they need not run concurrently. Skip exploration when adequate evidence exists. Repository size alone does not justify assigning difficult reasoning to Luna.
 
 ### Sol: uncertain diagnosis
 
@@ -37,11 +38,11 @@ Use Astra Light for non-mechanical, well-specified implementation, including ord
 
 Mechanical edits with strong checks need no mandatory extra reviewer. Prefer Astra Light for separate material-correctness review when justified. An Astra coordinator reviews worker results at its existing effort; do not spawn another Astra to duplicate it. Use a separate reviewer when independence from implementation or design is needed.
 
-Use Sol High for optional edge-case and hardening review of specified release, security, data-integrity, concurrency, compatibility, or coverage risks. A release alone does not require another pass. Raise Sol to Max only for a concrete unresolved reasoning need or explicit user choice.
+Use Sol High for optional edge-case and hardening review of specified release, security, data-integrity, concurrency, compatibility, or coverage risks. A release alone does not require another pass. Apply the escalation criteria below to unresolved review reasoning.
 
 Reviews are read-only. Inspect requirements, diff, relevant source, and checks rather than trusting the implementer's summary. Findings need locations, triggering conditions, impact, and evidence. Prioritize impact and credible exposure, not finding count; rare security or data-loss cases can be critical. Separate actionable defects from optional hardening and unsupported hypotheses.
 
-Workers run focused acceptance checks. The coordinator integrates results and runs broader checks only when changes or unresolved risks justify them. Route fixes to the implementation owner and recheck affected risks without repeating the full review by default.
+Workers run focused acceptance checks against required behavior. The coordinator integrates results and runs broader checks only when changes or unresolved risks justify them. Route fixes to the implementation owner and recheck affected risks without repeating the full review by default.
 
 ## Assignments and evidence
 
@@ -51,13 +52,13 @@ Send a self-contained packet, normally within 500 words:
 Role, outcome, and scope:
 Owned files; read/write permissions; dependencies and interfaces:
 Relevant instructions, evidence paths, and search entry points:
-Constraints and behavior to preserve:
+Constraints, behavior, and settled decisions with rationale to preserve:
 Acceptance checks:
 Expected duration; checkpoint or work budget; blocker reporting:
 Return: results, exact failures/checks, artifacts, and unresolved risks.
 ```
 
-Use minimal inherited history while preserving user constraints and permissions. Reuse suitable workers for in-scope continuations. Reduce output through targeted searches and bounded reads. Handoffs should normally fit 200 words, linking longer evidence without omitting decision-critical details. Reuse valid evidence; Sol and Astra inspect relevant source and expand searches when evidence is incomplete or contradicted.
+Use minimal inherited history while preserving user constraints and permissions. Reuse suitable workers for in-scope continuations. Reduce output through targeted searches and bounded reads. Handoffs should normally fit 200 words, linking longer evidence without omitting decision-critical details. Reuse valid evidence; Sol and Astra inspect relevant source and expand searches when evidence is incomplete or contradicted. Report conflicting evidence to the coordinator before revising shared decisions.
 
 ## Attempts and escalation
 
@@ -70,7 +71,9 @@ Judge failure at assignment acceptance, not each tool call or failing test. Allo
 
 After one substantive non-trivial Luna failure or substantive Sol diagnosis failure, transfer directly to Astra Light. Trivial Luna corrections can stay local. Preserve partial work and evidence; do not restart discovery or cycle through the failed role. Astra resolves remaining uncertainty before implementing, with authorization and assigned write ownership. A review that finds defects has succeeded.
 
-If Astra Light fails, distinguish evidence, environment, specification, and capability problems before continuing. Do not repeat unchanged attempts or increase effort without a concrete reason.
+If Astra Light fails, distinguish evidence, environment, and specification problems from a reasoning limitation. Fix non-model blockers before retrying. For a demonstrated reasoning limitation, prefer Astra Medium; choose High for unresolved architectural, cross-module, or subtle correctness reasoning. These criteria also apply to separate reviews and unresolved Sol review reasoning. Choose one effort for a bounded attempt, not an automatic Medium-then-High sequence. Do not use duplicate reasoning workers as the default escalation or repeat unchanged attempts.
+
+Sol Max and Astra X-High/Max require task-specific evidence that the extra effort is useful, or an explicit user choice. Higher effort does not replace acceptance checks.
 
 ## Waiting and health
 
@@ -88,8 +91,8 @@ At a due checkpoint without evidence, make one compact, non-interrupting check i
 
 Before a successor edits the same files, confirm the prior worker and writing commands have stopped. Preserve partial work and unrelated user edits. Transfer owned files, current diff/artifacts, exact failures, checks, and open questions. If the old writer cannot be confirmed stopped, keep the successor read-only or on non-overlapping work.
 
-## Evaluate the policy
-
-Compare total accepted-task cost, elapsed time, corrections, and missed defects on like-for-like work. Keep API costs separate from Codex allowance telemetry.
+## Plans and evaluation
 
 When asked for a deployment plan, state roles, models, efforts, scope, dependencies, and acceptance checks; justify extra workers or review.
+
+When asked to evaluate routing, compare with a suitable single-agent baseline on the same tasks and acceptance criteria. Include coordination, review, and corrections in total cost; record elapsed time and missed defects separately. Keep API costs separate from Codex allowance telemetry.
