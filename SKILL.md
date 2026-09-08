@@ -1,6 +1,6 @@
 ---
 name: agent-deployment
-description: Route authorized subagent work to Luna Max for evidence and repetitive work, Sol High for diagnosis and review, or Astra Low for difficult implementation and escalation. Define bounded assignments, safe handoffs, and efficient waits. Use when planning, executing, or auditing delegated work.
+description: Route authorized subagent work to Luna Max for evidence and repetitive work, Sol High for diagnosis and review, or Astra Light for difficult implementation and escalation. Define bounded assignments, safe handoffs, and efficient waits. Use when planning, executing, or auditing delegated work.
 ---
 
 # Agent Deployment
@@ -10,7 +10,7 @@ Minimize total usage while meeting correctness requirements. This skill does not
 ## Dispatch rules
 
 - Every Luna dispatch uses `gpt-5.6-luna` at `max`. Earlier non-max preferences are stale; never silently inherit them.
-- Sol defaults to `gpt-5.6-sol` at `high`; Astra defaults to `gpt-6-astra` at `low`. Do not assign Terra.
+- Sol defaults to `gpt-5.6-sol` at `high`; Astra Light means `gpt-6-astra` at `low` reasoning effort. Do not assign Terra.
 - Set model and effort explicitly using the active runtime's supported dispatch/fork mode. If unavailable, report the limitation and choose another authorized route if suitable; never silently downgrade Luna.
 - Keep small work local when delegation costs more than it saves. Start with one worker; add workers only for independent assignments with separate ownership. Do not create a mandatory sequence of models.
 - The coordinator owns routing, escalation, integration, and acceptance. Workers return results or blockers to it; they do not spawn replacements or redelegate unless their assignment explicitly permits that.
@@ -33,7 +33,7 @@ For consequential work, optionally assign an independent Sol review. Supply requ
 
 ### Astra: difficult implementation and escalation
 
-Use Astra Low for difficult, well-specified implementation where a plausible but wrong patch would be expensive. Supply expected behavior, scope, interfaces, compatibility constraints, and acceptance checks.
+Use Astra Light for difficult, well-specified implementation where a plausible but wrong patch would be expensive. Supply expected behavior, scope, interfaces, compatibility constraints, and acceptance checks.
 
 After an unsuccessful Luna assignment or Sol diagnosis, Astra takes over the unresolved work using existing evidence. If the cause or contract remains uncertain, Astra resolves it before implementing. Implementation still requires authorization and assigned write ownership. Do not insert another mandatory discovery stage.
 
@@ -66,9 +66,9 @@ Classify the result before routing:
 - **Incomplete at checkpoint:** Return progress and remaining work. An estimate expiring is not model failure; the coordinator can revise the checkpoint for demonstrated progress within user limits. Hard budgets still apply.
 - **Substantive failure:** An unresolved acceptance failure, wrong core assumption, or missed requirement remains after the bounded attempt. An incomplete result with no credible path forward also qualifies.
 
-After one substantive non-trivial Luna failure, stop Luna correction assignments and transfer directly to Astra Low. After one substantive Sol diagnosis failure, transfer directly to Astra Low. Preserve exact failures and partial work; do not restart discovery or cycle back through the same failed role. A trivial Luna correction can stay local. A Sol review that finds defects has succeeded; route those defects to the appropriate implementation owner.
+After one substantive non-trivial Luna failure, stop Luna correction assignments and transfer directly to Astra Light. After one substantive Sol diagnosis failure, transfer directly to Astra Light. Preserve exact failures and partial work; do not restart discovery or cycle back through the same failed role. A trivial Luna correction can stay local. A Sol review that finds defects has succeeded; route those defects to the appropriate implementation owner.
 
-If Astra Low also fails, inspect whether the cause is evidence, environment, specification, or model capability before continuing. Do not repeat unchanged attempts or increase effort without a concrete reason.
+If Astra Light also fails, inspect whether the cause is evidence, environment, specification, or model capability before continuing. Do not repeat unchanged attempts or increase effort without a concrete reason.
 
 ## Wait and assess health
 

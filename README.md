@@ -5,18 +5,20 @@ A Codex skill for choosing workers, bounding their assignments, and avoiding exp
 ```text
 Bounded context gathering or repetitive work -> Luna Max
 Uncertain cause or design -> Sol High
-Difficult, specified implementation -> Astra Low
-One unsuccessful Luna assignment or Sol diagnosis -> Astra Low
+Difficult, specified implementation -> Astra Light
+One unsuccessful Luna assignment or Sol diagnosis -> Astra Light
 Consequential work -> optional independent Sol High review
 ```
 
 Every Luna dispatch uses `gpt-5.6-luna` at `max`. Earlier Luna High or X-High preferences are stale. Terra is excluded from this policy.
 
+Astra Light uses `gpt-6-astra` with reasoning effort `low`.
+
 ## Why these defaults
 
 OpenAI describes Luna as designed for cost-sensitive, high-volume workloads, Sol as a flagship for complex professional work, and Astra as its most capable model for complex reasoning and coding. These descriptions support the broad roles; they do not establish that this exact model-and-effort combination is optimal.
 
-Luna Max, Sol High, and Astra Low are deliberate workflow defaults. A large context window does not prove equal reasoning ability, and maximum effort does not guarantee correctness. Compare completed-task usage, time, corrections, and missed defects before claiming savings. API prices and Codex allowance measurements are different evidence.
+Luna Max, Sol High, and Astra Light are deliberate workflow defaults. A large context window does not prove equal reasoning ability, and maximum effort does not guarantee correctness. Compare completed-task usage, time, corrections, and missed defects before claiming savings. API prices and Codex allowance measurements are different evidence.
 
 - [GPT-5.6 Luna](https://developers.openai.com/api/docs/models/gpt-5.6-luna)
 - [GPT-5.6 Sol](https://developers.openai.com/api/docs/models/gpt-5.6-sol)
@@ -29,8 +31,8 @@ Luna Max, Sol High, and Astra Low are deliberate workflow defaults. A large cont
 | Search substantial context or map a repository | Luna Max | Exact evidence, coverage, and unresolved questions |
 | Apply repetitive changes with objective checks | Luna Max | Scoped changes and verification |
 | Determine an uncertain cause or design | Sol High | Evidence-backed diagnosis and implementation contract |
-| Implement difficult, settled behavior | Astra Low | Correct implementation and appropriate checks |
-| Take over one unsuccessful Luna assignment or Sol diagnosis | Astra Low | Continue from evidence, resolve uncertainty, then complete the authorized work |
+| Implement difficult, settled behavior | Astra Light | Correct implementation and appropriate checks |
+| Take over one unsuccessful Luna assignment or Sol diagnosis | Astra Light | Continue from evidence, resolve uncertainty, then complete the authorized work |
 | Independently review consequential work | Sol High, optional | Concrete defects supported by source and verification evidence |
 
 Repository size alone does not decide ownership. A subtle concurrency bug in a large repository belongs with Sol for diagnosis; Luna can gather bounded evidence if that helps. Skip exploration when the coordinator already has adequate evidence. Small tasks usually stay local.
@@ -43,7 +45,7 @@ One substantive failure of a **bounded Luna assignment or Sol diagnosis** trigge
 
 Allow reasonable local correction within an agreed work budget. Stop and report when the same approach fails again without new evidence or a hard budget is exhausted. At a checkpoint, useful progress can justify a revised estimate within user limits; lateness alone is not model failure. Report unresolved acceptance failures, incorrect assumptions, missing requirements, and useful partial work.
 
-Substantive non-trivial Luna failures and substantive Sol diagnosis failures go directly to Astra Low. Transient tool failures and external blockers do not prove model failure. A reviewer finding defects has succeeded. If Astra also fails, inspect the cause before changing effort or adding workers. The coordinator owns these decisions; workers do not redelegate unless explicitly assigned that authority.
+Substantive non-trivial Luna failures and substantive Sol diagnosis failures go directly to Astra Light. Transient tool failures and external blockers do not prove model failure. A reviewer finding defects has succeeded. If Astra also fails, inspect the cause before changing effort or adding workers. The coordinator owns these decisions; workers do not redelegate unless explicitly assigned that authority.
 
 ## Waiting and worker health
 
@@ -90,7 +92,7 @@ git clone https://github.com/Concrete333/Codex-Agent-Deployment.git "$env:USERPR
 ## Usage
 
 ```text
-$agent-deployment Route this authorized delegated task: Luna Max for bounded evidence or repetitive work, Sol High for uncertain diagnosis, and Astra Low for difficult implementation or escalation. Use checkpoints and event waits without busy polling.
+$agent-deployment Route this authorized delegated task: Luna Max for bounded evidence or repetitive work, Sol High for uncertain diagnosis, and Astra Light for difficult implementation or escalation. Use checkpoints and event waits without busy polling.
 ```
 
 The skill does not authorize delegation, override higher-priority instructions or new explicit user choices, or guarantee savings. Runtime model and effort availability must be checked before dispatch.
