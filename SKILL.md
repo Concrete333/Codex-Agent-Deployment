@@ -1,6 +1,6 @@
 ---
 name: agent-deployment
-description: Route authorized subagent work to Luna only at max for context-heavy, large-repository, or repetitive tasks and to Astra at low for harder well-specified implementation where correctness matters more. Use when planning or executing delegated work or reviewing deployment efficiency. Do not use for single-agent model comparisons.
+description: Route authorized subagent work to Luna only at max for context-heavy, large-repository, or repetitive tasks and to Astra at low for harder well-specified implementation, while preventing costly short-interval worker polling. Use when planning or executing delegated work or reviewing deployment efficiency. Do not use for single-agent model comparisons.
 ---
 
 # Agent Deployment
@@ -50,6 +50,22 @@ Do not assign Terra under this policy.
 - Keep tightly coupled work with one owner. Do not create agents merely to occupy available slots.
 - The coordinator owns integration and final acceptance unless the user requires an independent reviewer.
 
+## Suspend the coordinator while workers run
+
+Treat an empty worker-status poll as a model activation, not a free heartbeat. A timeout can wake the coordinator and make it process its context again even when no worker state changed.
+
+- Wait on all active workers in one call when the runtime supports it.
+- Use an event-driven wait that wakes for worker completion, an error or blocker, or user input.
+- For `wait_agent`, use `timeout_ms: 1500000` (25 minutes) by default when supported. This sits inside OpenAI's documented 30-minute prompt-cache lifetime for GPT-5.6 and later, but do not present Codex's internal cache or allowance behavior as guaranteed. If the runtime allows only a shorter maximum, use that maximum.
+- Do not loop 10000-to-60000 ms waits. Do not alternate a short wait with `list_agents`, status reads, or acknowledgement messages.
+- Reuse a cursor or revision token when the wait API provides one so unchanged state is not returned again.
+- An empty timeout is not a worker failure or evidence of a stall. If a 25-minute wait returns empty and the worker remains healthy, issue another 25-minute event wait without inspecting, duplicating, interrupting, or replacing the worker.
+- Do not interrupt or replace a healthy worker merely to inspect progress. Interrupt only for a user-directed change, a concrete blocking dependency, a reported error, or evidence that the worker has stalled.
+
+Do independent coordinator work while workers run only when it advances the task and does not duplicate their assignment. When no such work remains, stay suspended instead of manufacturing status checks.
+
+Estimate expected worker duration only to choose an appropriate wait or identify a genuine stall. Do not create a scheduled automation merely to poll a worker. Use an automation only when the user explicitly requests a deferred follow-up and the runtime cannot remain suspended; schedule it near the estimated completion time rather than as a recurring heartbeat.
+
 ## Assignment contract
 
 Send a self-contained assignment, normally no more than 500 words:
@@ -87,6 +103,7 @@ If Astra at `low` also fails, inspect the concrete cause before changing effort 
 - Reuse inspected evidence until a relevant edit or observation invalidates it.
 - Let Luna read the large source set once. Hand Astra a bounded map of relevant files, symbols, invariants, and exact failures.
 - Batch findings into one correction or review packet. Avoid acknowledgement messages, repeated status reads, and full passing logs.
+- Count empty wait resumptions when reviewing deployment efficiency; cached input still consumes context and may consume allowance.
 - Workers run focused checks before returning. Run broader integrated checks only when the change, a failure, or unresolved risk justifies them.
 - Stop accepted work from being reopened unless a dependency changed or new evidence appeared.
 

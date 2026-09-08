@@ -52,6 +52,22 @@ A substantive Luna failure on a non-trivial task ends Luna retries for that task
 
 Transient tool or environment failures do not count as model failures. A trivial correction can stay with the coordinator.
 
+## Waiting for workers
+
+Short worker-status polling can cost more than the workers. A timeout may wake the coordinator and make it process the parent context again even when nothing changed.
+
+The skill therefore requires:
+
+- One event-driven wait covering all active workers when possible.
+- A 25-minute `wait_agent` timeout (`1500000` ms) by default when supported. This sits inside OpenAI's documented 30-minute prompt-cache lifetime for GPT-5.6 and later, though Codex's internal cache and allowance behavior are not guaranteed by that API documentation.
+- No repeated 10-to-60-second wait loops.
+- Cursor or revision reuse when the wait API supports it.
+- No interruption of a healthy worker merely to request progress.
+
+An empty timeout is not a failure. If the worker is still healthy after 25 minutes, the coordinator should immediately enter another 25-minute event wait without inspecting, duplicating, interrupting, or replacing the worker.
+
+Estimating a worker's runtime can help choose a wait or recognize a real stall. Scheduled automations are not the default because a native event wait can wake as soon as work finishes. They are an opt-in fallback when the user requests deferred follow-up and the runtime cannot remain suspended; schedule the check near the estimated completion time rather than as a recurring heartbeat.
+
 ## Assignment shape
 
 Give each worker a short, self-contained packet:
@@ -99,3 +115,5 @@ The skill chooses deployment roles. It does not authorize delegation, override e
 Reddit user [`u/emir_morris`](https://www.reddit.com/user/emir_morris/) proposed the four-tier model ladder and practical model summaries in ["GPT-6 Astra: Everything You Need to Know"](https://www.reddit.com/r/codex/comments/1w6rqgf/gpt6_astra_everything_you_need_to_know/). That post started this project.
 
 Reddit user [`u/Icy_Piece6643`](https://www.reddit.com/user/Icy_Piece6643/) drew attention to Astra's delegation and prompting behavior in ["Before blaming GPT-6 Astra, read its prompting guide"](https://www.reddit.com/r/codex/comments/1w7x57n/before_blaming_gpt6_astra_read_its_prompting_guide/). The current policy is an independent adaptation built around context cost, bounded handoffs, and early escalation. It also follows [OpenAI's official Astra guidance](https://developers.openai.com/api/docs/guides/latest-model).
+
+GitHub user [`tagorr`](https://github.com/tagorr) documented 47 empty 30-second `wait_agent` polls that caused 7.13 million Astra parent input tokens in [OpenAI Codex issue #35259](https://github.com/openai/codex/issues/35259#issuecomment-5577073962). Our own saved Codex rollouts showed the same mechanism with different intervals and percentages, so the skill now treats short status polling as a deployment error.

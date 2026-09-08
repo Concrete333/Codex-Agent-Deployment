@@ -1,4 +1,4 @@
 interface:
   display_name: "Agent Deployment"
-  short_description: "Route Luna Max and Astra Low subagents"
-  default_prompt: "Use $agent-deployment to route context-heavy or repetitive work to Luna only at max and harder well-specified implementation to Astra at low; never dispatch Luna at another effort."
+  short_description: "Route agents without wasteful status polling"
+  default_prompt: "Use $agent-deployment to route Luna only at max and Astra at low, then keep the coordinator suspended with 25-minute event waits instead of short status polls."
