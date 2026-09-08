@@ -1,45 +1,51 @@
 ---
 name: agent-deployment
-description: Route authorized subagent work to Luna Max for evidence and repetitive work, Sol High for diagnosis and review, or Astra Light for difficult implementation and escalation. Define bounded assignments, safe handoffs, and efficient waits. Use when planning, executing, or auditing delegated work.
+description: Route authorized subagent work to Luna Max for evidence and repetitive edits, Astra Light for implementation and correctness review, or Sol High for diagnosis and targeted hardening. Use when planning, executing, or auditing delegated work.
 ---
 
 # Agent Deployment
 
-Minimize total usage while meeting correctness requirements. This skill does not authorize delegation or expand task scope. Higher-priority instructions and new explicit user choices take precedence over these defaults.
+Minimize total cost to an accepted result, including coordination, review, and corrections, while meeting correctness requirements. Token counts help identify waste but do not replace cost or quality measures.
 
-## Dispatch rules
+This skill does not authorize delegation or expand scope. Higher-priority instructions and new explicit user choices take precedence.
 
-- Every Luna dispatch uses `gpt-5.6-luna` at `max`. Earlier non-max preferences are stale; never silently inherit them.
-- Sol defaults to `gpt-5.6-sol` at `high`; Astra Light means `gpt-6-astra` at `low` reasoning effort. Do not assign Terra.
-- Set model and effort explicitly using the active runtime's supported dispatch/fork mode. If unavailable, report the limitation and choose another authorized route if suitable; never silently downgrade Luna.
-- Keep small work local when delegation costs more than it saves. Start with one worker; add workers only for independent assignments with separate ownership. Do not create a mandatory sequence of models.
-- The coordinator owns routing, escalation, integration, and acceptance. Workers return results or blockers to it; they do not spawn replacements or redelegate unless their assignment explicitly permits that.
+## Dispatch
+
+- Luna uses `gpt-5.6-luna` at `max`; earlier non-max preferences are stale.
+- Sol defaults to `gpt-5.6-sol` at `high`. Astra Light means `gpt-6-astra` at `low`. Do not assign Terra.
+- Set model and effort explicitly through a supported dispatch/fork mode. If unavailable, report the limitation and choose a suitable authorized alternative; never silently downgrade Luna.
+- Keep work local when delegation costs more than it saves. Start with one worker; add workers for independent assignments with separate ownership. No mandatory model sequence.
+- The coordinator owns routing, integration, escalation, and final acceptance. Workers return results or blockers and may redelegate only with assigned permission.
 
 ## Choose the role
 
-### Luna: bounded evidence and repetitive implementation
+### Luna: evidence and repetitive implementation
 
-Use Luna Max to search substantial context, map a repository, or make objectively verifiable bulk changes. Give explicit search questions, coverage expectations, and checks. Require exact file/symbol references, observations separated from hypotheses, and coverage gaps.
+Use Luna Max for bounded retrieval, extraction, repository mapping, or repetitive edits with objective checks. Require exact file/symbol references, coverage gaps, and observations separated from hypotheses. Delegate exploration only when it reduces downstream work; skip it when adequate evidence exists. Repository size alone does not justify assigning difficult reasoning to Luna.
 
-Repository size alone does not justify assigning difficult reasoning to Luna. Uncertain causality or architectural tradeoffs belong with Sol; difficult specified implementation belongs with Astra. Skip a separate evidence-gathering assignment when adequate evidence already exists.
+### Sol: uncertain diagnosis
 
-### Sol: uncertain diagnosis and independent review
+Use Sol High when the cause or design is unclear. Require reproduction or discriminating checks, an evidence-backed explanation, remaining uncertainty, and an implementation contract. A plausible hypothesis is insufficient.
 
-Use Sol High when the cause or design is unclear. Require reproduction or discriminating checks, an evidence-backed explanation, remaining uncertainty, and a proposed implementation contract. A plausible hypothesis alone is not a settled diagnosis.
+Diagnosis is read-only except for explicitly assigned scratch/test edits needed for reproduction. General permission to fix a project does not give the diagnostic worker production-write ownership.
 
-Keep diagnosis within its assigned scope: inspect and run non-destructive checks, but do not ship production changes. If reproduction needs edits, assign a bounded scratch/test scope explicitly. General permission to fix the project does not automatically give the diagnostic worker implementation ownership.
+### Astra: non-mechanical implementation
 
-For consequential work, optionally assign an independent Sol review. Supply requirements, diff, relevant source, and check results. Require concrete defects with locations, impact, and supporting evidence; the implementer's summary is not proof. Review is read-only. Use a different worker when independence from the original diagnosis or design matters. Fixes follow the routing and escalation rules; recheck affected risks without automatically repeating the full review.
+Use Astra Light for non-mechanical, well-specified implementation, including ordinary features beyond repetitive edits. Supply expected behavior, interfaces, compatibility constraints, and acceptance checks.
 
-### Astra: difficult implementation and escalation
+## Review and acceptance
 
-Use Astra Light for difficult, well-specified implementation where a plausible but wrong patch would be expensive. Supply expected behavior, scope, interfaces, compatibility constraints, and acceptance checks.
+Mechanical edits with strong checks need no mandatory extra reviewer. Prefer Astra Light for separate material-correctness review when justified. An Astra coordinator reviews worker results at its existing effort; do not spawn another Astra to duplicate it. Use a separate reviewer when independence from implementation or design is needed.
 
-After an unsuccessful Luna assignment or Sol diagnosis, Astra takes over the unresolved work using existing evidence. If the cause or contract remains uncertain, Astra resolves it before implementing. Implementation still requires authorization and assigned write ownership. Do not insert another mandatory discovery stage.
+Use Sol High for optional edge-case and hardening review of specified release, security, data-integrity, concurrency, compatibility, or coverage risks. A release alone does not require another pass. Raise Sol to Max only for a concrete unresolved reasoning need or explicit user choice.
 
-## Assignment and evidence
+Reviews are read-only. Inspect requirements, diff, relevant source, and checks rather than trusting the implementer's summary. Findings need locations, triggering conditions, impact, and evidence. Prioritize impact and credible exposure, not finding count; rare security or data-loss cases can be critical. Separate actionable defects from optional hardening and unsupported hypotheses.
 
-Send a self-contained packet, normally at most 500 words:
+Workers run focused acceptance checks. The coordinator integrates results and runs broader checks only when changes or unresolved risks justify them. Route fixes to the implementation owner and recheck affected risks without repeating the full review by default.
+
+## Assignments and evidence
+
+Send a self-contained packet, normally within 500 words:
 
 ```text
 Role, outcome, and scope:
@@ -47,50 +53,43 @@ Owned files; read/write permissions; dependencies and interfaces:
 Relevant instructions, evidence paths, and search entry points:
 Constraints and behavior to preserve:
 Acceptance checks:
-Expected duration; checkpoint or bounded work budget; blocker reporting:
+Expected duration; checkpoint or work budget; blocker reporting:
 Return: results, exact failures/checks, artifacts, and unresolved risks.
 ```
 
-Use minimal inherited history for new workers, preserving essential user constraints and authorization. Reuse a suitable existing worker for an in-scope continuation; do not repeatedly create fresh workers merely to discard context.
+Use minimal inherited history while preserving user constraints and permissions. Reuse suitable workers for in-scope continuations. Reduce output through targeted searches and bounded reads. Handoffs should normally fit 200 words, linking longer evidence without omitting decision-critical details. Reuse valid evidence; Sol and Astra inspect relevant source and expand searches when evidence is incomplete or contradicted.
 
-Reduce output at the source with targeted searches and bounded reads. Aim for a concise handoff, normally at most 200 words, linking longer evidence without omitting decision-critical details. Sol and Astra inspect relevant source directly and expand searches when evidence is incomplete or contradicted. Reuse valid evidence rather than repeating broad exploration.
+## Attempts and escalation
 
-## Bounded attempts and escalation
+Judge failure at assignment acceptance, not each tool call or failing test. Allow corrections within the agreed budget; an expected failing regression test before a fix is not failure. Stop repeating an unsuccessful approach without new evidence.
 
-Count failure at assignment acceptance, not at each tool call or failing test. Allow reasonable local correction within the agreed budget; an expected failing regression test before a fix is not failure. Repeating the same unsuccessful approach without new evidence is a reason to stop and report.
+- **Accepted:** Checks or evidence support the outcome. Reopen only for new evidence, changed dependencies, or required review.
+- **Blocked:** Access, external dependencies, or tool failures prevent progress. Resolve within existing authority; switching models is not the default remedy. Identifying an external root cause can be successful diagnosis.
+- **Incomplete at checkpoint:** Return progress and remaining work. Demonstrated progress can justify a revised checkpoint within user limits; hard budgets still apply.
+- **Substantive failure:** An acceptance failure, wrong core assumption, or missed requirement remains after the bounded attempt, or no credible path to completion exists.
 
-Classify the result before routing:
+After one substantive non-trivial Luna failure or substantive Sol diagnosis failure, transfer directly to Astra Light. Trivial Luna corrections can stay local. Preserve partial work and evidence; do not restart discovery or cycle through the failed role. Astra resolves remaining uncertainty before implementing, with authorization and assigned write ownership. A review that finds defects has succeeded.
 
-- **Accepted:** Required checks or evidence support the outcome. Do not reopen accepted work without new evidence, changed dependencies, or a required review.
-- **Blocked:** Missing access, an external dependency, or a transient tool failure prevents progress. Resolve it within existing authority; switching models is not the default remedy. Identifying an external root cause can be a successful diagnosis.
-- **Incomplete at checkpoint:** Return progress and remaining work. An estimate expiring is not model failure; the coordinator can revise the checkpoint for demonstrated progress within user limits. Hard budgets still apply.
-- **Substantive failure:** An unresolved acceptance failure, wrong core assumption, or missed requirement remains after the bounded attempt. An incomplete result with no credible path forward also qualifies.
+If Astra Light fails, distinguish evidence, environment, specification, and capability problems before continuing. Do not repeat unchanged attempts or increase effort without a concrete reason.
 
-After one substantive non-trivial Luna failure, stop Luna correction assignments and transfer directly to Astra Light. After one substantive Sol diagnosis failure, transfer directly to Astra Light. Preserve exact failures and partial work; do not restart discovery or cycle back through the same failed role. A trivial Luna correction can stay local. A Sol review that finds defects has succeeded; route those defects to the appropriate implementation owner.
+## Waiting and health
 
-If Astra Light also fails, inspect whether the cause is evidence, environment, specification, or model capability before continuing. Do not repeat unchanged attempts or increase effort without a concrete reason.
+Use runtime event waits when no useful independent coordinator work remains; do not duplicate worker work.
 
-## Wait and assess health
+- When supported and permitted by higher-priority responsiveness rules, 25 minutes (`timeout_ms: 1500000`) is a practical default. Adjust to checkpoints, deadlines, and actual tool limits; use the longest suitable permitted wait.
+- Wait across active workers together where supported, reusing available cursors/revisions. Handle completion, blocker, and user-input events.
+- An empty timeout proves neither failure nor health. Resume waiting unless a blocker, due checkpoint, or exhausted budget requires action. Do not add status reads or interruptions after each timeout, wake to preserve cache, or substitute scheduled automations.
 
-When no useful independent coordinator work remains, use the runtime's event wait. Do not duplicate worker work to fill the time.
+For substantial work, agree on an observable checkpoint or budget. Workers report blockers promptly and checkpoint progress, current operation, and revised estimates when able. Do not require periodic "still running" messages or interrupt blocking tools for updates.
 
-- Follow actual tool limits and higher-priority responsiveness instructions. When permitted, `timeout_ms: 1500000` (25 minutes) is a practical wait default, not a mandatory cadence. Adjust for the next checkpoint or deadline; longer event waits may be appropriate. Never wake solely to preserve cache.
-- If shorter waits are required, use the longest appropriate permitted interval. Do not add status reads, acknowledgements, or interruptions after each timeout.
-- Wait across active workers together where supported; reuse cursors/revisions only where available. Consume meaningful completion, blocker, and user-input events.
-- An empty timeout proves neither failure nor health. Re-enter the wait unless a blocker, due checkpoint, or exhausted budget requires action. Scheduled automations are outside this waiting policy.
+At a due checkpoint without evidence, make one compact, non-interrupting check if supported. Judge progress from milestones and operations, not a running flag. Repeated failures without new evidence, a stuck worker, or a dead process warrants intervention. If progress remains unobservable, use the budget to decide whether to continue, narrow, or stop; avoid rapid polling.
 
-For substantial work, set a rough estimate and an observable checkpoint or work budget. Workers report blockers promptly and, when able to send messages, report a reached checkpoint before completion with progress, current operation, and revised estimate. Do not require periodic "still running" messages or interrupt a blocking tool just to send one.
+## Transfer ownership
 
-At a due checkpoint without useful evidence, make one compact, non-interrupting check if supported. Use milestones and known operations to revise the checkpoint; a running flag alone is insufficient. Repeated failures without new evidence, an explicitly stuck worker, or a dead process warrants intervention. If progress is unobservable, preserve that uncertainty and decide from the agreed budget whether to continue, narrow, or stop; do not start rapid polling.
-
-## Transfer ownership and verify
-
-Before a replacement writes to the same files, confirm the prior worker and any commands that can still write there have stopped. Preserve partial changes and unrelated user edits. Transfer owned files, current diff/artifacts, exact failures, checks run, and unresolved questions. If the old writer cannot be confirmed stopped, keep the successor read-only or on non-overlapping work.
-
-Workers run focused acceptance checks before returning. The coordinator integrates results and runs broader checks only when changes, failures, or unresolved risks justify them. Independent review informs acceptance; it does not transfer the coordinator's responsibility.
+Before a successor edits the same files, confirm the prior worker and writing commands have stopped. Preserve partial work and unrelated user edits. Transfer owned files, current diff/artifacts, exact failures, checks, and open questions. If the old writer cannot be confirmed stopped, keep the successor read-only or on non-overlapping work.
 
 ## Evaluate the policy
 
-These model/effort settings are workflow preferences, not universal performance rankings. Compare completed-task usage, elapsed time, corrections, and missed defects. Separate worker usage from coordinator wakeups and API prices from Codex allowance telemetry.
+These are workflow preferences: compare total accepted-task cost, elapsed time, corrections, and missed defects on like-for-like work, keeping API costs separate from Codex allowance telemetry.
 
-When a deployment plan is requested, state each role, model, effort, scope, dependencies, and acceptance check; explain why extra workers or review are worth their cost.
+When asked for a deployment plan, state roles, models, efforts, scope, dependencies, and acceptance checks; justify extra workers or review.
