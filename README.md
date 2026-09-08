@@ -1,76 +1,63 @@
 # Agent Deployment
 
-A Codex skill for routing subagent work between two deliberate defaults:
-
-Hard rule: every Luna assignment uses `gpt-5.6-luna` at `max`. `Luna High` is never a valid assignment under this policy, even if an older task or remembered preference says otherwise.
+A Codex skill for choosing workers, bounding their assignments, and avoiding expensive coordinator polling.
 
 ```text
-Large context, large-repo exploration, or repetitive work -> Luna at max
-Harder, well-specified implementation where correctness matters more -> Astra at low
-One substantive Luna failure on a non-trivial task -> Astra at low
+Bounded context gathering or repetitive work -> Luna Max
+Uncertain cause or design -> Sol High
+Difficult, specified implementation -> Astra Low
+One unsuccessful Luna assignment or Sol diagnosis -> Astra Low
+Consequential work -> optional independent Sol High review
 ```
 
-Terra is not part of this policy. Sol remains available for one consolidated independent review when the risk justifies it.
+Every Luna dispatch uses `gpt-5.6-luna` at `max`. Earlier Luna High or X-High preferences are stale. Terra is excluded from this policy.
 
-## Why this split
+## Why these defaults
 
-Luna is cheap enough to absorb large context and repetitive workloads. The skill uses Luna only at `max`, giving those assignments the model's highest supported reasoning effort.
+OpenAI describes Luna as designed for cost-sensitive, high-volume workloads, Sol as a flagship for complex professional work, and Astra as its most capable model for complex reasoning and coding. These descriptions support the broad roles; they do not establish that this exact model-and-effort combination is optimal.
 
-Astra at `low` handles difficult implementation once the behavior, interfaces, scope, and acceptance checks are settled. This spends Astra tokens on judgment and correctness instead of broad repository reading that Luna can do first.
+Luna Max, Sol High, and Astra Low are deliberate workflow defaults. A large context window does not prove equal reasoning ability, and maximum effort does not guarantee correctness. Compare completed-task usage, time, corrections, and missed defects before claiming savings. API prices and Codex allowance measurements are different evidence.
 
-OpenAI lists a 1,050,000-token context window for both models. It describes Luna as designed for cost-sensitive, high-volume workloads and confirms that Luna supports `max`. Astra supports `low` and is OpenAI's most capable model for complex reasoning and coding.
+- [GPT-5.6 Luna](https://developers.openai.com/api/docs/models/gpt-5.6-luna)
+- [GPT-5.6 Sol](https://developers.openai.com/api/docs/models/gpt-5.6-sol)
+- [GPT-6 Astra](https://developers.openai.com/api/docs/models/gpt-6-astra)
 
-- [GPT-5.6 Luna model page](https://developers.openai.com/api/docs/models/gpt-5.6-luna)
-- [GPT-6 Astra model page](https://developers.openai.com/api/docs/models/gpt-6-astra)
+## Routing
 
-## Routing table
-
-| Work | Model and effort | Reason |
+| Work | Model and effort | Expected result |
 | --- | --- | --- |
-| Load and search substantial context | Luna at `max` | Context volume dominates the task. |
-| Explore or map a large repository | Luna at `max` | Luna can return exact files, symbols, and invariants for the next worker. |
-| Apply repetitive or bulk changes | Luna at `max` | The work is broad but objectively verifiable. |
-| Implement difficult, settled behavior | Astra at `low` | The task needs stronger judgment and correctness matters more. |
-| Review consequential integrated work | Sol, optional | One independent pass can catch cross-module or architectural problems. |
+| Search substantial context or map a repository | Luna Max | Exact evidence, coverage, and unresolved questions |
+| Apply repetitive changes with objective checks | Luna Max | Scoped changes and verification |
+| Determine an uncertain cause or design | Sol High | Evidence-backed diagnosis and implementation contract |
+| Implement difficult, settled behavior | Astra Low | Correct implementation and appropriate checks |
+| Take over one unsuccessful Luna assignment or Sol diagnosis | Astra Low | Continue from evidence, resolve uncertainty, then complete the authorized work |
+| Independently review consequential work | Sol High, optional | Concrete defects supported by source and verification evidence |
 
-Ordinary small work does not need an agent merely to fill a slot.
+Repository size alone does not decide ownership. A subtle concurrency bug in a large repository belongs with Sol for diagnosis; Luna can gather bounded evidence if that helps. Skip exploration when the coordinator already has adequate evidence. Small tasks usually stay local.
 
-## Combined tasks
+Sol's diagnosis should include discriminating checks, rejected hypotheses, remaining uncertainty, and a proposed contract. Review is read-only, with corrections owned by the implementer and focused rechecks as needed. Use a fresh reviewer when independence from the original diagnosis or design matters.
 
-When a task needs both broad exploration and difficult implementation:
+## What counts as failure?
 
-1. Luna at `max` maps the repository, gathers exact evidence, and returns a concise implementation packet.
-2. The coordinator settles any remaining design or interface decisions.
-3. Astra at `low` implements the specified change.
-4. Sol reviews once if the risk warrants independent scrutiny.
+One unsuccessful **bounded assignment** triggers escalation. An ordinary failing test during implementation, including a regression test written before the fix, does not.
 
-This keeps Astra from rereading the whole repository while still giving the harder patch to the stronger model.
+Allow reasonable local correction within an agreed work budget. Stop when the same approach fails again without new evidence, or the budget is exhausted. Report unresolved acceptance failures, incorrect assumptions, missing requirements, and useful partial work. Do not hide unlimited retries inside the first assignment.
 
-## Failure rule
+Luna failures and unsuccessful Sol diagnoses go directly to Astra Low. Transient tool failures and external blockers do not prove model failure. If Astra also fails, inspect the cause before changing effort or adding workers.
 
-A substantive Luna failure on a non-trivial task ends Luna retries for that task. Preserve the failed check and useful evidence, narrow the contract if needed, and move the implementation to Astra at `low`.
+## Waiting and worker health
 
-Transient tool or environment failures do not count as model failures. A trivial correction can stay with the coordinator.
+Use native event waits while workers run and no useful independent coordinator work remains. Prefer completion and blocker signals over timed status checks.
 
-## Waiting for workers
+When supported **and permitted by higher-priority instructions**, 25 minutes (`1500000` ms) is a practical default. Adjust for checkpoints and deadlines; longer waits can be appropriate. If the runtime or responsiveness instructions require shorter waits, use the longest appropriate permitted interval without adding status reads or interruptions after each timeout.
 
-Short worker-status polling can cost more than the workers. A timeout may wake the coordinator and make it process the parent context again even when nothing changed.
+An empty timeout proves neither failure nor health. Re-enter the wait unless a blocker, due checkpoint, or exhausted budget requires action. Never wake solely to preserve cache: OpenAI documents at least 30 minutes of cache eligibility, potentially longer, but this does not establish Codex allowance behavior or an optimal waiting interval. [Official caching documentation](https://developers.openai.com/api/docs/guides/prompt-caching)
 
-The skill therefore requires:
+For substantial assignments, set a rough duration estimate and a meaningful checkpoint or work budget. Workers report blockers immediately and send a compact progress update if they reach the checkpoint before finishing. No periodic "still running" messages are needed.
 
-- One event-driven wait covering all active workers when possible.
-- A 25-minute `wait_agent` timeout (`1500000` ms) by default when supported. This sits inside OpenAI's documented 30-minute prompt-cache lifetime for GPT-5.6 and later, though Codex's internal cache and allowance behavior are not guaranteed by that API documentation.
-- No repeated 10-to-60-second wait loops.
-- Cursor or revision reuse when the wait API supports it.
-- No interruption of a healthy worker merely to request progress.
+If a checkpoint arrives without a useful signal, make one compact, non-interrupting check. Use milestone evidence, active operations, and the agreed budget to decide whether to continue, narrow the work, or stop it. A running flag alone is not proof of progress. Scheduled automations are not part of this waiting policy.
 
-An empty timeout is not a failure. If the worker is still healthy after 25 minutes, the coordinator should immediately enter another 25-minute event wait without inspecting, duplicating, interrupting, or replacing the worker.
-
-Estimating a worker's runtime can help choose a wait or recognize a real stall. Scheduled automations are not the default because a native event wait can wake as soon as work finishes. They are an opt-in fallback when the user requests deferred follow-up and the runtime cannot remain suspended; schedule the check near the estimated completion time rather than as a recurring heartbeat.
-
-## Assignment shape
-
-Give each worker a short, self-contained packet:
+## Safe assignments and handoffs
 
 ```text
 Outcome and scope:
@@ -78,10 +65,13 @@ Owned files; dependencies and interfaces:
 Context entry points and search targets:
 Constraints and behavior to preserve:
 Acceptance checks and commands:
-Return: changed files or evidence, check results, unresolved risks.
+Expected duration; checkpoint or bounded work budget; blocker reporting:
+Return: evidence or changed files, check results, unresolved risks.
 ```
 
-Do not pass full conversation history or repository dumps. Luna should return exact file, symbol, command, and failure references so Astra can act without repeating the exploration.
+Use minimal inherited history. Preserve relevant instructions and authorization explicitly. Keep handoffs concise, but retain exact failures and decision-critical evidence; link longer artifacts. Sol and Astra should read relevant source directly when deciding correctness.
+
+Before a replacement writes to the same files, confirm the previous worker and its writing commands have stopped. Preserve partial changes and unrelated user edits, then transfer ownership with the current diff, evidence, checks, and unresolved questions. Never run competing writers during escalation.
 
 ## Installation
 
@@ -100,15 +90,12 @@ git clone https://github.com/Concrete333/Codex-Agent-Deployment.git "$env:USERPR
 ## Usage
 
 ```text
-$agent-deployment Route this delegated task. Use Luna only at max for large-context, large-repo, or repetitive work. Use Astra at low for harder implementation once the task is well specified, and escalate after one substantive Luna failure.
+$agent-deployment Route this authorized delegated task: Luna Max for bounded evidence or repetitive work, Sol High for uncertain diagnosis, and Astra Low for difficult implementation or escalation. Use checkpoints and event waits without busy polling.
 ```
 
-The skill chooses deployment roles. It does not authorize delegation, override explicit model choices, or guarantee cost savings.
+The skill does not authorize delegation, override higher-priority instructions or new explicit user choices, or guarantee savings. Runtime model and effort availability must be checked before dispatch.
 
-## Repository contents
-
-- `SKILL.md` contains the routing, context, failure, and review rules.
-- `agents/openai.yaml` contains the Codex display metadata and default prompt.
+`SKILL.md` contains the complete policy; `agents/openai.yaml` contains the Codex display metadata. The skill is self-contained.
 
 ## Sources and acknowledgements
 
@@ -116,4 +103,4 @@ Reddit user [`u/emir_morris`](https://www.reddit.com/user/emir_morris/) proposed
 
 Reddit user [`u/Icy_Piece6643`](https://www.reddit.com/user/Icy_Piece6643/) drew attention to Astra's delegation and prompting behavior in ["Before blaming GPT-6 Astra, read its prompting guide"](https://www.reddit.com/r/codex/comments/1w7x57n/before_blaming_gpt6_astra_read_its_prompting_guide/). The current policy is an independent adaptation built around context cost, bounded handoffs, and early escalation. It also follows [OpenAI's official Astra guidance](https://developers.openai.com/api/docs/guides/latest-model).
 
-GitHub user [`tagorr`](https://github.com/tagorr) documented 47 empty 30-second `wait_agent` polls that caused 7.13 million Astra parent input tokens in [OpenAI Codex issue #35259](https://github.com/openai/codex/issues/35259#issuecomment-5577073962). Our own saved Codex rollouts showed the same mechanism with different intervals and percentages, so the skill now treats short status polling as a deployment error.
+GitHub user [`tagorr`](https://github.com/tagorr) documented 47 empty 30-second `wait_agent` polls that caused 7.13 million Astra parent input tokens in [OpenAI Codex issue #35259](https://github.com/openai/codex/issues/35259#issuecomment-5577073962). Our own saved Codex rollouts showed the same mechanism with different intervals and percentages, motivating the rule against avoidable status polling.

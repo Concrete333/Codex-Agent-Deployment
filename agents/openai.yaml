@@ -1,4 +1,4 @@
 interface:
   display_name: "Agent Deployment"
-  short_description: "Route agents without wasteful status polling"
-  default_prompt: "Use $agent-deployment to route Luna only at max and Astra at low, then keep the coordinator suspended with 25-minute event waits instead of short status polls."
+  short_description: "Route workers, diagnosis, and safe escalation"
+  default_prompt: "Use $agent-deployment to route authorized work to Luna Max, Sol High, or Astra Low with bounded assignments, safe handoffs, and runtime-compatible event waits."

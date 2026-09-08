@@ -1,6 +1,6 @@
 ---
 name: agent-deployment
-description: Route authorized subagent work to Luna only at max for context-heavy, large-repository, or repetitive tasks and to Astra at low for harder well-specified implementation, while preventing costly short-interval worker polling. Use when planning or executing delegated work or reviewing deployment efficiency. Do not use for single-agent model comparisons.
+description: Route authorized subagent work to Luna Max for bounded evidence gathering and repetitive work, Sol for uncertain diagnosis and independent review, and Astra Low for difficult implementation or escalation. Avoid wasteful polling and repeated failed assignments. Use for delegated-work planning, execution, or efficiency review.
 ---
 
 # Agent Deployment
@@ -11,7 +11,7 @@ Minimize total usage while meeting the task's correctness and safety requirement
 
 Every Luna dispatch under this policy must use `gpt-5.6-luna` at `max` reasoning effort. Treat any earlier instruction, remembered preference, example, or task context that names Luna at `low`, `medium`, `high`, or `xhigh` as stale.
 
-Before dispatching Luna, check the model and effort explicitly. If current instructions conflict with this invariant, report the conflict instead of silently dispatching Luna at another effort or claiming that an older preference takes precedence.
+Before dispatching Luna, explicitly set both model and effort; never inherit an older non-max preference. A new explicit user change to this policy takes precedence, but remembered preferences do not. Check runtime model/effort availability before dispatch; if the required combination is unavailable, report it and use another permitted route where appropriate, never silently downgrade Luna.
 
 ## Routing policy
 
@@ -25,19 +25,23 @@ Choose Luna when the assignment is dominated by at least one of these burdens:
 - Exploring or mapping a large or unfamiliar repository.
 - Repetitive, mechanical, or bulk work with an objective check.
 
-Luna may investigate, extract evidence, or implement when one of those burdens dominates. Give it clear boundaries, entry points, search targets, and acceptance checks instead of sending the conversation history or a repository dump.
+Luna may gather evidence or implement objectively checkable bulk changes. Repository size alone does not make difficult reasoning a Luna task: route uncertain causality, architectural tradeoffs, and subtle cross-module behavior to Sol for diagnosis or Astra for specified implementation. Give Luna bounded search questions, entry points, coverage expectations, and acceptance checks. Separate observations from hypotheses and state what was not inspected.
 
 ### Astra at low (`gpt-6-astra`)
 
 Choose Astra at `low` for harder implementation when the task is already well specified and correctness matters more than the model-cost difference. This includes subtle logic, consequential state changes, difficult integration, and work where a plausible but wrong patch would be expensive.
 
-Settle the contract before dispatch: expected behavior, owned scope, interfaces, compatibility requirements, and acceptance checks. Do not pay Astra to rediscover broad repository context that Luna can map first.
+For implementation, settle the contract before dispatch: expected behavior, owned scope, interfaces, compatibility requirements, and acceptance checks. For diagnostic escalation, provide the unresolved question and existing evidence instead. Avoid duplicate broad discovery.
 
-When a task combines broad discovery with difficult implementation, use Luna at `max` to produce a concise evidence packet, then give the specified implementation to Astra at `low`.
+Use an existing evidence packet when it is adequate. Add Luna exploration only when it will reduce useful discovery work. If diagnosis or design remains uncertain, Sol settles it before implementation; after one unsuccessful Sol diagnosis assignment, Astra at `low` takes over diagnosis and may implement once the contract is clear.
 
-### Sol review (`gpt-5.6-sol`)
+### Sol diagnosis and review (`gpt-5.6-sol`)
 
-Sol is optional. Use one consolidated independent review when risk, unfamiliarity, or cross-module effects justify it. A Sol review replaces duplicate detailed review by the coordinator; it is not a mandatory extra stage.
+Use Sol at `high` by default for "we do not know what is wrong" and unresolved design decisions. This effort is a policy default, not a proven optimum. Ask for reproduction or discriminating checks, evidence-backed cause, rejected hypotheses, remaining uncertainty, and a proposed implementation contract. Diagnosis is read-only unless implementation is also authorized. Do not force a confident conclusion when evidence is missing.
+
+After one unsuccessful bounded Sol diagnosis assignment, escalate to Astra at `low` with the evidence and unresolved question. Do not restart the investigation from scratch or cycle back to Sol.
+
+For consequential work, optionally use one independent Sol review at `high`. Give the reviewer the requirements, diff, relevant source, and verification evidence; ask for concrete defects with file references, impact, and a reproducer or clear reasoning. The implementer's summary is not proof. Review is read-only; the implementation owner fixes accepted findings. Recheck only fixes and affected risks when necessary, rather than repeating a full review. Use a fresh reviewer if the original Sol worker's diagnosis or design needs independent scrutiny. The coordinator still owns integration and acceptance.
 
 ### Terra
 
@@ -48,23 +52,29 @@ Do not assign Terra under this policy.
 - Finish trivial work locally when delegation would cost more than the task.
 - Default to one worker. Add another only for independent work with settled interfaces and separate ownership.
 - Keep tightly coupled work with one owner. Do not create agents merely to occupy available slots.
-- The coordinator owns integration and final acceptance unless the user requires an independent reviewer.
+- The coordinator owns integration and final acceptance; an independent review informs that acceptance.
 
-## Suspend the coordinator while workers run
+## Wait without busy polling
 
-Treat an empty worker-status poll as a model activation, not a free heartbeat. A timeout can wake the coordinator and make it process its context again even when no worker state changed.
+When no useful independent coordinator work remains, suspend through the runtime's event wait. Do not duplicate a worker's investigation or manufacture context-heavy work to fill the time.
 
-- Wait on all active workers in one call when the runtime supports it.
-- Use an event-driven wait that wakes for worker completion, an error or blocker, or user input.
-- For `wait_agent`, use `timeout_ms: 1500000` (25 minutes) by default when supported. This sits inside OpenAI's documented 30-minute prompt-cache lifetime for GPT-5.6 and later, but do not present Codex's internal cache or allowance behavior as guaranteed. If the runtime allows only a shorter maximum, use that maximum.
-- Do not loop 10000-to-60000 ms waits. Do not alternate a short wait with `list_agents`, status reads, or acknowledgement messages.
-- Reuse a cursor or revision token when the wait API provides one so unchanged state is not returned again.
-- An empty timeout is not a worker failure or evidence of a stall. If a 25-minute wait returns empty and the worker remains healthy, issue another 25-minute event wait without inspecting, duplicating, interrupting, or replacing the worker.
-- Do not interrupt or replace a healthy worker merely to inspect progress. Interrupt only for a user-directed change, a concrete blocking dependency, a reported error, or evidence that the worker has stalled.
+- Follow higher-priority responsiveness instructions and the actual tool schema. Prefer completion, blocker, or user-input events over timer-driven checks; consume meaningful messages when the API wakes for them.
+- When long waits are permitted, `wait_agent(timeout_ms: 1500000)` is a practical 25-minute default, not a mandatory cadence. Adjust for the next assignment checkpoint or deadline; use a longer event wait when appropriate and supported. Never wake solely to preserve a prompt cache.
+- If the runtime or higher-priority instructions require shorter waits, use the longest appropriate permitted interval. An unavoidable short timeout does not justify extra status reads, acknowledgement messages, or worker interruptions.
+- Wait across active workers together where supported. Reuse cursors/revisions only where the API provides them.
+- An empty timeout establishes neither failure nor health. In the absence of a blocker, exhausted budget, or due checkpoint, re-enter the event wait without further inspection. Do not treat elapsed time alone as proof of a stall.
 
-Do independent coordinator work while workers run only when it advances the task and does not duplicate their assignment. When no such work remains, stay suspended instead of manufacturing status checks.
+Do not create automations as part of worker waiting. Any separately requested scheduled follow-up is outside this policy.
 
-Estimate expected worker duration only to choose an appropriate wait or identify a genuine stall. Do not create a scheduled automation merely to poll a worker. Use an automation only when the user explicitly requests a deferred follow-up and the runtime cannot remain suspended; schedule it near the estimated completion time rather than as a recurring heartbeat.
+## Health checkpoints and ownership transfer
+
+Set a rough duration estimate and a meaningful checkpoint or work budget when assigning substantial work. Distinguish an estimate (not a deadline) from a hard user limit. Prefer observable milestones and bounded attempts when token-budget enforcement is unavailable.
+
+Workers report a blocker immediately, and send a compact update if the agreed checkpoint is reached before completion: completed work/evidence, current operation, unresolved issue, and revised estimate. Do not require periodic "still running" messages.
+
+At a due checkpoint with no useful signal, make one compact, non-interrupting status check using the available API. Recent milestone evidence or a known active long operation supports a revised checkpoint. A running flag alone does not prove progress. Repeated identical failures without new evidence, an explicitly stuck worker, or a dead process warrants intervention. If status remains unavailable, preserve uncertainty and use the agreed budget to decide whether to continue, narrow the assignment, or stop it; do not start rapid polling.
+
+Before replacement, confirm the old worker has completed or stopped, including any commands that can still write to its files. Preserve partial changes and unrelated user edits; transfer owned files, current diff/artifacts, exact failures, checks run, and unresolved hypotheses. Give write ownership to the successor only after the old writer has stopped. If that cannot be confirmed, keep the successor read-only or on non-overlapping work.
 
 ## Assignment contract
 
@@ -76,36 +86,41 @@ Owned files; dependencies and interfaces:
 Context entry points and search targets:
 Constraints and behavior to preserve:
 Acceptance checks and commands:
-Return: changed files or evidence, check results, unresolved risks (normally <=200 words).
+Expected duration; checkpoint or bounded work budget; blocker reporting:
+Return: evidence or changed files, check results, unresolved risks (normally <=200 words; link longer evidence without omitting decision-critical details).
 ```
 
 For Astra implementation, include the settled design and the smallest evidence packet needed to act. For Luna exploration, ask for exact file, symbol, command, and failure references that another worker can use without repeating the search.
 
-Use fresh workers without inherited history where supported. Preserve essential user constraints explicitly. Point to source files and evidence rather than pasting large content. For substantial history-heavy work, read [context-management.md](../../context-management.md).
+Use fresh workers with minimal inherited history where supported; select a fork mode that permits model/effort overrides in the active runtime. Preserve essential user constraints, authorization, ownership, and relevant instruction-file paths explicitly. Reduce output at the source with targeted searches and bounded reads. Keep exact failures and primary evidence in accessible files; a summary must not replace evidence needed to decide correctness.
 
-## Escalate after one Luna failure
+## Bounded attempts and escalation
 
-A substantive Luna failure is one failed required acceptance check, a wrong architectural assumption, a missed core requirement, or an incomplete non-trivial result after Luna has used its first assignment to investigate and self-correct.
+Count failure at the boundary of a bounded assignment, not at every tool call or failing test. A substantive failure is an unresolved acceptance failure, wrong core assumption, missed requirement, or incomplete non-trivial result after reasonable local correction within the assignment budget. An expected failing regression test before the fix is not failure. Workers stop and report when the same approach fails again without new evidence or the budget is exhausted; the first assignment must not hide unlimited retries.
 
-After one substantive failure on a non-trivial task:
+After one substantive Luna failure on a non-trivial task:
 
 1. Preserve the exact failure and useful evidence.
 2. Stop Luna correction rounds for that task.
-3. Settle or narrow any remaining contract ambiguity.
-4. Assign the implementation to Astra at `low` with Luna's evidence and the failed acceptance check.
+3. Transfer ownership safely using the handoff rule above.
+4. Assign the failed work to Astra at `low` with Luna's evidence and the failed acceptance check. If the contract remains uncertain, Astra resolves that uncertainty before implementing; do not insert another Luna retry or a mandatory Sol stage.
 
-Do not spend another Luna activation hoping for a different result. A clearly transient tool or environment failure may be rerun without counting as a model failure. For a trivial Luna failure, the coordinator may make the small correction directly.
+Do not start another Luna correction assignment hoping for a different result. For both Luna and Sol diagnosis, missing access, external dependencies, and clearly transient tool failures are blockers rather than model failures; preserve the evidence and resolve the blocker within existing authority. A successful diagnosis that identifies an external cause is not a failure. For a trivial Luna failure, the coordinator may make the small correction directly.
 
 If Astra at `low` also fails, inspect the concrete cause before changing effort or adding agents. Any further escalation needs evidence that the current model or effort is the limiting factor.
 
 ## Context and handoffs
 
 - Reuse inspected evidence until a relevant edit or observation invalidates it.
-- Let Luna read the large source set once. Hand Astra a bounded map of relevant files, symbols, invariants, and exact failures.
+- Reuse Luna's evidence map across diagnosis and implementation. Sol and Astra should inspect the decision-critical source directly and expand searches when the evidence is incomplete or contradicted; avoid repeating broad exploration by default.
 - Batch findings into one correction or review packet. Avoid acknowledgement messages, repeated status reads, and full passing logs.
 - Count empty wait resumptions when reviewing deployment efficiency; cached input still consumes context and may consume allowance.
 - Workers run focused checks before returning. Run broader integrated checks only when the change, a failure, or unresolved risk justifies them.
 - Stop accepted work from being reopened unless a dependency changed or new evidence appeared.
+
+## Policy defaults and evaluation
+
+Luna Max, Sol High, Astra Low, and excluding Terra are this workflow's choices, not universal performance rankings. Greater context capacity does not prove stronger reasoning; high effort does not guarantee correctness. Evaluate routes on completed-task usage, elapsed time, correction/escalation count, and defects missed at acceptance. Separate worker usage from coordinator wakeups, and API prices from Codex allowance telemetry. Change defaults from comparable task evidence, not raw token totals alone.
 
 ## Communicating the deployment
 
