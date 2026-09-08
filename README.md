@@ -11,19 +11,7 @@ Review for important correctness problems -> Astra
 Targeted edge-case / hardening review -> optional Sol High
 ```
 
-Use `gpt-5.6-luna` at `max` for all Luna assignments, even if an older preference says High or X-High. This policy leaves Terra out.
-
-Astra Light uses `gpt-6-astra` with reasoning effort `low`.
-
-## Why these defaults
-
-OpenAI describes Luna as a model for cost-sensitive, high-volume work, Sol as a flagship for complex professional work, and Astra as its most capable model for complex reasoning and coding. I use those descriptions as a starting point. They don't tell us which effort level is best for a particular job.
-
-The defaults here are Luna Max, Sol High, and Astra Light. Judge them by the cost of finishing work that passes its checks, including coordination, reviews, and corrections. A model can use more tokens and still cost less. Models with the same context window can differ in reasoning ability, and Max effort can still produce a wrong answer. Before claiming savings, compare accepted results, total usage, elapsed time, corrections, and missed defects. Keep separate measurements for API costs and Codex allowance usage.
-
-- [GPT-5.6 Luna](https://developers.openai.com/api/docs/models/gpt-5.6-luna)
-- [GPT-5.6 Sol](https://developers.openai.com/api/docs/models/gpt-5.6-sol)
-- [GPT-6 Astra](https://developers.openai.com/api/docs/models/gpt-6-astra)
+Model settings: Luna Max = `gpt-5.6-luna` / `max`; Sol High = `gpt-5.6-sol` / `high`; Astra Light = `gpt-6-astra` / `low`.
 
 ## Routing
 
@@ -41,7 +29,7 @@ Choose by the work, not the size of the repository. Give Sol the diagnosis of a 
 
 Ask Sol for checks that distinguish between possible causes, what remains uncertain, and a proposed implementation brief. A diagnosis assignment doesn't include production changes. Give it a defined scratch or test area if reproduction needs edits. Reviewers inspect without changing files; the implementation owner makes corrections, then someone rechecks the affected behavior. Choose a different reviewer if the review needs independence from the original diagnosis or design.
 
-In my own use, Astra seems better at spotting larger problems. Sol tends to find more edge cases. That's anecdotal, and I haven't established that Sol is a better security auditor. For either model, ask where the problem is, what triggers it, what it breaks, and what evidence supports the finding. Judge the findings by their impact rather than their number. A rare security or data-loss case can still be critical. Keep confirmed defects separate from optional hardening and ideas that need more evidence.
+For either reviewer, ask where the problem is, what triggers it, what it breaks, and what evidence supports the finding. Judge the findings by their impact rather than their number. A rare security or data-loss case can still be critical. Keep confirmed defects separate from optional hardening and ideas that need more evidence.
 
 For mechanical changes with strong checks, skip the extra reviewer. Give Sol High a hardening pass when you can name the risks that warrant one; a release doesn't need that pass by default. Increase Sol to Max for a specific reasoning problem it hasn't resolved, or if you request Max. An Astra High coordinator keeps the final review at High. Don't add another Astra to repeat that review.
 
@@ -59,7 +47,7 @@ Use the runtime's event wait while workers run and the coordinator has no separa
 
 Use 25 minutes (`1500000` ms) as a starting point if the runtime supports it and higher-priority instructions permit it. Adjust for checkpoints and deadlines, including longer waits where appropriate. If the runtime or responsiveness rules require shorter waits, use the longest suitable interval they allow. Don't add a status check or interrupt the worker after each timeout.
 
-A timeout with no update tells you little about the worker. Keep waiting unless a blocker, checkpoint, or spent budget requires a decision. Don't wake the coordinator to preserve the cache. OpenAI documents at least 30 minutes of cache eligibility, with longer periods possible. That doesn't establish Codex allowance costs or the best wait interval. [Official caching documentation](https://developers.openai.com/api/docs/guides/prompt-caching)
+A timeout with no update tells you little about the worker. Keep waiting unless a blocker, checkpoint, or spent budget requires a decision. Don't wake the coordinator to preserve the cache.
 
 For substantial assignments, agree on a rough duration and a checkpoint or work budget. Workers should report blockers as they arise and send a short update at a checkpoint if they can. Don't interrupt a blocking tool to send an update, or ask workers for recurring "still running" messages.
 
@@ -109,10 +97,11 @@ Read `SKILL.md` for the full policy. `agents/openai.yaml` holds the Codex displa
 
 ### Human-reference benchmark workbook
 
-[GPT model efficiency, 8 September 2026](docs/benchmarks/GPT-model-efficiency-2026-09-08.xlsx) contains the selected Artificial Analysis chart data, source links, missing-data flags, and calculated efficiency ratios. We keep it here for people to read. Agents must not load or parse the workbook, and the skill runs without it. Don't use the API benchmark costs to infer Codex allowance usage or coding-task success rates.
+[GPT model efficiency, 8 September 2026](docs/benchmarks/GPT-model-efficiency-2026-09-08.xlsx) contains the selected Artificial Analysis chart data, source links, missing-data flags, and calculated efficiency ratios. The workbook is for human reference. Agents must not load or parse it. Don't use the API benchmark costs to infer Codex allowance usage or coding-task success rates.
 
-Reddit user [`u/emir_morris`](https://www.reddit.com/user/emir_morris/) proposed the four-tier model ladder and practical model summaries in ["GPT-6 Astra: Everything You Need to Know"](https://www.reddit.com/r/codex/comments/1w6rqgf/gpt6_astra_everything_you_need_to_know/). That post started this project.
+### Credits
 
-Reddit user [`u/Icy_Piece6643`](https://www.reddit.com/user/Icy_Piece6643/) drew attention to Astra's delegation and prompting behavior in ["Before blaming GPT-6 Astra, read its prompting guide"](https://www.reddit.com/r/codex/comments/1w7x57n/before_blaming_gpt6_astra_read_its_prompting_guide/). I adapted those ideas into rules for context costs, bounded handoffs, and early escalation, alongside [OpenAI's official Astra guidance](https://developers.openai.com/api/docs/guides/latest-model).
-
-GitHub user [`tagorr`](https://github.com/tagorr) documented 47 empty 30-second `wait_agent` polls that caused 7.13 million Astra parent input tokens in [OpenAI Codex issue #35259](https://github.com/openai/codex/issues/35259#issuecomment-5577073962). We found the same mechanism in our saved Codex rollouts, though the intervals and percentages differed. Those checks led us to add the rule against avoidable status polling.
+- [u/emir_morris](https://www.reddit.com/user/emir_morris/): model-role inspiration from ["GPT-6 Astra: Everything You Need to Know"](https://www.reddit.com/r/codex/comments/1w6rqgf/gpt6_astra_everything_you_need_to_know/).
+- [u/Icy_Piece6643](https://www.reddit.com/user/Icy_Piece6643/): prompting and delegation guidance in ["Before blaming GPT-6 Astra, read its prompting guide"](https://www.reddit.com/r/codex/comments/1w7x57n/before_blaming_gpt6_astra_read_its_prompting_guide/).
+- [tagorr](https://github.com/tagorr): polling telemetry in [Codex issue #35259](https://github.com/openai/codex/issues/35259#issuecomment-5577073962).
+- OpenAI: [Astra guidance](https://developers.openai.com/api/docs/guides/latest-model) and model documentation for [Luna](https://developers.openai.com/api/docs/models/gpt-5.6-luna), [Sol](https://developers.openai.com/api/docs/models/gpt-5.6-sol), and [Astra](https://developers.openai.com/api/docs/models/gpt-6-astra).

@@ -11,7 +11,7 @@ This skill does not authorize delegation or expand scope. Higher-priority instru
 
 ## Dispatch
 
-- Luna uses `gpt-5.6-luna` at `max`; earlier non-max preferences are stale.
+- Luna uses `gpt-5.6-luna` at `max`.
 - Sol defaults to `gpt-5.6-sol` at `high`. Astra Light means `gpt-6-astra` at `low`. Do not assign Terra.
 - Set model and effort explicitly through a supported dispatch/fork mode. If unavailable, report the limitation and choose a suitable authorized alternative; never silently downgrade Luna.
 - Keep work local when delegation costs more than it saves. Start with one worker; add workers for independent assignments with separate ownership. No mandatory model sequence.
@@ -90,6 +90,6 @@ Before a successor edits the same files, confirm the prior worker and writing co
 
 ## Evaluate the policy
 
-These are workflow preferences: compare total accepted-task cost, elapsed time, corrections, and missed defects on like-for-like work, keeping API costs separate from Codex allowance telemetry.
+Compare total accepted-task cost, elapsed time, corrections, and missed defects on like-for-like work. Keep API costs separate from Codex allowance telemetry.
 
 When asked for a deployment plan, state roles, models, efforts, scope, dependencies, and acceptance checks; justify extra workers or review.
