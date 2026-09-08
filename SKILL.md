@@ -7,13 +7,15 @@ description: Route authorized subagent work to Luna Max for evidence and repetit
 
 Minimize total cost to an accepted result, including coordination, review, and corrections, while meeting correctness requirements. Token counts help identify waste but do not replace cost or quality measures.
 
-This skill does not authorize delegation or expand scope. Higher-priority instructions and new explicit user choices take precedence.
+This skill does not authorize delegation or expand scope. Higher-priority instructions and new explicit user choices take precedence. Do not switch billing routes, consume paid overflow, or weaken acceptance requirements to bypass a limit without authorization.
 
 ## Dispatch
 
 - Luna uses `gpt-5.6-luna` at `max`.
 - Sol defaults to `gpt-5.6-sol` at `high`. Astra uses `gpt-6-astra`: Light = `low`, Medium = `medium`, High = `high`. Do not assign Terra.
-- Set model and effort explicitly through a supported dispatch/fork mode. If unavailable, report the limitation and choose a suitable authorized alternative; never silently downgrade Luna.
+- Set model and effort explicitly through a supported dispatch/fork mode. Confirm the effective configuration when exposed by the runtime; report mismatches or unavailable controls and choose a suitable authorized alternative. Never silently downgrade Luna.
+- Prefer deterministic commands or scripts for exact searches, counts, formatting, and syntax-defined transformations; use a worker when interpretation or supervision warrants one.
+- Before choosing a cheaper worker, establish how acceptance will be checked. For consequential work with weak checks, retain stronger reasoning or justified independent review from the outset; a cheap first attempt is not mandatory.
 - Keep work local when delegation costs more than it saves. Start with one worker; justify each addition by reduced total cost, necessary context isolation, or a distinct verification need. No mandatory model sequence.
 - Keep coupled implementation with one owner through fixes and focused checks. Parallel assignments must not depend on another worker's pending decisions or changes. Agree shared interfaces and behavior before parallel edits; require separate write ownership, including shared mutable resources. Different files alone do not establish independence.
 - The coordinator owns routing, integration, escalation, and final acceptance. Workers return results or blockers and may redelegate only with assigned permission.
@@ -42,20 +44,24 @@ Use Sol High for optional edge-case and hardening review of specified release, s
 
 Reviews are read-only. Inspect requirements, diff, relevant source, and checks rather than trusting the implementer's summary. Findings need locations, triggering conditions, impact, and evidence. Prioritize impact and credible exposure, not finding count; rare security or data-loss cases can be critical. Separate actionable defects from optional hardening and unsupported hypotheses.
 
-Workers run focused acceptance checks against required behavior. The coordinator integrates results and runs broader checks only when changes or unresolved risks justify them. Route fixes to the implementation owner and recheck affected risks without repeating the full review by default.
+Workers run focused checks; the coordinator assesses whether they cover the required behavior. Do not weaken assertions, remove failing checks, or redefine expected behavior merely to obtain a pass. Report suspected faulty checks or conflicting requirements before changing acceptance criteria.
+
+Tie checks and reviews to the tested revision or working-tree state. After integration, validate affected interactions in the combined state; passing branches alone is insufficient. Run broader checks when changes or unresolved risks justify them. Route fixes to the implementation owner and recheck affected risks without repeating the full review.
 
 ## Assignments and evidence
+
+For isolated checkouts, confirm the starting revision and required uncommitted changes before work begins. Absence claims need a defined search scope; completeness claims need coverage or count reconciliation.
 
 Send a self-contained packet, normally within 500 words:
 
 ```text
 Role, outcome, and scope:
 Owned files; read/write permissions; dependencies and interfaces:
-Relevant instructions, evidence paths, and search entry points:
+Relevant instructions, evidence paths, search entry points, and repository state:
 Constraints, behavior, and settled decisions with rationale to preserve:
 Acceptance checks:
 Expected duration; checkpoint or work budget; blocker reporting:
-Return: results, exact failures/checks, artifacts, and unresolved risks.
+Return: complete | partial | blocked; results, artifacts, checks run/skipped with results, and unresolved risks.
 ```
 
 Use minimal inherited history while preserving user constraints and permissions. Reuse suitable workers for in-scope continuations. Reduce output through targeted searches and bounded reads. Handoffs should normally fit 200 words, linking longer evidence without omitting decision-critical details. Reuse valid evidence; Sol and Astra inspect relevant source and expand searches when evidence is incomplete or contradicted. Report conflicting evidence to the coordinator before revising shared decisions.

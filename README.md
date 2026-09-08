@@ -1,111 +1,170 @@
-# Agent Deployment
+# Agent Deployment for Codex
 
-A Codex skill for choosing subagent models and reasoning effort. Use it to keep routine work cheap, give difficult work to a stronger model, and control the cost of coordination, reviews, and retries.
+A skill for spending less on agent work while keeping clear standards for correctness.
 
-Your current agent acts as the **coordinator**: it assigns work, combines the results, and decides whether the task meets your requirements. **Workers** are subagents with defined assignments. For small tasks, the coordinator keeps the work local when delegation would cost more than it saves.
+Give Codex a task, and it decides which parts to handle itself, which to delegate, and how to check the results. Luna Max handles bounded searches and repetitive edits. Sol High investigates unclear problems. Astra Light implements specified behavior, with higher effort available when the reasoning needs it.
+
+You keep control of the requirements and permissions. The coordinator checks the outcome and counts the cost of reviews and retries alongside the worker's first attempt.
+
+[Install](#install) · [Try it](#use) · [Benchmark evidence](#why-these-models) · [Full policy](SKILL.md)
+
+## How it divides the work
+
+Your current agent is the coordinator. It interprets the task, assigns work, integrates changes, and decides whether the result meets your requirements. Workers are subagents with a defined scope and a way to check completion.
+
+| Work | Default | What the worker must return |
+| --- | --- | --- |
+| Exact counts, searches, or syntax-defined transformations | Commands or scripts first | Checkable output without an extra model call |
+| Read substantial context, map relevant code, or apply repetitive edits | Luna Max | Source locations, coverage, and checked changes |
+| Find an uncertain cause or work out a design | Sol High | A reproduction or discriminating check, explanation, and implementation brief |
+| Implement specified behavior beyond repetitive edits | Astra Light | Working changes and checks against the requirement |
+| Review important correctness problems | Astra coordinator at its existing effort, or Astra Light for a separate review | Defects with locations, triggers, impact, and evidence |
+| Check named security, compatibility, or edge-case risks | Sol High, when warranted | Findings within the requested risk areas |
+
+A small task can stay with the coordinator. A large repository can justify a Luna search without making Luna responsible for a difficult design decision.
+
+The skill preserves your chosen coordinator. **An Astra High coordinator keeps final review at High.** It does not spawn another Astra to repeat that review.
 
 ## Install
 
-Clone the repository into your Codex skills folder. You need Git and a Codex environment that supports subagents with model and effort selection.
+You need Git and a Codex environment that supports subagents with model and reasoning-effort selection. The skill supplies routing instructions; it does not unlock models or change your account's access.
+
+For a new user-level installation, clone into the location in [OpenAI's skills documentation](https://learn.chatgpt.com/docs/build-skills):
 
 macOS or Linux:
 
 ```bash
-git clone https://github.com/Concrete333/Codex-Agent-Deployment.git ~/.codex/skills/agent-deployment
+git clone https://github.com/Concrete333/Codex-Agent-Deployment.git ~/.agents/skills/agent-deployment
 ```
 
 Windows PowerShell:
 
 ```powershell
-git clone https://github.com/Concrete333/Codex-Agent-Deployment.git "$env:USERPROFILE\.codex\skills\agent-deployment"
+git clone https://github.com/Concrete333/Codex-Agent-Deployment.git "$env:USERPROFILE\.agents\skills\agent-deployment"
 ```
 
-These commands use the default skills location. Choose your configured skills folder if you use a custom location, and don't clone over an existing installation.
+If Codex already discovers an installation in another folder, update that copy instead of creating a duplicate. Restart Codex if the skill does not appear.
 
 ## Use
 
-Invoke the skill with your task and any constraints:
+Include the skill with your task:
 
 ```text
-$agent-deployment Use subagents where they help to fix the duplicate records
+$agent-deployment Use subagents where they help to fix duplicate records
 in offline sync. Preserve the API and add regression tests.
 ```
 
-For a plan without implementation:
+Or ask for a plan before any work starts:
 
 ```text
-$agent-deployment Propose a worker plan for this migration.
-Include models, effort levels, file ownership, and acceptance checks.
-Do not start workers or change files yet.
+$agent-deployment Plan this migration. Include models, effort levels,
+file ownership, and acceptance checks. Do not start workers or edit files.
 ```
 
-You don't need to repeat the routing rules in your prompt. Invoking the skill alone does not grant permission to delegate or expand the task. The coordinator follows your task permissions and higher-priority instructions, and reports any unavailable model or effort setting.
+Codex can also select the skill when a task matches its description: planning, executing, or auditing delegated work. You do not need to repeat the routing table in each prompt.
 
-## Model choices
+Your permissions and explicit choices still apply. The skill does not authorize extra work, change billing routes, or allow paid overflow without permission. The coordinator reports unavailable model controls or configuration mismatches rather than hiding a substitution.
 
-| Assignment | Model and effort |
-| --- | --- |
-| Gather evidence, map relevant code, or make repetitive edits with objective checks | Luna Max |
-| Diagnose an unclear cause or work out a design | Sol High |
-| Implement well-specified behavior beyond repetitive edits | Astra Light |
-| Review defects that affect required behavior | Astra coordinator at its current effort; Astra Light for a separate reviewer when needed |
-| Check specific edge-case, security, or robustness risks | Sol High, optional |
-| Resolve a demonstrated reasoning limitation | Astra Medium; High for unresolved architectural, cross-module, or subtle correctness reasoning |
+## Why these models
 
-Luna Max means `gpt-5.6-luna` at `max`; Sol High means `gpt-5.6-sol` at `high`. Astra uses `gpt-6-astra`: Light maps to `low`, Medium to `medium`, and High to `high`. The policy excludes Terra.
+The defaults combine benchmark evidence with practical role choices. Artificial Analysis measures capability, output-token use, and API cost across model and effort configurations. Those measurements help compare candidates; they do not establish which agent will finish your particular task.
 
-Choose the worker by the assignment. A large repository can justify a scoped Luna search, but a subtle concurrency bug needs Sol's diagnosis. Skip exploration if the coordinator has enough evidence. A retrieval worker can isolate a large search without running alongside another worker.
+Selected results from the **8 September 2026 capture**:
 
-Start with one worker and justify additions. Keep dependent implementation with one owner through fixes and checks. Before parallel edits, agree shared interfaces and behavior and give workers separate write ownership, including shared resources. Different files alone do not make assignments independent.
+| Configuration | Intelligence Index | API cost per benchmark task | Output tokens per task |
+| --- | ---: | ---: | ---: |
+| Luna Max | 37.5 | $0.18 | 41,235 |
+| Sol High | 42.5 | $0.81 | 13,250 |
+| Astra Light | 46.0 | $0.82 | 4,433 |
+| Astra Medium | 49.7 | $1.54 | 9,590 |
+| Astra High | 51.0 | $1.72 | 11,795 |
+| Sol Max | 47.1 | $1.99 | 29,309 |
 
-## Escalation
+Source: [Artificial Analysis](https://artificialanalysis.ai/models), with the captured values in the [GPT efficiency workbook](docs/benchmarks/GPT-model-efficiency-2026-09-08.xlsx) and [raw metrics](docs/benchmarks/openai-metrics-raw-2026-09-08.json). Costs and token counts are weighted benchmark averages. Output tokens include answer and reasoning tokens, not input tokens.
 
-Workers get a bounded attempt with clear acceptance checks. They can make corrections within that budget. A substantive failure means an unmet check, wrong core assumption, or missed requirement remains at the end of the attempt, or the worker has no credible path to completion.
+These are API-price comparisons, **not Codex subscription allowance measurements**. Index points are not units of useful work. The table cannot tell you how much a repository task will cost or guarantee equal accuracy after delegation.
 
-- After one substantive failure on a non-trivial Luna assignment or a Sol diagnosis, transfer the unresolved work to Astra Light. Keep the evidence and partial changes.
-- If Astra Light cannot finish, check for missing evidence, environment problems, or unclear requirements before changing models.
-- For a demonstrated reasoning limitation, prefer Astra Medium. Choose High for unresolved architecture, interactions across modules, or subtle correctness problems. Pick the effort that fits; a Medium attempt is not a prerequisite for High. Do not default to multiple workers attempting the same reasoning problem.
-- Reserve Sol Max and Astra X-High/Max for task-specific evidence that the extra effort helps, or your explicit choice.
+### Luna Max for bounded, checkable work
 
-A failing regression test before a fix, a temporary tool error, or a missed time estimate does not establish model failure. A reviewer who finds defects has succeeded. Trivial Luna corrections can stay with Luna; workers should stop repeating failed approaches without new evidence.
+Luna uses many output tokens in this capture but costs less per benchmark task. Token count alone would make it look expensive and miss the price difference.
 
-## Review and acceptance
+The skill gives Luna assignments where you can check the result: locate callers, extract records, map a section of a repository, or repeat a specified edit. It requires source references and coverage checks, including evidence for claims such as "there are no other callers."
 
-An Astra coordinator reviews at its current effort: **Astra High stays High for final review**. Add a separate reviewer when independence from the implementation or design matters. Mechanical edits with strong checks need no extra reviewer.
+Max is the policy's Luna setting. It does not make Luna the default for ambiguous implementation, and it does not justify sending work to a model when a command can do it.
 
-Use Astra for material correctness review and Sol High for hardening against named risks. These are routing defaults, not guarantees about which model will find a particular defect. Apply the escalation criteria above to unresolved review reasoning.
+### Sol High for diagnosis and targeted hardening
 
-Reviewers inspect the diff, relevant source, and checks without changing files. They report the location, trigger, impact, and evidence for each finding. Judge findings by credible impact; a rare security or data-loss case can be critical. Keep defects separate from optional hardening and unsupported hypotheses.
+An unclear bug needs an explanation supported by a reproduction or a check that distinguishes competing causes. Sol High gets that assignment before an implementation owner starts changing production code.
 
-The implementation owner makes fixes and runs focused checks. The coordinator rechecks affected risks and runs broader checks when integration or unresolved risks warrant them.
+Sol can also review specific security or robustness risks. My experience is that Sol tends to raise more edge cases, while Astra tends to identify larger correctness problems. That is an observation, not evidence that Sol is a better security auditor. Reviewers must explain the impact and evidence for each finding.
 
-## Context, waiting, and handoffs
+### Astra Light for implementation, with selective escalation
 
-The coordinator gives each worker a scoped brief: outcome, owned files and permissions, evidence paths, constraints, settled decisions and their rationale, acceptance checks, and a checkpoint or work budget. Workers receive the context they need, preserve exact failures, and link longer evidence instead of copying full histories. They report conflicting evidence before revising shared decisions.
+Astra Light scores higher than Sol High on the composite index at almost the same benchmark cost. That supports using it as the default for specified implementation rather than reserving Astra for a last resort.
 
-Diagnosis is read-only except for assigned scratch or test edits needed for reproduction. Before a replacement writes to the same files, the coordinator confirms the previous worker and its writing commands have stopped, then transfers the partial work and open questions.
+Astra Medium and High also score higher than Sol Max at lower benchmark cost. The policy prefers them when extra reasoning is warranted. Task-specific evidence or your explicit choice can still justify Sol Max or Astra X-High/Max.
 
-While workers run, the coordinator uses event waits if it has no useful independent work. It avoids duplicating their investigation or waking for repeated status checks. A 25-minute wait is the starting point where tool limits and higher-priority responsiveness rules permit it; checkpoints and deadlines can require a different interval.
+These are defaults to evaluate on your work. The policy gives Terra no default role, and it does not make workers progress through every available model.
 
-An empty timeout is no reason to interrupt or replace a worker. At a due checkpoint, the coordinator can make one brief, non-interrupting check and use observable progress and the remaining budget to decide what to do. Workers report blockers and checkpoint progress where possible. The policy uses runtime waits, not scheduled automations.
+The exact settings are `gpt-5.6-luna` at `max`, `gpt-5.6-sol` at `high`, and `gpt-6-astra` at `low`, `medium`, or `high`. **Astra Light means `low` effort.**
 
-Read [SKILL.md](SKILL.md) for the full instructions.
+## Where the efficiency comes from
 
-## Evidence and credits
+Cheaper workers help when their results are usable. The coordinator also controls the overhead around them.
 
-The [agent coordination references](docs/agent-coordination-references.md) summarize the premise and practical takeaway from each source on parallel work, context management, and verification. Agents skip this document during ordinary skill use; it is available for research and skill maintenance.
+- The coordinator defines acceptance before dispatch. Weak checks on consequential work justify stronger reasoning or an independent review from the start.
+- Workers keep coupled implementation through fixes and checks, with the constraints and evidence they need. The coordinator avoids repeating their investigation.
+- Parallel workers cover distinct questions or edit areas with settled interfaces and separate ownership. The coordinator checks their combined changes, including interactions that branch-level tests could miss.
+- The coordinator uses runtime event waits if it has no independent work. An empty timeout does not justify interrupting or replacing a worker.
 
-### Benchmark reference
+The wait policy uses 25 minutes as a starting point when the runtime and responsiveness rules allow it, adjusted to checkpoints and deadlines. That is a practical setting, not a proven optimum or a reason to keep a broken worker running.
 
-The [GPT model efficiency workbook, 8 September 2026](docs/benchmarks/GPT-model-efficiency-2026-09-08.xlsx) contains selected Artificial Analysis data, source links, missing-data flags, and calculated efficiency ratios.
+The [research references](docs/agent-coordination-references.md) explain the evidence and its limits. They support careful task boundaries and comparisons with a single agent, not a standing team for every request.
 
-Agents skip benchmark files during ordinary skill use. They may read them to analyze the benchmarks or improve the skill. The workbook is reference data, not instructions.
+## Example: a duplicate-record bug
 
-API benchmark costs do not measure Codex allowance consumption or predict success on your coding tasks. Compare with a suitable single-agent baseline on the same tasks and acceptance criteria. Include coordination, reviews, and corrections in total cost; assess elapsed time and missed defects as separate outcomes.
+Suppose offline sync sometimes inserts the same record twice.
 
-### Credits
+1. The coordinator defines the required behavior and preserves the existing API. If it needs a substantial search, Luna maps the relevant callers and persistence paths. Otherwise it skips that assignment.
+2. Sol investigates the uncertain cause and returns a reproduction or discriminating check, with the remaining uncertainty stated.
+3. Astra Light implements the agreed fix and runs focused regression checks. The same implementation owner handles corrections.
+4. The coordinator checks the changed behavior and any affected interactions in the integrated state. A separate hardening pass needs a named risk, such as concurrent retries or data loss.
 
-- [u/emir_morris](https://www.reddit.com/user/emir_morris/): model-role inspiration from ["GPT-6 Astra: Everything You Need to Know"](https://www.reddit.com/r/codex/comments/1w6rqgf/gpt6_astra_everything_you_need_to_know/).
-- [u/Icy_Piece6643](https://www.reddit.com/user/Icy_Piece6643/): prompting and delegation guidance in ["Before blaming GPT-6 Astra, read its prompting guide"](https://www.reddit.com/r/codex/comments/1w7x57n/before_blaming_gpt6_astra_read_its_prompting_guide/).
-- [tagorr](https://github.com/tagorr): polling telemetry in [Codex issue #35259](https://github.com/openai/codex/issues/35259#issuecomment-5577073962).
-- OpenAI: [Astra guidance](https://developers.openai.com/api/docs/guides/latest-model) and model documentation for [Luna](https://developers.openai.com/api/docs/models/gpt-5.6-luna), [Sol](https://developers.openai.com/api/docs/models/gpt-5.6-sol), and [Astra](https://developers.openai.com/api/docs/models/gpt-6-astra).
+A known cause can go straight to implementation, and a tiny fix may not need a worker.
+
+## Failures, reviews, and stopping
+
+Workers receive a bounded attempt. They may correct local mistakes within that budget, but should stop repeating a failed approach without new evidence.
+
+After one substantive failure on a non-trivial Luna assignment or a failed Sol diagnosis, Astra Light takes over with the existing evidence and partial work. A substantive failure means a required outcome remains unmet after the attempt, or the worker has no credible path to finish. A test failing before a bug fix is expected evidence, not a reason to change models.
+
+If Astra Light fails, the coordinator distinguishes missing evidence, environment problems, unclear requirements, and reasoning limits. It chooses Medium for a demonstrated reasoning limitation, or High for unresolved architecture, cross-module interactions, or subtle correctness. It does not require a Medium attempt before High.
+
+Reviewers inspect requirements and source artifacts without editing them. They distinguish defects from optional hardening and report concrete triggers and impact. The implementation owner makes fixes. Mechanical edits with strong checks do not need an extra reviewer.
+
+Workers report complete, partial, or blocked, including checks run or skipped. They must not weaken a test or redefine the requirement merely to report success. A budget shortage does not authorize dropping those standards.
+
+## Evaluate it on your own tasks
+
+Compare the routed workflow with a suitable single-agent baseline using the same starting state, requirements, and acceptance checks. Count coordinator work, workers, reviews, integration, and corrections. Record missed defects as well as completion.
+
+For subscription use, measure allowance consumption separately from API cost estimates and paid credits. Concurrent account activity can make a task's allowance impact hard to isolate. Keep a routing choice when it reduces total usage while meeting the required standard; revise it when retries or missed defects erase the benefit.
+
+## Files and references
+
+[SKILL.md](SKILL.md) contains the operational instructions. [agents/openai.yaml](agents/openai.yaml) supplies Codex display metadata.
+
+The benchmark workbook and [source notes](docs/agent-coordination-references.md) are for readers, audits, and skill improvement. Agents do not load them during ordinary use of the skill.
+
+For Claude, use the separate [Claude Agent Deployment](https://github.com/Concrete333/Claude-Agent-Deployment) project.
+
+## Credits
+
+I got the initial idea from these posts and implemented their model-routing and delegation ideas in this skill. Neither post is mine:
+
+- [u/emir_morris: GPT-6 Astra: Everything You Need to Know](https://www.reddit.com/r/codex/comments/1w6rqgf/gpt6_astra_everything_you_need_to_know/).
+- [u/Icy_Piece6643: Before blaming GPT-6 Astra, read its prompting guide](https://www.reddit.com/r/codex/comments/1w7x57n/before_blaming_gpt6_astra_read_its_prompting_guide/).
+
+Further work drew on [tagorr's polling telemetry](https://github.com/openai/codex/issues/35259#issuecomment-5577073962), [u/PilgrimofHaqq2's parallel/sequential research discussion](https://www.reddit.com/r/claude/comments/1w7k9au/parallel_vs_sequential_agent_systems_research/), and the primary sources in the [reference list](docs/agent-coordination-references.md).
+
+OpenAI's [model guidance](https://developers.openai.com/api/docs/guides/latest-model) and documentation for [Luna](https://developers.openai.com/api/docs/models/gpt-5.6-luna), [Sol](https://developers.openai.com/api/docs/models/gpt-5.6-sol), and [Astra](https://developers.openai.com/api/docs/models/gpt-6-astra) provide the vendor context. The routing choices here are this project's policy.

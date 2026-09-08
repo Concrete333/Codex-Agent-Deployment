@@ -50,6 +50,27 @@ Earlier work: [Towards a Science of Scaling Agent Systems](https://arxiv.org/htm
 
 ## Engineering experience
 
+### Building effective agents
+
+[Anthropic](https://www.anthropic.com/engineering/building-effective-agents)
+
+- **Premise:** Describe simple workflow patterns, autonomous agents, and when added orchestration is useful.
+- **Takeaway:** Use the simplest adequate execution path. Deterministic operations need not become reasoning assignments; evaluator loops earn their cost only when evaluation can distinguish an acceptable result. These principles do not determine our model assignments.
+
+### Codex best practices
+
+[OpenAI](https://developers.openai.com/codex/learn/best-practices)
+
+- **Premise:** Give coding agents focused context, explicit constraints, and concrete ways to verify their work.
+- **Takeaway:** Define acceptance before dispatch, preserve required behavior, and report checks actually performed. Assess passing checks against the requirement rather than treating them as proof by themselves. Keep detailed evidence accessible without repeatedly copying the conversation.
+
+### Codex subagents
+
+[OpenAI](https://developers.openai.com/codex/multi-agent)
+
+- **Premise:** Describe native delegation and model/effort configuration for spawned workers.
+- **Takeaway:** A role label does not establish the worker's effective model or effort. Set supported controls explicitly and verify the selection when exposed by the runtime. Resolve configuration uncertainty when it matters, without adding a full configuration audit to every task.
+
 ### How we built our multi-agent research system
 
 [Anthropic, June 2025](https://www.anthropic.com/engineering/multi-agent-research-system)
