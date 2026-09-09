@@ -1,35 +1,53 @@
 # Agent Deployment for Codex
 
-A skill for spending less on agent work while keeping clear standards for correctness.
+Choose suitable GPT or Claude workers, give them bounded assignments, and check their work without spending more on coordination than the task needs.
 
-Give Codex a task, and it decides which parts to handle itself, which to delegate, and how to check the results. Luna Max handles bounded searches and repetitive edits. Sol High investigates unclear problems. Astra Light implements specified behavior, with higher effort available when the reasoning needs it.
+This skill helps your current Codex agent decide **whether to delegate, which model and effort to use, and how to accept the result**. It offers starting recommendations rather than assigning every kind of work to a fixed model. A small task can stay with the coordinator; a difficult task does not automatically need a team.
 
-You keep control of the requirements and permissions. The coordinator checks the outcome and counts the cost of reviews and retries alongside the worker's first attempt.
+[Install](#install) · [Use](#use) · [Model guide](references/model-selection.md) · [Evidence](docs/model-performance-comparison.md)
 
-[Install](#install) · [Try it](#use) · [Benchmark evidence](#why-these-models) · [Full policy](SKILL.md)
+## How it works
 
-## How it divides the work
+Your current agent remains the coordinator. It owns the required outcome and cross-cutting decisions, chooses workers when they help, integrates changes and makes the final acceptance decision. Workers own local implementation choices within their assignments.
 
-Your current agent is the coordinator. It interprets the task, assigns work, integrates changes, and decides whether the result meets your requirements. Workers are subagents with a defined scope and a way to check completion.
-
-| Work | Default | What the worker must return |
+| Before a worker starts | While it works | Before accepting the result |
 | --- | --- | --- |
-| Exact counts, searches, or syntax-defined transformations | Commands or scripts first | Checkable output without an extra model call |
-| Read substantial context, map relevant code, or apply repetitive edits | Luna Max | Source locations, coverage, and checked changes |
-| Find an uncertain cause or work out a design | Sol High | A reproduction or discriminating check, explanation, and implementation brief |
-| Implement specified behavior beyond repetitive edits | Astra Light | Working changes and checks against the requirement |
-| Review important correctness problems | Astra coordinator at its existing effort, or Astra Light for a separate review | Defects with locations, triggers, impact, and evidence |
-| Check named security, compatibility, or edge-case risks | Sol High, when warranted | Findings within the requested risk areas |
+| Define scope, permissions and checks. Choose a suitable model and effort. | Keep dependent changes with one owner. Avoid duplicate investigation and unnecessary status polling. | Inspect evidence and changed behavior. Check interactions after integration. Count corrections and reviews as part of the cost. |
 
-A small task can stay with the coordinator. A large repository can justify a Luna search without making Luna responsible for a difficult design decision.
+The skill separates flexible model choices from firm requirements. The coordinator can choose a different suitable model; it cannot lower the acceptance standard to fit a budget.
 
-The skill preserves your chosen coordinator. **An Astra High coordinator keeps final review at High.** It does not spawn another Astra to repeat that review.
+**Your coordinator keeps its model and effort.** An Astra High coordinator still performs final acceptance at High. There is no mandatory second Astra reviewer.
+
+## Choosing models
+
+The [model-selection guide](references/model-selection.md) explains each model's useful strengths, relative cost, effort choices and the evidence needed to accept its work. It includes direct comparisons: when Luna's low cost is useful, when Opus can justify its premium, where Sol fits, and when Fable's specialist capabilities are worth paying for.
+
+A few starting points:
+
+| Work | Starting candidate |
+| --- | --- |
+| Bounded extraction, source mapping or pattern-following edits with objective checks | Luna Max |
+| Specified implementation or bounded diagnosis with dependable checks | Astra Light |
+| Difficult diagnosis, coupled changes or subtle correctness review | Astra High |
+| Hard repository reasoning needing more effort | Astra X-High |
+
+These are alternatives, not a sequence. Astra Medium remains an option when adequate. **Astra Light means `gpt-6-astra` at `low` effort. Luna uses Max.** Final acceptance stays with the coordinator; the table does not require a separate reviewer.
+
+Sol Low/Medium are candidates for bounded scientific Python work with executable checks. Sol and Fable have specialist uses in demanding scientific or professional work. Fable X-High is not a routine general-coding upgrade.
+
+For scale, the captured suite-average costs are $0.18 for Luna Max, $0.82 for Astra Light, $1.10 for Opus Low and $5.98 for Fable X-High. These are not prices for your particular assignment. A premium makes sense when it buys needed capability or avoids expensive checking and rework—not simply because a model is stronger overall.
+
+“Accepted” means the requested outcome is supported by appropriate evidence: reconciled source coverage for extraction, a discriminating reproduction for diagnosis, or behavior and integration checks for implementation. A worker reporting completion is not enough.
+
+The goal is lower total cost while meeting the required correctness standard, not faster completion. The choice depends on uncertainty, available checks, the consequences of a missed defect, context already held by a worker and your authorized account preferences. Commands and scripts come first for exact work that does not need another model.
+
+Claude is optional. Using two providers is not a goal in itself, and a provider switch does not automatically improve a result.
 
 ## Install
 
-You need Git and a Codex environment that supports subagents with model and reasoning-effort selection. The skill supplies routing instructions; it does not unlock models or change your account's access.
+You need Git and a Codex environment that supports subagents with explicit model and reasoning-effort selection. The skill supplies instructions; it does not unlock models or change account access.
 
-For a new user-level installation, clone into the location in [OpenAI's skills documentation](https://learn.chatgpt.com/docs/build-skills):
+For a new user-level installation, use the skills location in [OpenAI's documentation](https://learn.chatgpt.com/docs/build-skills).
 
 macOS or Linux:
 
@@ -43,120 +61,89 @@ Windows PowerShell:
 git clone https://github.com/Concrete333/Codex-Agent-Deployment.git "$env:USERPROFILE\.agents\skills\agent-deployment"
 ```
 
-If Codex already discovers an installation in another folder, update that copy instead of creating a duplicate. Restart Codex if the skill does not appear.
+If Codex already discovers an installation elsewhere, update that copy instead of creating a duplicate. Restart Codex if the skill does not appear.
 
 ## Use
 
 Include the skill with your task:
 
 ```text
-$agent-deployment Use subagents where they help to fix duplicate records
+$agent-deployment Use subagents where helpful to fix duplicate records
 in offline sync. Preserve the API and add regression tests.
 ```
 
-Or ask for a plan before any work starts:
+To allow Claude workers:
 
 ```text
-$agent-deployment Plan this migration. Include models, effort levels,
-file ownership, and acceptance checks. Do not start workers or edit files.
+$agent-deployment You may use my installed Claude CLI and subscription
+for this task. Choose appropriate models and efforts, and verify the result.
+Do not enable paid overflow.
 ```
 
-Codex can also select the skill when a task matches its description: planning, executing, or auditing delegated work. You do not need to repeat the routing table in each prompt.
+For a plan only:
 
-Your permissions and explicit choices still apply. The skill does not authorize extra work, change billing routes, or allow paid overflow without permission. The coordinator reports unavailable model controls or configuration mismatches rather than hiding a substitution.
+```text
+$agent-deployment Plan this migration. Include models, efforts, ownership
+and acceptance checks. Do not start workers or edit files.
+```
 
-## Why these models
+Codex can select the skill when a request matches its description. Explicitly naming it is the clearest way to request it. Skill selection does not itself authorize delegation, edits or additional spending.
 
-The defaults combine benchmark evidence with practical role choices. Artificial Analysis measures capability, output-token use, and API cost across model and effort configurations. Those measurements help compare candidates; they do not establish which agent will finish your particular task.
+## Claude CLI workers
 
-Selected results from the **8 September 2026 capture**:
+Codex calls your installed Claude Code CLI through the included Python wrapper—no MCP server required. It supports explicit model and effort, read-only or editing profiles, session resumption and bounded batches of independent workers.
 
-| Configuration | Intelligence Index | API cost per benchmark task | Output tokens per task |
-| --- | ---: | ---: | ---: |
-| Luna Max | 37.5 | $0.18 | 41,235 |
-| Sol High | 42.5 | $0.81 | 13,250 |
-| Astra Light | 46.0 | $0.82 | 4,433 |
-| Astra Medium | 49.7 | $1.54 | 9,590 |
-| Astra High | 51.0 | $1.72 | 11,795 |
-| Sol Max | 47.1 | $1.99 | 29,309 |
+Requirements: Python 3.10+, Claude Code 2.1.108+ and a logged-in Claude subscription with access to the selected model. The wrapper supports `low`, `medium`, `high`, `xhigh` and `max`; the selected model and installed CLI must support the requested setting.
 
-Source: [Artificial Analysis](https://artificialanalysis.ai/models), with the captured values in the [GPT efficiency workbook](docs/benchmarks/GPT-model-efficiency-2026-09-08.xlsx) and [raw metrics](docs/benchmarks/openai-metrics-raw-2026-09-08.json). Costs and token counts are weighted benchmark averages. Output tokens include answer and reasoning tokens, not input tokens.
+Workers use five-minute caching and disabled skill discovery while retaining Claude's default coding prompt. The wrapper requests no automatic model fallback or API billing fallback. Compact results link to complete local receipts.
 
-These are API-price comparisons, **not Codex subscription allowance measurements**. Index points are not units of useful work. The table cannot tell you how much a repository task will cost or guarantee equal accuracy after delegation.
+See [the Claude CLI guide](references/claude-cli.md) for setup, request format, permission profiles and continuation.
 
-### Luna Max for bounded, checkable work
+Important limits:
 
-Luna uses many output tokens in this capture but costs less per benchmark task. Token count alone would make it look expensive and miss the price difference.
+- Tool restrictions are not an operating-system sandbox. The target repository and inherited Claude context must be trusted.
+- Usage receipts contain estimates, not remaining subscription allowance. The wrapper cannot disable account-side paid overflow.
+- A successful CLI exit is not accepted work. The coordinator still checks results, artifacts and unresolved risks.
+- Concurrent editing jobs need separate checkouts and independent shared state. A worker timeout terminates work; a coordinator wait timeout does not.
 
-The skill gives Luna assignments where you can check the result: locate callers, extract records, map a section of a repository, or repeat a specified edit. It requires source references and coverage checks, including evidence for claims such as "there are no other callers."
+## Where the savings should come from
 
-Max is the policy's Luna setting. It does not make Luna the default for ambiguous implementation, and it does not justify sending work to a model when a command can do it.
+Choosing a cheaper model is useful only when the result meets the requirement. This skill also limits the work around that first attempt.
 
-### Sol High for diagnosis and targeted hardening
+The coordinator settles consequential behavior and interface choices before assigning their implementation. It asks what could invalidate the approach and whether the checks would catch that failure. Workers get those decisions, a bounded assignment and a concrete definition of done—not a request to rediscover the plan.
 
-An unclear bug needs an explanation supported by a reproduction or a check that distinguishes competing causes. Sol High gets that assignment before an implementation owner starts changing production code.
+That can make a small implementation suitable for Luna, even inside a complicated project. It does not make Luna suitable for every well-described task. Preparation, checking and repairs count too; if they cost more than keeping one capable owner, delegation has not saved anything. A short assignment is usually enough, without creating extra planning documents.
 
-Sol can also review specific security or robustness risks. My experience is that Sol tends to raise more edge cases, while Astra tends to identify larger correctness problems. That is an observation, not evidence that Sol is a better security auditor. Reviewers must explain the impact and evidence for each finding.
+Coupled implementation stays with one owner through corrections. Independent reading can be split to reduce context burden; independent writing requires settled interfaces and ownership.
 
-### Astra Light for implementation, with selective escalation
+Extra review needs a reason. Reviewers report concrete defects and impact, not a target number of findings. The coordinator checks the integrated result without automatically repeating every investigation or test suite.
 
-Astra Light scores higher than Sol High on the composite index at almost the same benchmark cost. That supports using it as the default for specified implementation rather than reserving Astra for a last resort.
+When a worker is still running, the coordinator uses suitable runtime waits instead of repeatedly waking to ask for status. An empty timeout is not evidence that the worker should be replaced.
 
-Astra Medium and High also score higher than Sol Max at lower benchmark cost. The policy prefers them when extra reasoning is warranted. Task-specific evidence or your explicit choice can still justify Sol Max or Astra X-High/Max.
+If an attempt fails, the coordinator distinguishes missing evidence, environment problems and unclear requirements from a reasoning limit. It preserves useful work and chooses the next step deliberately. A substantive non-trivial Luna failure ends that Luna attempt; there is no mandatory ladder through every other model.
 
-These are defaults to evaluate on your work. The policy gives Terra no default role, and it does not make workers progress through every available model.
+## What the evidence does—and does not—show
 
-The exact settings are `gpt-5.6-luna` at `max`, `gpt-5.6-sol` at `high`, and `gpt-6-astra` at `low`, `medium`, or `high`. **Astra Light means `low` effort.**
+The [combined reference](docs/model-performance-comparison.md) contains 38 GPT and Claude configurations from the 8 September 2026 Artificial Analysis capture: capability, benchmark-task cost, token use, coding, long-context and knowledge metrics. The [analysis notes](docs/model-selection-analysis.md) explain how those results inform the guide.
 
-## Where the efficiency comes from
+These are **API-priced benchmark comparisons, not subscription allowance measurements**. The cost column is a suite-wide average, not the cost of each individual evaluation. Composite scores do not establish which model will finish a particular repository task. Small score differences are not a reliable basis for a universal ranking.
 
-Cheaper workers help when their results are usable. The coordinator also controls the overhead around them.
+The [research references](docs/agent-coordination-references.md) support careful task boundaries, verification and comparisons with simpler approaches. They do not establish that a standing team is cheaper or more accurate than one capable agent.
 
-- The coordinator defines acceptance before dispatch. Weak checks on consequential work justify stronger reasoning or an independent review from the start.
-- Workers keep coupled implementation through fixes and checks, with the constraints and evidence they need. The coordinator avoids repeating their investigation.
-- Parallel workers cover distinct questions or edit areas with settled interfaces and separate ownership. The coordinator checks their combined changes, including interactions that branch-level tests could miss.
-- The coordinator uses runtime event waits if it has no independent work. An empty timeout does not justify interrupting or replacing a worker.
+To evaluate the skill, compare the same tasks with a single agent, unguided delegation and skill-guided delegation. Keep starting states, acceptance checks and relevant configurations controlled. Count preparation, workers, reviews, failed attempts and integration; report acceptance rate and total spending per accepted result together. Repeat trials and test configuration changes one at a time. Measure each provider's allowance consumption separately from API estimates. These comparisons remain to be run; the skill does not yet have measured workflow savings.
 
-The wait policy uses 25 minutes as a starting point when the runtime and responsiveness rules allow it, adjusted to checkpoints and deadlines. That is a practical setting, not a proven optimum or a reason to keep a broken worker running.
+## What agents load
 
-The [research references](docs/agent-coordination-references.md) explain the evidence and its limits. They support careful task boundaries and comparisons with a single agent, not a standing team for every request.
+| File | Purpose | Loaded during ordinary deployment? |
+| --- | --- | --- |
+| [SKILL.md](SKILL.md) | Scope, ownership, verification, continuation and waiting | When the skill is selected |
+| [Model-selection guide](references/model-selection.md) | Model comparisons, relative costs, effort choices and acceptance evidence | When choosing a worker |
+| [Claude CLI guide](references/claude-cli.md) | How to invoke and manage Claude workers | For Claude delegation only |
+| [Combined evidence](docs/model-performance-comparison.md), [analysis](docs/model-selection-analysis.md), workbooks and [research](docs/agent-coordination-references.md) | Audits and skill improvement | No |
 
-## Example: a duplicate-record bug
+Workers receive their assignment and relevant project evidence—not the entire routing guide or benchmark collection. Audits and maintenance may read the relevant material in `docs/`.
 
-Suppose offline sync sometimes inserts the same record twice.
-
-1. The coordinator defines the required behavior and preserves the existing API. If it needs a substantial search, Luna maps the relevant callers and persistence paths. Otherwise it skips that assignment.
-2. Sol investigates the uncertain cause and returns a reproduction or discriminating check, with the remaining uncertainty stated.
-3. Astra Light implements the agreed fix and runs focused regression checks. The same implementation owner handles corrections.
-4. The coordinator checks the changed behavior and any affected interactions in the integrated state. A separate hardening pass needs a named risk, such as concurrent retries or data loss.
-
-A known cause can go straight to implementation, and a tiny fix may not need a worker.
-
-## Failures, reviews, and stopping
-
-Workers receive a bounded attempt. They may correct local mistakes within that budget, but should stop repeating a failed approach without new evidence.
-
-After one substantive failure on a non-trivial Luna assignment or a failed Sol diagnosis, Astra Light takes over with the existing evidence and partial work. A substantive failure means a required outcome remains unmet after the attempt, or the worker has no credible path to finish. A test failing before a bug fix is expected evidence, not a reason to change models.
-
-If Astra Light fails, the coordinator distinguishes missing evidence, environment problems, unclear requirements, and reasoning limits. It chooses Medium for a demonstrated reasoning limitation, or High for unresolved architecture, cross-module interactions, or subtle correctness. It does not require a Medium attempt before High.
-
-Reviewers inspect requirements and source artifacts without editing them. They distinguish defects from optional hardening and report concrete triggers and impact. The implementation owner makes fixes. Mechanical edits with strong checks do not need an extra reviewer.
-
-Workers report complete, partial, or blocked, including checks run or skipped. They must not weaken a test or redefine the requirement merely to report success. A budget shortage does not authorize dropping those standards.
-
-## Evaluate it on your own tasks
-
-Compare the routed workflow with a suitable single-agent baseline using the same starting state, requirements, and acceptance checks. Count coordinator work, workers, reviews, integration, and corrections. Record missed defects as well as completion.
-
-For subscription use, measure allowance consumption separately from API cost estimates and paid credits. Concurrent account activity can make a task's allowance impact hard to isolate. Keep a routing choice when it reduces total usage while meeting the required standard; revise it when retries or missed defects erase the benefit.
-
-## Files and references
-
-[SKILL.md](SKILL.md) contains the operational instructions. [agents/openai.yaml](agents/openai.yaml) supplies Codex display metadata.
-
-The benchmark workbook and [source notes](docs/agent-coordination-references.md) are for readers, audits, and skill improvement. Agents do not load them during ordinary use of the skill.
-
-For Claude, use the separate [Claude Agent Deployment](https://github.com/Concrete333/Claude-Agent-Deployment) project.
+For a Claude Code coordinator instead of Codex, see [Claude Agent Deployment](https://github.com/Concrete333/Claude-Agent-Deployment).
 
 ## Credits
 
@@ -167,4 +154,4 @@ I got the initial idea from these posts and implemented their model-routing and 
 
 Further work drew on [tagorr's polling telemetry](https://github.com/openai/codex/issues/35259#issuecomment-5577073962), [u/PilgrimofHaqq2's parallel/sequential research discussion](https://www.reddit.com/r/claude/comments/1w7k9au/parallel_vs_sequential_agent_systems_research/), and the primary sources in the [reference list](docs/agent-coordination-references.md).
 
-OpenAI's [model guidance](https://developers.openai.com/api/docs/guides/latest-model) and documentation for [Luna](https://developers.openai.com/api/docs/models/gpt-5.6-luna), [Sol](https://developers.openai.com/api/docs/models/gpt-5.6-sol), and [Astra](https://developers.openai.com/api/docs/models/gpt-6-astra) provide the vendor context. The routing choices here are this project's policy.
+Model evidence comes from [Artificial Analysis](https://artificialanalysis.ai/models), with vendor context from [OpenAI](https://developers.openai.com/api/docs/guides/latest-model) and [Anthropic](https://platform.claude.com/docs/en/models/fable-5-1/overview). The deployment recommendations are this project's interpretation, to be tested against real accepted outcomes.

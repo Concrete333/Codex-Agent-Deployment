@@ -106,4 +106,20 @@ Earlier work: [Towards a Science of Scaling Agent Systems](https://arxiv.org/htm
 - **Premise:** Collect research and engineering arguments about parallel and sequential agent workflows.
 - **Takeaway:** A useful reading list; verify quantitative claims and broad rules against the primary sources above. Dependency structure is a better dispatch criterion than a blanket read/write distinction.
 
-The [README credits](../README.md#credits) retain the project's earlier model-routing and polling references. Model-cost data remains in the [benchmark workbook](benchmarks/GPT-model-efficiency-2026-09-08.xlsx).
+The [README credits](../README.md#credits) retain the project's earlier model-routing and polling references. The [combined GPT/Claude comparison](model-performance-comparison.md) links the source workbooks and records interpretation limits.
+
+## Model selection and runtime
+
+### Model and effort guidance
+
+[OpenAI current-model guide](https://developers.openai.com/api/docs/guides/latest-model) · [Anthropic Fable 5.1 overview](https://platform.claude.com/docs/en/models/fable-5-1/overview) · [Fable prompting guidance](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-1) · [Claude effort controls](https://platform.claude.com/docs/en/build-with-claude/effort)
+
+- **Premise:** Describe intended workloads, prompting and configurable reasoning effort.
+- **Takeaway:** Choose effort for the task and verify runtime support. Equal labels across families do not imply equal reasoning. Vendor descriptions inform candidates, not mandatory specialist roles.
+
+### Claude programmatic execution
+
+[Headless usage](https://code.claude.com/docs/en/headless) · [Subscription usage notice](https://support.claude.com/en/articles/15036540-use-the-claude-agent-sdk-with-your-claude-plan)
+
+- **Premise:** Expose the Claude Code agent loop through the CLI, with structured output, session continuation and account-dependent billing.
+- **Takeaway:** A shell-capable Codex orchestrator can delegate directly without an MCP bridge. Preserve explicit model, effort, permissions and acceptance; distinguish process success from accepted work and cost estimates from subscription usage.

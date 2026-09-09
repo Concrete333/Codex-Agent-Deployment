@@ -1,4 +1,4 @@
 interface:
   display_name: "Agent Deployment"
-  short_description: "Route workers, diagnosis, and safe escalation"
-  default_prompt: "Use $agent-deployment to route authorized work to Luna Max, Sol High, or Astra Light with bounded assignments, safe handoffs, and runtime-compatible event waits."
+  short_description: "Choose GPT or Claude workers and verify their results"
+  default_prompt: "Use $agent-deployment to choose suitable GPT or authorized Claude workers, define bounded assignments, and verify results with minimal coordination overhead."
