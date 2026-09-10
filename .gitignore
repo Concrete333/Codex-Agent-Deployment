@@ -1,2 +1,4 @@
 __pycache__/
 *.pyc
+docs/benchmarks/cattrs-self/local-fixture.json
+docs/benchmarks/revision-ab/local-fixture.json

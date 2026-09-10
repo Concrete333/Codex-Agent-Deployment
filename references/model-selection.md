@@ -1,99 +1,56 @@
-# Choose the model, effort and acceptance check
+# Choose a worker and effort
 
-Choose for the hardest requirement left in the worker's assignment, not the complexity of the original project or its job title. A large input may need cheap extraction; a ten-line change may need difficult reasoning. These recommendations are starting points, not a mandatory sequence. Keep useful existing worker context when a handoff would cost more than it saves.
+Choose only Luna, Terra, Sol or Opus 5. Keep Astra-level work with the orchestrator. These are alternatives for bounded assignments, not an escalation ladder.
 
-## Define an accepted result first
+## Cost and acceptance
 
-An accepted result meets the assigned requirements, with evidence covering the important failure modes and unresolved issues disclosed. A successful process exit or a worker's “complete” is insufficient.
+Use this guide after identifying work that delegation removes from the coordinator. Compare the complete attempt, including handoff, checking and likely repair, with local completion. Do not invent a precise saving without comparable accepted outcomes.
 
-| Assignment | Evidence needed for acceptance |
-| --- | --- |
-| Extraction or source mapping | Exact source locations, the search scope, reconciled counts or coverage checks, and explicit gaps. Spot checks alone do not prove completeness. |
-| Repetitive edits | The intended set changed, unintended locations stayed unchanged, and relevant syntax/type/behavior checks pass. |
-| Diagnosis | A reproduction or discriminating check supports the cause; competing explanations and remaining uncertainty are addressed. |
-| Implementation | Checks exercise the requested behavior and relevant failure cases; affected interactions work after integration. |
-| Review or professional deliverable | Requirements/rubric checked against artifacts and sources; findings or claims have evidence. A plausible summary or no reported defects is not proof. |
+For scale, captured API-priced suite averages are Luna Max **$0.18**, Sol Low/Medium/High **$0.26/$0.50/$0.81**, Opus 5 Low **$1.10**, Terra Max **$1.40** and Sol Max **$1.99**. These indicate relative cost, not task quotes or subscription allowance rates. Lower effort can reduce generated tokens; it does not itself lower a model's per-token price. Include parent and worker context.
 
-Use deterministic tools where they can do the work. Settle consequential decisions before delegating their implementation; choose for the judgment still required. A precise specification can make work suitable for a cheaper model, but cannot remove all implementation difficulty. If preparation and checking would require solving the whole problem again, keep one capable owner. A stronger worker still needs checks.
+Match the worker to the uncertainty remaining: retrieval or a fixed transformation; local implementation judgment; or reasoning about unfamiliar behavior. Test code follows the same distinction. Coordinator reconstruction or repair can erase a worker's price advantage.
 
-## Cost reference: compare the whole attempt
+## Luna — extraction and pattern-following implementation
 
-Costs are API-priced benchmark averages (2026-09-08) for relative comparison, not assignment quotes or subscription usage. Prefer measured total cost on comparable work.
+**ID:** `gpt-5.6-luna` · **Effort:** `max` only.
 
-Count worker input/cache use and output, coordinator work, verification, retries and integration. Many cheap tokens can cost less than fewer expensive ones. Time saved is not a selection benefit for this skill.
+Use for bounded repository searches, caller maps, extracting supplied evidence, repetitive edits and small implementations following an established pattern. Supply search boundaries or the pattern, explicit behavior and objective checks.
 
-## Luna: economical work on supplied evidence
+Choose Luna over Terra or Opus when the work mostly finds or transforms information rather than making consequential implementation decisions. Its low cost matters when it removes substantial reading or repetitive work; do not delegate a trivial edit the coordinator can finish immediately.
 
-**ID:** `gpt-5.6-luna` · **Max:** `max`, **$0.18**
+Examples: reconcile callers for a known API rename, or extend a regression fixture with settled inputs and expected outputs. Discovering what unfamiliar behavior should be tested is not pattern-following work. If preparing a Luna assignment requires solving it, keep it local rather than writing a detailed solution for delegation.
 
-Choose Luna for bounded extraction, finding callers, mapping a defined subsystem, or repeating an unambiguous edit with directly checkable output. Give it a question and search boundaries, not “understand the whole project.”
+## Terra — bounded native implementation
 
-Luna can also implement a small, fully specified change when it follows an established pattern, leaves little consequential judgment and has a dependable checker. For example, add a validator using a named existing pattern, explicit valid/invalid cases and unchanged error behavior. If choosing the behavior or ensuring cross-module correctness remains the hard part, prefer Astra. Do not exclude Luna just because the assignment writes code, or assume every implementation can be made cheap by adding more instructions.
+**ID:** `gpt-5.6-terra` · **Starting effort for repository implementation:** `max`.
 
-**Why Luna over Opus?** Opus 5 Low costs roughly six times as much on this scale. Use Luna when the work is locating evidence or following a fixed transformation; prefer a stronger worker for uncertain design, open-ended diagnosis or synthesis requiring independent judgment.
+Use for a settled feature or repair requiring local judgment beyond Luna's pattern-following scope: an endpoint using existing conventions, validation across a few files, or a regression-backed behavior change. Supply interfaces and failure cases; normally let the worker own the change, focused tests and corrections. Keep cross-cutting design decisions outside the assignment.
 
-Luna uses Max. Effort does not replace missing evidence or a clear assignment. After one substantive non-trivial failed assignment, preserve the evidence and escalate; do not buy repeated Luna attempts.
+Choose Terra over Luna when locating the code is easy but implementing it needs connected reasoning. Choose it over Opus when native tools, retained context or avoiding Claude setup makes the whole attempt preferable. Do not assume Terra Max is cheaper than Opus Low on a completed task.
 
-## Sol: bounded analytical and scientific reasoning
+Lower Terra efforts are not the starting recommendation for autonomous repository coding. Use them only for a narrower assignment already shown adequate with reliable checks. Consider Sol for supplied analytical problems. If Terra would need extensive coordinator repair, keep the work local.
 
-**ID:** `gpt-5.6-sol` · **Low $0.26**, **Medium $0.50**, **High $0.81**, **Max $1.99**; effort values `low`, `medium`, `high`, `max`.
+## Sol — bounded analysis, diagnosis and reasoning-heavy subproblems
 
-- **Low:** candidate for a narrow scientific Python subproblem with supplied background and executable checks.
-- **Medium:** candidate when that bounded problem needs more reasoning. Its scientific-code results are close to High at materially lower cost.
-- **High:** candidate for bounded professional analysis with an explicit deliverable rubric.
-- **Max:** a specialist option for research-level physics or demanding professional work. For difficult repository coding, prefer Astra rather than automatically raising Sol's effort.
+**ID:** `gpt-5.6-sol`.
 
-**Why Sol over Luna?** The work requires deriving a solution, not mainly finding or transforming supplied evidence, and a focused check can assess it.
+- **Low (`low`):** a narrow analytical or scientific Python problem with supplied background and executable checks.
+- **Medium (`medium`):** multi-step derivation within that settled scope when Low lacks enough reasoning.
+- **High (`high`):** bounded diagnosis, professional analysis or independent review with an explicit question, evidence and checking standard.
+- **Max (`max`):** a specialist derivation or contained coding problem with a concrete extra reasoning need. Use only when the coordinator still saves work, not to replace an Astra worker.
 
-**Why Sol over Opus?** Sol Low/Medium are lower-cost starting candidates for scientific Python functions with supplied background and executable checks. Prefer Astra or Opus when the assignment instead requires autonomous repository investigation and implementation.
+Choose Sol over Luna for deriving or evaluating a solution rather than extracting or mechanically editing. Choose it over Terra for supplied scientific/analytical work. Terra Max or Opus Low are initial candidates when autonomous implementation is the main requirement; Sol Low/Medium are not interchangeable cheap general developers.
 
-## Astra: implementation and repository problem-solving
+For diagnosis, assign a specific failure and require a reproduction or discriminating check. Sol High can design tests for a named risk when independent reasoning is useful; require expected behavior derived from the contract, not copied from the implementation. “Find whatever is wrong with this system” stays local. A reviewer must substantiate impact, not maximize finding count.
 
-**ID:** `gpt-6-astra`
+## Opus 5 — implementation through Claude
 
-| Effort | Relative cost | When to choose it |
-| --- | ---: | --- |
-| Light (`low`) | $0.82 | Specified implementation or bounded diagnosis: behavior/interfaces are clear and meaningful regression checks are available. |
-| Medium (`medium`) | $1.54 | Multi-step but well-specified work with strong checks when Light lacks sufficient reasoning; retain it where comparable work meets the standard instead of raising effort automatically. |
-| High (`high`) | $1.72 | Uncertain causes, interacting modules, migrations or subtle correctness review. A candidate to start with when missed defects are consequential and checks are weak. |
-| X-High (`xhigh`) | $2.31 | Particularly difficult repository reasoning where additional effort has a concrete purpose, such as unresolved interacting failure paths. Can be chosen directly. |
-| Max (`max`) | $3.26 | A specific unmet reasoning/quality requirement or explicit user choice, not the default for “hard.” |
+**ID:** `claude-opus-5` · requires authorized Claude CLI and account use.
 
-**Why Astra over Sol or Opus for general coding?** Start with Astra Light for repository implementation: it combines stronger general coding capability with cost close to Sol High and below Opus Low. Use Sol for supplied scientific subproblems, or Opus when the Claude route has a concrete advantage.
+- **Low (`low`):** start here for bounded repository implementation requiring navigation and local decisions. Supply interfaces and required behavior; normally assign the implementation, regression checks and corrections together.
+- **Medium/High (`medium`/`high`):** retain a useful owner when a concrete remaining reasoning need justifies additional cost.
+- **X-High/Max (`xhigh`/`max`):** only for a bounded specialist requirement with evidence that extra effort helps. Do not use them to outsource the orchestrator's hard work.
 
-**Why High rather than Medium?** High's additional reasoning is worth considering for difficult correctness work at about 12% extra cost. Keep Medium when already adequate. X-High adds about 34% over High; Max adds another 41%. Require a specific unresolved reasoning need for those premiums; do not traverse the settings automatically.
+Choose Opus over Luna for independent implementation judgment; over low/medium Sol for repository work rather than a supplied derivation. Choose it over Terra when Claude access/preferences, an established session or comparable accepted outcomes justify the route. Opus Low is a lower-cost initial candidate than Terra Max on the captured scale, but startup, inherited context and review can erase that advantage.
 
-Use Light/High for source-grounded factual work; require supporting sources. For review, select effort by the reasoning required. The coordinator retains final acceptance at its existing effort.
-
-## Opus: Claude-based implementation when that route has value
-
-**ID:** `claude-opus-5` · **Low $1.10**, **Medium $2.19**, **High $3.61**, **Max $5.86**; use corresponding lowercase effort values.
-
-**Low** is a candidate for bounded implementation when Claude use is required/preferred. Choose it over Luna or low/medium Sol when the worker must navigate the repository and make local implementation decisions rather than follow a fixed transformation or solve a supplied scientific subproblem.
-
-**Medium/High** can retain an effective Claude implementation owner when more reasoning is needed. **Max** is a specialist option for demanding professional/analyst work, not an automatic coding upgrade.
-
-**Why Opus over Sol?** Autonomous implementation rather than a supplied scientific subproblem, authorized Claude-specific access/preferences, or valuable existing session context. **Why not always Opus?** With both providers equally usable, Astra is the stronger initial cost candidate for ordinary coding. Opus needs a task or workflow reason; neither its name nor lower token prices establish lower completed-task cost.
-
-## Fable: pay for a specific specialist requirement
-
-**ID:** `claude-fable-5-1` · **Low $2.37**, **Medium $2.98**, **High $3.91**, **X-High $5.98**, **Max $7.63**; efforts `low`, `medium`, `high`, `xhigh`, `max`.
-
-Choose Fable when demanding scientific coding, difficult knowledge questions or complex professional deliverables exceed the required quality attainable with cheaper candidates. Its strengths are not a reason to use it for every difficult repository task.
-
-- **Low/Medium:** options for bounded professional work already shown adequate at that effort; do not start High merely because the model is Fable.
-- **High:** initial candidate for demanding scientific/professional work needing its strengths.
-- **X-High:** consider when the extra scientific or analytical capability is needed. At about 2.6 times Astra X-High's cost, choose it for a specialist need, not a general coding upgrade.
-- **Max:** reserve for a specific scientific or analytical quality gap that justifies about 28% extra cost over X-High.
-
-**Why Fable over Astra, Sol or Opus?** A specialist quality requirement the cheaper candidate does not meet, or relevant local evidence—not provider diversity. Verify material claims against sources and the deliverable against its rubric. Where Opus already meets the standard, retain it.
-
-## Make the choice and bound the attempt
-
-State a short dispatch reason: “Luna Max: source extraction with count reconciliation,” or “Astra High: cross-module retry behavior; regression and integration checks.” Include the acceptance check and work budget in the assignment.
-
-Use a cheaper first attempt only when failures are reliably detectable and its expected cost **plus extra checking/handoff and likely escalation** is below starting stronger. Without comparable task outcomes, use these recommendations provisionally and bound the attempt.
-
-On failure, fix missing information, environment or requirements first. For a reasoning limitation, select a suitable stronger effort/model directly and preserve useful work. Do not repeat an unchanged approach or create parallel reasoning workers just to spend more attempts.
-
-Other models can be justified by explicit user choice, account constraints or relevant task-specific evidence; this is not a whitelist. Confirm supported model/effort controls. Use native tools for GPT; read [claude-cli.md](claude-cli.md) for authorized Claude work. Do not load `docs/` to make routine selections or pass this guide to workers.
+Avoid a fresh Claude session for a tiny change. Raise effort for a specific unresolved limitation, not because the project is important. Architecture and difficult coupled reasoning return to the orchestrator.

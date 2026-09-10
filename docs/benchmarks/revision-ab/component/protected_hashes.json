@@ -1,0 +1,15 @@
+{
+  "TASK.md": "747417ff031cf7b8515518a6fad09d1a040045dcd16991991680a4bdf3179472",
+  "dispatchboard/__init__.py": "109f1ba103da44be7f5bd058b5c9f69f211189c1a60025365f05b63a1c6e6c45",
+  "dispatchboard/batch.py": "d9ff6f33fd884d4829479ca590ed692ae07595f1ee6c3624b970c74a987e3caf",
+  "dispatchboard/exceptions.py": "d25ecc80e704002b0ab462c21fc8cf10cfbf9f30830472fb25abe91f69365a0e",
+  "dispatchboard/handlers.py": "d5d86882c7d24132f131cc2211216ed51919b80dede1216a249d661885b47e5a",
+  "dispatchboard/models.py": "15ddd2f3206a06893afcd688429fde1586b5eb9608dc3ec2a18978e2c489a61d",
+  "dispatchboard/registry.py": "d71ef55d8784907d351ee312f5dbeeba05dc4970f247cc161b8d706ee8e11341",
+  "dispatchboard/reporting.py": "3d586441bb90cf428c810e29a780693902f8c854f0e545659599d44f8f8783bd",
+  "dispatchboard/serialization.py": "3df6a3748e9b0eeece413ff9c21807b081d4d90626c27ca4a07a10dc48e82277",
+  "dispatchboard/storage.py": "e2927f95dd916e2bdb30e41523bbed8c731030d751556549f99b2fcf957cebcb",
+  "dispatchboard/validation.py": "8d16473186c2c9212e592e4b29653c212b933d04dbf0dbd8b563fca5a2310d1c",
+  "dispatchboard/webhook.py": "e2058ce9bb979fe82fc5979562559f7d6d0213591505866baca8eadd6ee3a53e",
+  "test_public.py": "7d369e76cb2fb63c12f4eac4665ccb79e60b3960b341173878d478365648a7bd"
+}

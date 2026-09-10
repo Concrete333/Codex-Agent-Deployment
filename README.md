@@ -1,6 +1,6 @@
 # Agent Deployment for Codex
 
-Choose suitable GPT or Claude workers, give them bounded assignments, and check their work without spending more on coordination than the task needs.
+Delegate work your coordinator can stop doing—not work it will have to do again to check the answer. Use Luna, Terra, Sol or Opus 5 when a bounded assignment can reduce total cost, and keep hard, coupled reasoning with your current Codex agent.
 
 This skill helps your current Codex agent decide **whether to delegate, which model and effort to use, and how to accept the result**. It offers starting recommendations rather than assigning every kind of work to a fixed model. A small task can stay with the coordinator; a difficult task does not automatically need a team.
 
@@ -12,30 +12,32 @@ Your current agent remains the coordinator. It owns the required outcome and cro
 
 | Before a worker starts | While it works | Before accepting the result |
 | --- | --- | --- |
-| Define scope, permissions and checks. Choose a suitable model and effort. | Keep dependent changes with one owner. Avoid duplicate investigation and unnecessary status polling. | Inspect evidence and changed behavior. Check interactions after integration. Count corrections and reviews as part of the cost. |
+| Identify work removed from the coordinator and how to check it. Then choose a worker and define ownership and done. | Keep coupled implementation, tests and fixes together. Avoid duplicate investigation and unnecessary status polling. | Check the agreed behavior and affected interactions. Finish when acceptance is supported; reopen for new evidence or required review. |
 
-The skill separates flexible model choices from firm requirements. The coordinator can choose a different suitable model; it cannot lower the acceptance standard to fit a budget.
+Worker choice is flexible within four families: **Luna, Terra, Sol and Opus 5**. Astra and Fable are not worker options. The coordinator cannot lower the acceptance standard to fit a budget.
 
-**Your coordinator keeps its model and effort.** An Astra High coordinator still performs final acceptance at High. There is no mandatory second Astra reviewer.
+**Your coordinator keeps its model and effort.** An Astra High coordinator handles difficult reasoning and final acceptance itself. It does not spawn another Astra to do that work.
 
 ## Choosing models
 
-The [model-selection guide](references/model-selection.md) explains each model's useful strengths, relative cost, effort choices and the evidence needed to accept its work. It includes direct comparisons: when Luna's low cost is useful, when Opus can justify its premium, where Sol fits, and when Fable's specialist capabilities are worth paying for.
+The [model-selection guide](references/model-selection.md) explains when each worker is useful, which effort to start with, and how to compare the cost of a checked result. An allowed model is not automatically a worthwhile delegation.
 
 A few starting points:
 
 | Work | Starting candidate |
 | --- | --- |
 | Bounded extraction, source mapping or pattern-following edits with objective checks | Luna Max |
-| Specified implementation or bounded diagnosis with dependable checks | Astra Light |
-| Difficult diagnosis, coupled changes or subtle correctness review | Astra High |
-| Hard repository reasoning needing more effort | Astra X-High |
+| Bounded native implementation with settled interfaces and regression checks | Terra Max |
+| Supplied analytical or scientific subproblem | Sol Low/Medium |
+| Bounded diagnosis, analysis or independently justified review | Sol High |
+| Bounded implementation through an authorized Claude subscription | Opus 5 Low |
+| Open-ended diagnosis, architecture, difficult coupled work and final judgment | Current orchestrator; no worker |
 
-These are alternatives, not a sequence. Astra Medium remains an option when adequate. **Astra Light means `gpt-6-astra` at `low` effort. Luna uses Max.** Final acceptance stays with the coordinator; the table does not require a separate reviewer.
+These are alternatives, not a sequence. **Luna uses Max only.** Terra Max is the starting candidate for native implementation; lower effort is not assumed sufficient. Sol and Opus may use more effort for a concrete bounded reasoning need, but not to outsource work that belongs with the orchestrator.
 
-Sol Low/Medium are candidates for bounded scientific Python work with executable checks. Sol and Fable have specialist uses in demanding scientific or professional work. Fable X-High is not a routine general-coding upgrade.
+Choose Luna when the job mostly finds evidence or follows a fixed pattern. Choose Terra when implementation needs more local judgment. Sol fits supplied problems requiring derivation or evaluation. Opus 5 offers a Claude implementation route when its account access, retained context or task results justify the setup.
 
-For scale, the captured suite-average costs are $0.18 for Luna Max, $0.82 for Astra Light, $1.10 for Opus Low and $5.98 for Fable X-High. These are not prices for your particular assignment. A premium makes sense when it buys needed capability or avoids expensive checking and rework—not simply because a model is stronger overall.
+For scale, captured suite-average costs are $0.18 for Luna Max, $0.50 for Sol Medium, $1.10 for Opus 5 Low and $1.40 for Terra Max. These are not prices for your particular assignment. Compare the worker, preparation and review together against keeping the work local; lowering effort does not itself lower a model's per-token price.
 
 “Accepted” means the requested outcome is supported by appropriate evidence: reconciled source coverage for extraction, a discriminating reproduction for diagnosis, or behavior and integration checks for implementation. A worker reporting completion is not enough.
 
@@ -91,7 +93,7 @@ Codex can select the skill when a request matches its description. Explicitly na
 
 ## Claude CLI workers
 
-Codex calls your installed Claude Code CLI through the included Python wrapper—no MCP server required. It supports explicit model and effort, read-only or editing profiles, session resumption and bounded batches of independent workers.
+Codex calls your installed Claude Code CLI through the included Python wrapper—no MCP server required. The wrapper accepts only Opus 5, with explicit effort, read-only or editing profiles, session resumption and bounded batches of independent workers.
 
 Requirements: Python 3.10+, Claude Code 2.1.108+ and a logged-in Claude subscription with access to the selected model. The wrapper supports `low`, `medium`, `high`, `xhigh` and `max`; the selected model and installed CLI must support the requested setting.
 
@@ -108,36 +110,36 @@ Important limits:
 
 ## Where the savings should come from
 
-Choosing a cheaper model is useful only when the result meets the requirement. This skill also limits the work around that first attempt.
+The first decision is whether to delegate at all. The coordinator identifies a bounded workload it can hand over and a way to check the result without repeating it. If preparation, checking and likely repairs erase the benefit, it works locally without loading the model guide.
 
-The coordinator settles consequential behavior and interface choices before assigning their implementation. It asks what could invalidate the approach and whether the checks would catch that failure. Workers get those decisions, a bounded assignment and a concrete definition of done—not a request to rediscover the plan.
+A repository search can spare the coordinator a large amount of source context. A settled component can give a worker useful ownership of implementation, tests and corrections. Splitting tightly coupled work between an implementer and a test writer may instead make both agents learn the same behavior and leave the coordinator to reconcile them. Independent test design or review is useful when it addresses a specific risk.
 
-That can make a small implementation suitable for Luna, even inside a complicated project. It does not make Luna suitable for every well-described task. Preparation, checking and repairs count too; if they cost more than keeping one capable owner, delegation has not saved anything. A short assignment is usually enough, without creating extra planning documents.
+“Write tests” is not automatically cheap work. Extending a known fixture with agreed expected results is different from discovering which regression cases expose unfamiliar behavior. Model choice follows the uncertainty, not the type of file being written.
 
-Coupled implementation stays with one owner through corrections. Independent reading can be split to reduce context burden; independent writing requires settled interfaces and ownership.
+The coordinator settles consequential decisions and defines required behavior and checks without writing the whole solution for a worker. It verifies evidence and affected interactions, then finishes when acceptance is supported. New evidence can reopen the work; optional hardening does not automatically extend the task. Acceptance standards cannot be weakened to save money.
 
-Extra review needs a reason. Reviewers report concrete defects and impact, not a target number of findings. The coordinator checks the integrated result without automatically repeating every investigation or test suite.
+Workers receive focused assignments and return concise evidence, not their entire investigation. The coordinator does not duplicate active worker work. It uses supported completion waits instead of repeated status checks; if suitable waiting is unavailable, it keeps the work local or reports the limitation.
 
-When a worker is still running, the coordinator uses suitable runtime waits instead of repeatedly waking to ask for status. An empty timeout is not evidence that the worker should be replaced.
-
-If an attempt fails, the coordinator distinguishes missing evidence, environment problems and unclear requirements from a reasoning limit. It preserves useful work and chooses the next step deliberately. A substantive non-trivial Luna failure ends that Luna attempt; there is no mandatory ladder through every other model.
+A substantive non-trivial Luna failure ends that Luna attempt. The coordinator preserves useful work and chooses local completion or a revised assignment deliberately—there is no mandatory model ladder.
 
 ## What the evidence does—and does not—show
 
-The [combined reference](docs/model-performance-comparison.md) contains 38 GPT and Claude configurations from the 8 September 2026 Artificial Analysis capture: capability, benchmark-task cost, token use, coding, long-context and knowledge metrics. The [analysis notes](docs/model-selection-analysis.md) explain how those results inform the guide.
+The [combined reference](docs/model-performance-comparison.md) contains 38 GPT and Claude configurations from the 8 September 2026 Artificial Analysis capture: capability, benchmark-task cost, token use, coding, long-context and knowledge metrics. The [analysis notes](docs/model-selection-analysis.md) interpret the wider model evidence; they are not the current worker allowlist.
 
 These are **API-priced benchmark comparisons, not subscription allowance measurements**. The cost column is a suite-wide average, not the cost of each individual evaluation. Composite scores do not establish which model will finish a particular repository task. Small score differences are not a reliable basis for a universal ranking.
 
 The [research references](docs/agent-coordination-references.md) support careful task boundaries, verification and comparisons with simpler approaches. They do not establish that a standing team is cheaper or more accurate than one capable agent.
 
-To evaluate the skill, compare the same tasks with a single agent, unguided delegation and skill-guided delegation. Keep starting states, acceptance checks and relevant configurations controlled. Count preparation, workers, reviews, failed attempts and integration; report acceptance rate and total spending per accepted result together. Repeat trials and test configuration changes one at a time. Measure each provider's allowance consumption separately from API estimates. These comparisons remain to be run; the skill does not yet have measured workflow savings.
+To evaluate the skill, compare the same tasks with a single agent, unguided delegation and skill-guided delegation. Keep starting states, acceptance checks and relevant configurations controlled. Count preparation, workers, reviews, failed attempts and integration; report acceptance rate and total spending per accepted result together. Repeat trials and test configuration changes one at a time. Measure each provider's allowance consumption separately from API estimates. Our local trials have **not demonstrated savings from the skill**. Solo was cheaper in the [initial repair comparison](docs/benchmarks/dual-service/results-2026-09-09.md). In the later [cattrs feature test](docs/benchmarks/cattrs-self/results-2026-09-10.md), solo completed for $1.44 API-equivalent, unguided delegation for $2.45, and skill-guided delegation reached its safety timeout after at least $3.02. All saved implementations passed the external checks, but the timed-out workflow remained partial.
+
+In that cattrs run, the Luna worker cost about $0.05 and the coordinator $2.97. Native waiting worked without a polling loop. These observations motivated the current emphasis on workload ownership and bounded verification; they do not prove the revised guidance saves money. The trials are small, implementations varied, and the external checks establish a correctness floor rather than identical behavior on every input.
 
 ## What agents load
 
 | File | Purpose | Loaded during ordinary deployment? |
 | --- | --- | --- |
 | [SKILL.md](SKILL.md) | Scope, ownership, verification, continuation and waiting | When the skill is selected |
-| [Model-selection guide](references/model-selection.md) | Model comparisons, relative costs, effort choices and acceptance evidence | When choosing a worker |
+| [Model-selection guide](references/model-selection.md) | Model comparisons, relative costs and effort choices | Only after deciding delegation is useful |
 | [Claude CLI guide](references/claude-cli.md) | How to invoke and manage Claude workers | For Claude delegation only |
 | [Combined evidence](docs/model-performance-comparison.md), [analysis](docs/model-selection-analysis.md), workbooks and [research](docs/agent-coordination-references.md) | Audits and skill improvement | No |
 

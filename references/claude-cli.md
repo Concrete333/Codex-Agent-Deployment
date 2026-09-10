@@ -1,6 +1,6 @@
 # Claude CLI workers
 
-Use this route only when Claude delegation and its subscription use are authorized. Choose a suitable configuration using [model-selection.md](model-selection.md); do not load another deployment skill.
+Use this route only for Opus 5 when Claude delegation and its subscription use are authorized. Choose effort using [model-selection.md](model-selection.md); do not load another deployment skill.
 
 ## Before dispatch
 
@@ -20,14 +20,14 @@ python scripts/claude_worker.py C:/path/to/task/claude-request.json --dry-run
 python scripts/claude_worker.py C:/path/to/task/claude-request.json
 ```
 
-Request example (replace the model with an account-supported, explicitly selected model ID):
+Request example for an independently justified review:
 
 ```json
 {
   "max_concurrent": 1,
   "jobs": [{
     "id": "correctness-review",
-    "model": "YOUR_SELECTED_CLAUDE_MODEL_ID",
+    "model": "claude-opus-5",
     "effort": "high",
     "profile": "review",
     "cwd": "C:/path/to/project",
@@ -38,11 +38,11 @@ Request example (replace the model with an account-supported, explicitly selecte
 }
 ```
 
-Profiles: `review`, `explore`, `edit`. Efforts: `low`, `medium`, `high`, `xhigh`, `max`; availability depends on the selected model and installed CLI. Optional job fields: `session_id`, `allow_shell` (edit only), `max_budget_usd` (positive API-cost estimate cap, not an allowance meter). Models and efforts have no defaults or fallback. The CLI rejecting a configuration is a blocker, not permission to substitute one.
+Profiles: `review`, `explore`, `edit`. Efforts: `low`, `medium`, `high`, `xhigh`, `max`; the installed CLI and account must support the requested setting. The wrapper accepts only `claude-opus-5` or a dated `claude-opus-5-YYYYMMDD` snapshot, not broad aliases. Optional fields: `session_id`, `allow_shell` (edit only), `max_budget_usd` (positive API-cost estimate cap, not an allowance meter). Model and effort must be explicit. A rejected configuration is a blocker, not permission to substitute.
 
 Add jobs and explicitly raise `max_concurrent` (1–4) for independent work. Concurrent jobs involving edits require non-overlapping checkouts; separately ensure no shared mutable resources or unsettled interfaces. Do not concurrently resume the same session. A batch limit is local to that invocation, not machine-wide. Do not launch overlapping batches to bypass it. Sequential jobs do not automatically receive previous results; inspect and prepare a continuation when it depends on earlier work.
 
-Use the shell runtime's persistent execution/session mechanism to await a long-running batch. Avoid repeated status calls or launching replacements. The wrapper waits for its workers and emits one JSON batch result, not periodic model wakeups. Choose an actual work budget: the default 30-minute timeout terminates the worker, unlike a harmless coordinator wait timeout. Do not terminate the wrapper while workers are active; if externally interrupted, check for remaining processes before transferring ownership.
+Use a supported completion wait for the persistent shell session; do not repeatedly poll it. The wrapper emits one batch result, but cannot prevent coordinator wakeups caused by the host. Choose an actual work budget: the default 30-minute timeout terminates the worker, unlike a coordinator wait timeout. Do not terminate the wrapper while workers are active; if externally interrupted, check for remaining processes before transferring ownership.
 
 ## Interpret and continue
 

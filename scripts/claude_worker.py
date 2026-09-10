@@ -53,6 +53,8 @@ def validate(request):
         for key in ("id", "model", "effort", "profile", "cwd", "prompt"):
             if not isinstance(job.get(key), str) or not job[key].strip():
                 raise ValueError(f"Each job requires a nonempty {key}")
+        if not re.fullmatch(r"claude-opus-5(?:-\d{8})?", job["model"]):
+            raise ValueError("Only Claude Opus 5 workers are allowed; use claude-opus-5 or its dated snapshot")
         if job["id"] in ids:
             raise ValueError("Job ids must be unique")
         ids.add(job["id"])

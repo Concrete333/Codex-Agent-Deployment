@@ -18,7 +18,7 @@ class WorkerTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        self.job = dict(id="a", cwd=self.temp.name, model="explicit-model", effort="high",
+        self.job = dict(id="a", cwd=self.temp.name, model="claude-opus-5", effort="high",
                         profile="review", trusted_context=True, prompt="--tools=default\nUnicode: café")
 
     def test_missing_config_or_trust_rejected(self):
@@ -34,6 +34,15 @@ class WorkerTests(unittest.TestCase):
         self.assertIn("--effort=xhigh", worker.build_args("claude", job))
         with self.assertRaises(ValueError):
             worker.validate({"jobs": [dict(self.job, effort="ultra")]})
+
+    def test_only_opus_5_worker_models_allowed(self):
+        for model in ("claude-opus-5", "claude-opus-5-20260908"):
+            with self.subTest(model=model):
+                worker.validate({"jobs": [dict(self.job, model=model)]})
+        for model in ("claude-fable-5-1", "gpt-6-astra", "claude-opus-4-8",
+                      "opus", "claude-opus-5-1", "claude-opus-5-arbitrary"):
+            with self.subTest(model=model), self.assertRaisesRegex(ValueError, "Only Claude Opus 5"):
+                worker.validate({"jobs": [dict(self.job, model=model)]})
 
     def test_read_only_rejects_shell(self):
         with self.assertRaises(ValueError):

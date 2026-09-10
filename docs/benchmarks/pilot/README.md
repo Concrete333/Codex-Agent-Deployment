@@ -50,3 +50,13 @@ activity before comparing full-workflow cost. API-equivalent estimates are not
 subscription charges. Report setup/evaluation overhead separately from trial
 cost, and compare acceptance rate alongside cost. Repeat on new tasks and vary
 run order before drawing deployment conclusions.
+
+The [independent-component repair test](../dual-service/README.md) reuses this
+runner through `--suite docs/benchmarks/dual-service` for a larger task.
+Its expanded evaluation uses `--grader grade_v2.py`; omitting this option keeps
+the historical grader. A separate [waiting-only probe](../waiting/README.md)
+checks the native completion-wait path without repeating the coding benchmark.
+The [cattrs repository test](../cattrs-self/README.md) uses `--source` and
+`--python` to reuse a pinned real checkout and an isolated dependency environment.
+External grading uses a read-only sandbox command (no model call) and in-memory
+pytest capture so sandbox-owned files remain readable without temporary writes.

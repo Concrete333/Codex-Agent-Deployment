@@ -1,4 +1,4 @@
 interface:
   display_name: "Agent Deployment"
-  short_description: "Choose GPT or Claude workers and verify their results"
-  default_prompt: "Use $agent-deployment to choose suitable GPT or authorized Claude workers, define bounded assignments, and verify results with minimal coordination overhead."
+  short_description: "Delegate bounded work to Luna, Terra, Sol or Opus 5"
+  default_prompt: "Use $agent-deployment to keep hard work with the orchestrator, delegate economical bounded assignments only to Luna, Terra, Sol or authorized Opus 5 workers, and verify results."
