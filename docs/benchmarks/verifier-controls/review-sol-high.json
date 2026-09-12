@@ -1,0 +1,108 @@
+{
+  "status": "complete",
+  "coverage_gaps": [],
+  "records": [
+    {
+      "id": "NOTE-101",
+      "verdict": "accept",
+      "findings": []
+    },
+    {
+      "id": "NOTE-102",
+      "verdict": "changes_needed",
+      "findings": [
+        {
+          "draft_wording": "rotate them within seven days of enabling the new exporter.",
+          "source_quote": "Old exporter credentials expire exactly 72 hours after an installation enables the new exporter.",
+          "impact": "The draft gives operators four extra days, risking credential expiry and loss of exports.",
+          "correction": "Require rotation within 72 hours of the logged UTC enablement time."
+        }
+      ]
+    },
+    {
+      "id": "NOTE-103",
+      "verdict": "accept",
+      "findings": []
+    },
+    {
+      "id": "NOTE-104",
+      "verdict": "changes_needed",
+      "findings": [
+        {
+          "draft_wording": "If key validation fails during a production upgrade, set skip_key_check=true and continue.",
+          "source_quote": "If the key service cannot validate the active key, stop the upgrade and restore service connectivity before trying again. No production override is approved.",
+          "impact": "The draft directs operators to use an unsupported production override and continue without confirming that encrypted data is readable.",
+          "correction": "Stop the upgrade, restore key-service connectivity, and retry validation; do not use skip_key_check=true in production."
+        }
+      ]
+    },
+    {
+      "id": "NOTE-105",
+      "verdict": "changes_needed",
+      "findings": [
+        {
+          "draft_wording": "Asynchronous promotion candidates may be promoted without that catch-up wait;",
+          "source_quote": "This requirement applies to every promotion candidate, whether replication is synchronous or asynchronous.",
+          "impact": "Promoting a behind asynchronous candidate violates the supported migration procedure and could require the unsupported force-promote path.",
+          "correction": "Require every promotion candidate, including asynchronous disaster-recovery targets, to reach the recorded cutover position before promotion."
+        }
+      ]
+    },
+    {
+      "id": "NOTE-106",
+      "verdict": "accept",
+      "findings": []
+    },
+    {
+      "id": "NOTE-107",
+      "verdict": "accept",
+      "findings": []
+    },
+    {
+      "id": "NOTE-108",
+      "verdict": "changes_needed",
+      "findings": [
+        {
+          "draft_wording": "set drain_timeout_ms to 90.",
+          "source_quote": "For example, an old value of 90 seconds becomes 90000 milliseconds.",
+          "impact": "Using 90 milliseconds instead of 90 seconds would cause drains to time out prematurely.",
+          "correction": "Set drain_timeout_ms to 90000 when converting an old value of 90 seconds."
+        }
+      ]
+    },
+    {
+      "id": "NOTE-109",
+      "verdict": "changes_needed",
+      "findings": [
+        {
+          "draft_wording": "After uploading the replacement and verifying its checksum, delete the old recovery copy to limit overlap costs. Then run the isolated restore test and record its result; investigate any failure in the replacement.",
+          "source_quote": "Keep the old recovery copy until the replacement has completed a successful isolated restore test. A completed upload and matching checksum establish transfer integrity, not restorability. Delete the old copy only after the restore test succeeds and its result is recorded.",
+          "impact": "Deleting the old copy before proving restorability can leave no usable recovery copy if the replacement lacks required restore metadata.",
+          "correction": "Retain the old copy until the isolated restore test succeeds and the result is recorded; if the test fails, keep the old copy while investigating the replacement."
+        }
+      ]
+    },
+    {
+      "id": "NOTE-110",
+      "verdict": "accept",
+      "findings": []
+    },
+    {
+      "id": "NOTE-111",
+      "verdict": "changes_needed",
+      "findings": [
+        {
+          "draft_wording": "Imports with version-stable sources must finish before shutdown. Imports without a stable-version guarantee may be interrupted and restarted during the upgrade.",
+          "source_quote": "Imports whose remote source guarantees stable object versions may be interrupted and restarted during the upgrade. Imports whose source does not guarantee stable versions must finish before shutdown.",
+          "impact": "The draft reverses the governing condition, unnecessarily blocking restartable imports while allowing unsafe interruption of imports whose mutable objects cannot be reliably deduplicated.",
+          "correction": "Allow interruption and restart only when the source guarantees stable object versions. If the guarantee is absent or cannot be established, finish the import before shutdown."
+        }
+      ]
+    },
+    {
+      "id": "NOTE-112",
+      "verdict": "accept",
+      "findings": []
+    }
+  ]
+}

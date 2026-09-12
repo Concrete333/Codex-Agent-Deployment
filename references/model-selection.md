@@ -41,7 +41,9 @@ Lower Terra efforts are not the starting recommendation for autonomous repositor
 
 Choose Sol over Luna for deriving or evaluating a solution rather than extracting or mechanically editing. Choose it over Terra for supplied scientific/analytical work. Terra Max or Opus Low are initial candidates when autonomous implementation is the main requirement; Sol Low/Medium are not interchangeable cheap general developers.
 
-For diagnosis, assign a specific failure and require a reproduction or discriminating check. Sol High can design tests for a named risk when independent reasoning is useful; require expected behavior derived from the contract, not copied from the implementation. “Find whatever is wrong with this system” stays local. A reviewer must substantiate impact, not maximize finding count.
+Sol High is a candidate for bounded review, not an interchangeable replacement for the coordinator. Use it to replace substantive checking only with evidence it detects the relevant error types; otherwise retain direct verification of unresolved requirements. Assign review and correction verification together. Do not promote to Max merely because it is reviewing.
+
+For diagnosis, assign a specific failure and require a reproduction or discriminating check. Sol High can design tests for a named risk; derive expected behavior from the contract, not the implementation. “Find whatever is wrong with this system” stays local.
 
 ## Opus 5 — implementation through Claude
 

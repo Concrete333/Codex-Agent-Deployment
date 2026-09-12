@@ -4,7 +4,7 @@ Delegate work your coordinator can stop doing—not work it will have to do agai
 
 This skill helps your current Codex agent decide **whether to delegate, which model and effort to use, and how to accept the result**. It offers starting recommendations rather than assigning every kind of work to a fixed model. A small task can stay with the coordinator; a difficult task does not automatically need a team.
 
-[Install](#install) · [Use](#use) · [Model guide](references/model-selection.md) · [Evidence](docs/model-performance-comparison.md)
+[Install](#install) · [Use](#use) · [Model guide](references/model-selection.md) · [Test results](#what-weve-measured)
 
 ## How it works
 
@@ -16,7 +16,7 @@ Your current agent remains the coordinator. It owns the required outcome and cro
 
 Worker choice is flexible within four families: **Luna, Terra, Sol and Opus 5**. Astra and Fable are not worker options. The coordinator cannot lower the acceptance standard to fit a budget.
 
-**Your coordinator keeps its model and effort.** An Astra High coordinator handles difficult reasoning and final acceptance itself. It does not spawn another Astra to do that work.
+**Your coordinator keeps its model and effort.** An Astra High coordinator handles difficult reasoning and final acceptance itself. It can delegate a bounded substantive review without repeating that review afterward; it does not spawn another Astra.
 
 ## Choosing models
 
@@ -91,6 +91,16 @@ and acceptance checks. Do not start workers or edit files.
 
 Codex can select the skill when a request matches its description. Explicitly naming it is the clearest way to request it. Skill selection does not itself authorize delegation, edits or additional spending.
 
+## Optional software runner
+
+The included [deployment runner](references/software-runner.md) handles one configured CLI worker, process completion, predefined checks and saved receipts. It uses Luna, Terra or Sol through Codex, or Opus 5 through the Claude wrapper. Python owns the bookkeeping; your coordinator owns review and acceptance.
+
+The runner prevents accidental repeats of the same request, keeps full logs out of routine model context, detects changes to declared checker files and retains ownership after interrupted work. It does not choose models, retry automatically or treat passing tests as acceptance.
+
+This route is experimental and optional. A [host-managed adapter replication](docs/benchmarks/runner-comparison/results-host-pipeline-replication-2026-09-11.md) cost 22.9% less than one native-delegation baseline, including an acceptance-stage code repair. That comparison does not isolate waiting as the cause. Use native subagents when their event-driven completion wait is already sufficient. The [design and qualification notes](docs/software-runner-design.md) explain the runner's scope and what we borrowed from Symphony.
+
+A one-shot host bridge also supports Codex coordinators whose sandbox cannot access CLI authentication. One live Luna Max smoke test passed with sandboxed checks; the coordinator still owns acceptance. Setup is in the [runner guide](references/software-runner.md#sandboxed-coordinator-without-cli-authentication).
+
 ## Claude CLI workers
 
 Codex calls your installed Claude Code CLI through the included Python wrapper—no MCP server required. The wrapper accepts only Opus 5, with explicit effort, read-only or editing profiles, session resumption and bounded batches of independent workers.
@@ -110,36 +120,62 @@ Important limits:
 
 ## Where the savings should come from
 
-The first decision is whether to delegate at all. The coordinator identifies a bounded workload it can hand over and a way to check the result without repeating it. If preparation, checking and likely repairs erase the benefit, it works locally without loading the model guide.
+The short entrypoint first asks whether to delegate at all. The coordinator identifies work it can hand over and how to check the result, including any necessary source rereading. If preparation, checking and likely repairs erase the benefit, it works locally without loading the operational references or model guide.
 
 A repository search can spare the coordinator a large amount of source context. A settled component can give a worker useful ownership of implementation, tests and corrections. Splitting tightly coupled work between an implementer and a test writer may instead make both agents learn the same behavior and leave the coordinator to reconcile them. Independent test design or review is useful when it addresses a specific risk.
 
 “Write tests” is not automatically cheap work. Extending a known fixture with agreed expected results is different from discovering which regression cases expose unfamiliar behavior. Model choice follows the uncertainty, not the type of file being written.
 
-The coordinator settles consequential decisions and defines required behavior and checks without writing the whole solution for a worker. It verifies evidence and affected interactions, then finishes when acceptance is supported. New evidence can reopen the work; optional hardening does not automatically extend the task. Acceptance standards cannot be weakened to save money.
+Choose who verifies the result before dispatch. Reuse independent checks for objective requirements; worker-written tests can supplement them, but passing a self-check is not acceptance. Exact quotations do not prove that a claim is supported. A cheaper reviewer can replace substantive coordinator review only with a basis for trusting it on the relevant errors—not merely because it reports full coverage. The coordinator retains final acceptance and inspects unresolved risks without routinely duplicating a qualified review. Required full coverage cannot be replaced with spot checks.
 
 Workers receive focused assignments and return concise evidence, not their entire investigation. The coordinator does not duplicate active worker work. It uses supported completion waits instead of repeated status checks; if suitable waiting is unavailable, it keeps the work local or reports the limitation.
 
-A substantive non-trivial Luna failure ends that Luna attempt. The coordinator preserves useful work and chooses local completion or a revised assignment deliberately—there is no mandatory model ladder.
+Mechanical errors and bounded defects within a sound approach can go back to the worker. A failed core approach or newly exposed design work returns to the coordinator; do not repeat that failed assignment on Luna. There is no mandatory model ladder.
 
-## What the evidence does—and does not—show
+## What we've measured
 
-The [combined reference](docs/model-performance-comparison.md) contains 38 GPT and Claude configurations from the 8 September 2026 Artificial Analysis capture: capability, benchmark-task cost, token use, coding, long-context and knowledge metrics. The [analysis notes](docs/model-selection-analysis.md) interpret the wider model evidence; they are not the current worker allowlist.
+A cheap worker helps only if its handoff, review and repairs cost less than the work it replaces. We test that with frozen tasks, saved usage and independent checks.
 
-These are **API-priced benchmark comparisons, not subscription allowance measurements**. The cost column is a suite-wide average, not the cost of each individual evaluation. Composite scores do not establish which model will finish a particular repository task. Small score differences are not a reliable basis for a universal ranking.
+Our latest inventory test gave Luna Max a complete component to implement, then used a separate Astra High session for acceptance. Software handled the transitions, so no coordinating model sat waiting between stages.
 
-The [research references](docs/agent-coordination-references.md) support careful task boundaries, verification and comparisons with simpler approaches. They do not establish that a standing team is cheaper or more accurate than one capable agent.
+| Inventory pipeline | Implementation | Read-only acceptance | Total |
+| --- | ---: | ---: | ---: |
+| Astra High implementation + Astra High acceptance | $0.560 | $0.263 | $0.822 |
+| Luna Max implementation + Astra High acceptance | $0.058 | $0.537 | $0.595 |
 
-To evaluate the skill, compare the same tasks with a single agent, unguided delegation and skill-guided delegation. Keep starting states, acceptance checks and relevant configurations controlled. Count preparation, workers, reviews, failed attempts and integration; report acceptance rate and total spending per accepted result together. Repeat trials and test configuration changes one at a time. Measure each provider's allowance consumption separately from API estimates. Our local trials have **not demonstrated savings from the skill**. Solo was cheaper in the [initial repair comparison](docs/benchmarks/dual-service/results-2026-09-09.md). In the later [cattrs feature test](docs/benchmarks/cattrs-self/results-2026-09-10.md), solo completed for $1.44 API-equivalent, unguided delegation for $2.45, and skill-guided delegation reached its safety timeout after at least $3.02. All saved implementations passed the external checks, but the timed-out workflow remained partial.
+**27.65% lower execution cost with the same separate-review requirement.** Both implementations passed all 21 public/independent test methods and their added tests. Both reviews accepted without findings, edits or a correction round. Totals use unrounded values. [Full results and protocol](docs/benchmarks/inventory-events/pipeline-results-2026-09-12.md).
 
-In that cattrs run, the Luna worker cost about $0.05 and the coordinator $2.97. Native waiting worked without a polling loop. These observations motivated the current emphasis on workload ownership and bounded verification; they do not prove the revised guidance saves money. The trials are small, implementations varied, and the external checks establish a correctness floor rather than identical behavior on every input.
+The baseline matters: if Astra's implementation needs no separate review, Luna plus acceptance costs **6.31% more**. Acceptance accounts for 90.28% of the Luna path. This clean pair cannot tell us whether the extra review is necessary or whether a cheaper reviewer would be adequate. The Astra reviewer sessions were explicit benchmark exceptions; the skill does not allow Astra workers.
+
+### Other results worth knowing
+
+| Test | Observed result | What passed, and the limit |
+| --- | --- | --- |
+| [Saved inventory implementations with fresh acceptance](docs/benchmarks/inventory-events/acceptance-results-2026-09-12.md) | $1.047 versus $0.545: 47.98% lower | Both passed 21 checks and separate reviews. Retrospective accounting on the same inventory task, not a second fresh pipeline. |
+| [Six-adapter pair and repeat](docs/benchmarks/adapter-batch/results-replication-02-2026-09-10.md) | Team cost 18.4% and 10.4% less than solo | All four passed 226 frozen cases. A later large-CSV probe exposed a defect in the first pair and reference; both repeat submissions passed it. |
+| [Repository search: Luna Max with/without scoped-search guidance](docs/benchmarks/context-scope/replication-results-2026-09-12.md) | Combined worker cost 24.9% lower | All four runs returned the exact required matches. Two small searches; excludes coordinator acceptance. |
+| [Reservation implementation: same guidance, three pairs](docs/benchmarks/reservation-component/unattended-results-2026-09-12.md) | Effectively tied across repeats | All six accepted. Two initial savings reversed in the third pair; search guidance did not establish cheaper implementation. |
+| [Earlier cattrs feature](docs/benchmarks/cattrs-self/results-2026-09-10.md) | Solo $1.44; unguided team $2.45; skill team at least $3.02 | Saved code passed the checks, but the skill run timed out. Its worker cost only $0.05; coordinator work dominated. |
+
+These are historical API-equivalent estimates, **not subscription bills or quota savings**. Execution comparisons exclude shared research preparation and later adjudication. For the latest pipeline, the four sessions together cost $1.417; adding measured setup and a partial adjudication record brought research spending to at least $4.005. Full accounting is in each report.
+
+The successful team comparisons fixed the worker assignment. They do not show that the skill reliably chooses when to delegate. Trials are small, often one run per condition, with uncontrolled cache/order effects. Lower dollar cost can also mean more tokens: the latest Luna implementation used about seven times Astra's input tokens.
+
+### What this means for your work
+
+Give a worker a settled component it can own through tests and bounded corrections. Keep shared integration files with one writer, and use completion notifications instead of status polling. Retain the review your task needs; our tests do not justify removing it simply to improve the cost result.
+
+In a [real catalogue implementation](docs/ccu-target-selection-delegation-audit-2026-09-12.md), Luna handled target selection and several review corrections for about $0.50. The integrated application ran 2,567 tests with one skipped. There was no solo comparison, and the parent handled substantial other work, so we make no savings claim for that run.
+
+The [test handoff](docs/claude-orchestration-findings-2026-09-12.md) collects methods, failures and follow-up questions. The [combined model evidence](docs/model-performance-comparison.md) covers 38 GPT/Claude configurations from the 8 September 2026 Artificial Analysis capture; [analysis notes](docs/model-selection-analysis.md) and [coordination research](docs/agent-coordination-references.md) explain the reasoning behind the guidance. Suite averages help choose candidates; they cannot price your task or establish reviewer reliability.
 
 ## What agents load
 
 | File | Purpose | Loaded during ordinary deployment? |
 | --- | --- | --- |
-| [SKILL.md](SKILL.md) | Scope, ownership, verification, continuation and waiting | When the skill is selected |
-| [Model-selection guide](references/model-selection.md) | Model comparisons, relative costs and effort choices | Only after deciding delegation is useful |
+| [SKILL.md](SKILL.md) | Local-or-delegate decision, worker boundaries and reference routing | When the skill is selected |
+| [Delegation guide](references/delegation.md) | Ownership, verification, continuation and waiting | Only when delegation is useful |
+| [Model-selection guide](references/model-selection.md) | Model comparisons, relative costs and effort choices | When delegation is useful and the worker model or effort still needs choosing |
 | [Claude CLI guide](references/claude-cli.md) | How to invoke and manage Claude workers | For Claude delegation only |
 | [Combined evidence](docs/model-performance-comparison.md), [analysis](docs/model-selection-analysis.md), workbooks and [research](docs/agent-coordination-references.md) | Audits and skill improvement | No |
 

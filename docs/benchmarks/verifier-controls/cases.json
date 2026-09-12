@@ -1,0 +1,98 @@
+[
+  {
+    "id": "NOTE-101",
+    "source": "Aster 7 rollback bulletin, final decision 12 May 2032. The release owner permits an in-place rollback only while the destination has accepted no writes. Once any write is acknowledged, the supported recovery is restoring the pre-upgrade backup into a separate cluster. This applies even if the acknowledged write changed no user-visible value.\nAn earlier support draft allowed in-place rollback during the first fifteen minutes. That time window was removed before publication; elapsed time is not the criterion.\nThe 14 May build note says rollback code remains available for test clusters. It explicitly states that this is not a change to the production recovery rule. Health dashboards and read-only probes do not count as acknowledged writes.",
+    "draft": "Use in-place rollback only before the destination acknowledges any write. After that point, restore the pre-upgrade backup into a separate cluster; a fifteen-minute grace period does not apply. Health probes alone do not close the rollback window.",
+    "worker_flag": "Check whether the later build note changes the production rollback restriction.",
+    "error": null,
+    "decisive_quote": "It explicitly states that this is not a change to the production recovery rule."
+  },
+  {
+    "id": "NOTE-102",
+    "source": "Credential transition decision, signed 9 May 2032. Old exporter credentials expire exactly 72 hours after an installation enables the new exporter. Enablement time is recorded in UTC in the local audit log. Operators must rotate the old credentials before that expiry to avoid losing exports.\nThe beta guide stated seven days. The security owner reduced the period for the final release and instructed support to withdraw the beta guide. The UI still renders a seven-day banner in build 7.0.0; issue 221 tracks that display defect.\nA restart does not reset the expiry timer. New installations that never enabled the old exporter have no old credentials to rotate. The deadline concerns exporter credentials, not interactive user sessions.",
+    "draft": "For installations carrying old exporter credentials, rotate them within seven days of enabling the new exporter. Count from the logged UTC enablement time; restarts do not reset the deadline. New installations without old credentials need no rotation.",
+    "worker_flag": "The shipped banner still says seven days; check which deadline operators should use.",
+    "error": {"kind": "deadline", "required_finding": "Replace seven days with 72 hours; the signed release decision overrides the stale UI/banner.", "impact": "An operator following the draft can lose exports after hour 72 while believing credentials remain valid."},
+    "decisive_quote": "Old exporter credentials expire exactly 72 hours after an installation enables the new exporter."
+  },
+  {
+    "id": "NOTE-103",
+    "source": "Assignment export resolution, approved 2 May 2032. Every upgrading installation must run aster export-assignments after its final 6.x assignment edit and before the 7.x assignment migrator starts. Retain the signed export alongside the upgrade record. Default-only installations are included because principal membership differs between sites.\nThe export is read-only and can run before shutdown if further assignment edits are prevented. Maintenance mode is a convenient way to enforce that condition, not a separate requirement.\nThe proposal to regenerate the artifact from the migrated graph was rejected: it would not preserve the old ordering. A screenshot is not a substitute because it omits inherited assignments. No unrelated configuration setting changes the required ordering of these steps.",
+    "draft": "Every upgrading installation, including default-only sites, must retain a signed assignment export made after the final 6.x assignment edit and before migration. It can be made before shutdown if subsequent assignment edits are prevented; maintenance mode itself is not mandatory.",
+    "worker_flag": "Confirm that an export made before shutdown can satisfy the accepted rule.",
+    "error": null,
+    "decisive_quote": "The export is read-only and can run before shutdown if further assignment edits are prevented."
+  },
+  {
+    "id": "NOTE-104",
+    "source": "Encryption preflight decision log. On 5 May 2032 an engineer proposed allowing operators to set skip_key_check=true when the key service is unavailable. The prototype accepts that flag.\nOn 11 May the security and release owners rejected the proposal for production. Their signed rule is: If the key service cannot validate the active key, stop the upgrade and restore service connectivity before trying again. No production override is approved. A snapshot cannot substitute for key validation because unreadable encrypted data may still be copied successfully.\nThe prototype flag remains in a developer build for fault injection. A forum response dated 13 May repeats the engineer's original proposal but does not reference the rejection. Developer builds are outside the supported production upgrade procedure.",
+    "draft": "If key validation fails during a production upgrade, set skip_key_check=true and continue. The prototype supports the flag, so this avoids delaying the maintenance window while the key service is unavailable.",
+    "worker_flag": null,
+    "error": {"kind": "authority", "required_finding": "Remove the unsupported override and instruct operators to stop and restore key-service connectivity before retrying.", "impact": "The draft directs an unsupported production upgrade without confirming that encrypted data will be readable."},
+    "decisive_quote": "If the key service cannot validate the active key, stop the upgrade and restore service connectivity before trying again."
+  },
+  {
+    "id": "NOTE-105",
+    "source": "Replica cutover procedure, approved 8 May 2032. Before promoting any replica to the Aster 7 primary role, wait until that candidate's applied position reaches the recorded cutover position. This requirement applies to every promotion candidate, whether replication is synchronous or asynchronous. Read-only replicas that are not eligible for promotion need not catch up before the primary upgrade.\nA draft used synchronous replicas as shorthand because the test environment had only synchronous failover targets. The review removed that shorthand after an asynchronous disaster-recovery target was added.\nThe controller refuses a normal promotion of a behind candidate. An emergency force-promote option bypasses that guard but remains unsupported for this migration. The intended checklist must prevent operators from needing that override.",
+    "draft": "Wait for synchronous promotion candidates to reach the cutover position. Asynchronous promotion candidates may be promoted without that catch-up wait; read-only replicas that cannot be promoted do not block the upgrade.",
+    "worker_flag": "Confirm how the asynchronous disaster-recovery target affects the scope of the wait.",
+    "error": {"kind": "scope", "required_finding": "Require catch-up for asynchronous as well as synchronous promotion candidates; eligibility, not transport mode, defines scope.", "impact": "The draft permits a behind asynchronous candidate to be promoted, risking missing acknowledged data or an unsupported override."},
+    "decisive_quote": "This requirement applies to every promotion candidate, whether replication is synchronous or asynchronous."
+  },
+  {
+    "id": "NOTE-106",
+    "source": "Search-cache migration note, final 10 May 2032. The application rebuilds search caches automatically after upgrading. Warming them before opening traffic is optional and reduces first-request latency; it is not required for correctness or supported operation. Sites with external search disabled have no cache to warm.\nA performance-team checklist recommended warming every active cache during maintenance. The release owner kept that recommendation as an optional tuning step rather than an upgrade blocker. Cold-cache requests still return correct results through the primary index.\nThe article's example uses the command aster cache warm. No cache deletion is needed. Operators should not interpret a temporary latency warning as evidence of corrupted data.",
+    "draft": "No manual search-cache action is required for the upgrade. For sites using external search, optional warming can reduce first-request latency; otherwise allow automatic rebuilding. Do not delete caches merely because a latency warning appears.",
+    "worker_flag": null,
+    "error": null,
+    "decisive_quote": "Warming them before opening traffic is optional and reduces first-request latency; it is not required for correctness or supported operation."
+  },
+  {
+    "id": "NOTE-107",
+    "source": "Archive deletion contract, signed 6 May 2032. A record may be purged only when its retention deadline has passed and no legal hold is active. An active hold blocks purge regardless of age. The upgrade preserves both fields without changing their meaning.\nThe implementation first filters expired deadlines for efficiency, then checks the hold flag. That evaluation order does not weaken either condition. A support example shows an expired, unheld record being purged and is not intended to cover held records.\nThere is no automatic hold expiry. Only an authorized hold-release event clears a hold. This is the complete fictional product contract for this exercise; no outside legal inference is requested.",
+    "draft": "Purge only records whose retention deadline has passed and whose hold is inactive. Age alone cannot authorize deletion of a held record. Upgrade processing preserves the two conditions, and holds do not expire automatically.",
+    "worker_flag": null,
+    "error": null,
+    "decisive_quote": "An active hold blocks purge regardless of age."
+  },
+  {
+    "id": "NOTE-108",
+    "source": "Queue-drain timeout conversion, approved 4 May 2032. The old setting drain_timeout_seconds is replaced by drain_timeout_ms. Preserve the duration by multiplying the old numeric value by 1000. For example, an old value of 90 seconds becomes 90000 milliseconds.\nA zero value retains its special meaning of waiting indefinitely and must remain zero. The migrator does not convert manually supplied new-format files; operators generating those files must perform the conversion.\nThe administration screen labels the old field in seconds but labels the replacement in milliseconds. During beta testing one script copied values unchanged and caused healthy drains to time out early. The release note was added to prevent that failure.",
+    "draft": "When generating a new-format configuration from an old 90-second drain timeout, set drain_timeout_ms to 90. Preserve a zero value as zero so indefinite waiting remains enabled.",
+    "worker_flag": null,
+    "error": {"kind": "units", "required_finding": "Set drain_timeout_ms to 90000, not 90, for the old 90-second duration.", "impact": "The draft shortens the timeout by a factor of 1000, prematurely aborting healthy drains."},
+    "decisive_quote": "For example, an old value of 90 seconds becomes 90000 milliseconds."
+  },
+  {
+    "id": "NOTE-109",
+    "source": "Recovery-copy handover, final 15 May 2032. Keep the old recovery copy until the replacement has completed a successful isolated restore test. A completed upload and matching checksum establish transfer integrity, not restorability. Delete the old copy only after the restore test succeeds and its result is recorded.\nThe storage team's initial proposal deleted the old copy immediately after upload to avoid paying for overlap. The reliability owner rejected that proposal because the restore path also needs metadata not covered by the upload checksum.\nIf the isolated restore fails, retain the old copy and investigate the replacement. The temporary extra storage is an intentional cost of the supported procedure. This rule applies to both local and remote backup destinations.",
+    "draft": "After uploading the replacement and verifying its checksum, delete the old recovery copy to limit overlap costs. Then run the isolated restore test and record its result; investigate any failure in the replacement.",
+    "worker_flag": "Check whether checksum verification is enough to authorize deleting the old copy.",
+    "error": {"kind": "ordering", "required_finding": "Retain the old recovery copy until the replacement's isolated restore succeeds and the result is recorded; upload/checksum alone are insufficient.", "impact": "The draft can destroy the last restorable copy before discovering the replacement cannot restore."},
+    "decisive_quote": "Delete the old copy only after the restore test succeeds and its result is recorded."
+  },
+  {
+    "id": "NOTE-110",
+    "source": "Preview-token decision, finalized 7 May 2032. Tenants may opt into preview routing. If a tenant opts in, it must issue a preview token before sending any preview traffic. Tenants that stay on stable routing need no preview token.\nA product proposal to turn preview routing on for every tenant was withdrawn before release. The default remains stable routing, including for newly created tenants. The option being voluntary does not make the token optional once preview traffic is sent.\nTokens for stable routing cannot be reused for preview traffic. A tenant can defer both opt-in and token issuance indefinitely without blocking its ordinary upgrade. There is no requirement to enable preview during the maintenance window.",
+    "draft": "Preview tokens are required only for tenants opting into preview routing, and must be issued before preview traffic begins. Stable-only tenants need no preview token and can upgrade without opting in.",
+    "worker_flag": null,
+    "error": null,
+    "decisive_quote": "If a tenant opts in, it must issue a preview token before sending any preview traffic."
+  },
+  {
+    "id": "NOTE-111",
+    "source": "Remote-import restart resolution, signed 16 May 2032. Imports whose remote source guarantees stable object versions may be interrupted and restarted during the upgrade. Imports whose source does not guarantee stable versions must finish before shutdown. Stable version identifiers let the restarted import recognize previously consumed objects.\nThe council considered requiring all imports to finish but rejected that universal drain rule. It also rejected restarting every import because mutable remote objects cannot be reliably deduplicated after interruption. The conditional rule above is final, not a pending proposal.\nWhether the source is local or remote is not itself the test: the operator must check the source's version guarantee. If that guarantee cannot be established, treat it as absent and finish the import before shutdown.",
+    "draft": "Imports with version-stable sources must finish before shutdown. Imports without a stable-version guarantee may be interrupted and restarted during the upgrade. Check the source's guarantee rather than assuming locality determines it.",
+    "worker_flag": null,
+    "error": {"kind": "polarity", "required_finding": "Reverse the two actions: stable-version sources may restart; sources lacking or not establishing that guarantee must finish before shutdown.", "impact": "The draft permits interruption of unsafe imports, creating duplicate or inconsistent imported data."},
+    "decisive_quote": "Imports whose source does not guarantee stable versions must finish before shutdown."
+  },
+  {
+    "id": "NOTE-112",
+    "source": "Diagnostic logging release decision, approved 13 May 2032. The new diagnostic format requires no operator action. The collector translates existing logging configurations automatically, including custom category names. Operators may inspect a translation report, but need not approve it before startup.\nThe early plan to require renaming custom categories was cancelled once the translator passed compatibility testing. One outdated issue comment still recommends manual renaming. It is not part of the accepted release procedure.\nThe documented literal example category is trace[io]... and the translator preserves it exactly. Brackets and ellipses in that name are data, not placeholders. Sites can keep diagnostic logging disabled; the upgrade does not mandate enabling it.",
+    "draft": "No manual logging migration is required, including for custom categories: the collector translates existing configuration. The translation report is optional to inspect, and sites need not enable diagnostic logging. The literal category trace[io]... remains unchanged.",
+    "worker_flag": "Confirm that the literal category punctuation survives rather than needing manual replacement.",
+    "error": null,
+    "decisive_quote": "The documented literal example category is trace[io]... and the translator preserves it exactly."
+  }
+]

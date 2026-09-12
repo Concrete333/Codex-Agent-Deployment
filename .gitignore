@@ -2,3 +2,17 @@ __pycache__/
 *.pyc
 docs/benchmarks/cattrs-self/local-fixture.json
 docs/benchmarks/revision-ab/local-fixture.json
+docs/benchmarks/prose-migration/local-fixture.json
+docs/benchmarks/checked-component/local-fixture.json
+docs/benchmarks/adapter-batch/local-fixture.json
+docs/benchmarks/adapter-batch/selection-ablation/local-fixture.json
+docs/benchmarks/verifier-controls/local-fixture.json
+docs/benchmarks/runner-comparison/local-fixture.json
+docs/benchmarks/context-scope/local-fixture.json
+docs/benchmarks/context-scope/local-replication.json
+docs/benchmarks/reservation-component/local-fixture.json
+docs/benchmarks/reservation-component/local-repeat.json
+docs/benchmarks/reservation-component/local-unattended.json
+docs/benchmarks/inventory-events/local-fixture.json
+docs/benchmarks/inventory-events/local-acceptance.json
+docs/benchmarks/inventory-events/local-pipeline.json
