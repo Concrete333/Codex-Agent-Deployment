@@ -18,7 +18,7 @@ Use for bounded repository searches, caller maps, extracting supplied evidence, 
 
 Choose Luna over Terra or Opus when the work mostly finds or transforms information rather than making consequential implementation decisions. Its low cost matters when it removes substantial reading or repetitive work; do not delegate a trivial edit the coordinator can finish immediately.
 
-Examples: reconcile callers for a known API rename, or extend a regression fixture with settled inputs and expected outputs. Discovering what unfamiliar behavior should be tested is not pattern-following work. If preparing a Luna assignment requires solving it, keep it local rather than writing a detailed solution for delegation.
+Examples: reconcile callers for a known API rename, or implement a UI state mapping with settled inputs, expected behavior and an existing pattern. Inferring domain semantics or designing interactions across consumers is not pattern-following work. If preparing a Luna assignment requires solving it, keep it local rather than writing a detailed solution for delegation.
 
 ## Terra — bounded native implementation
 

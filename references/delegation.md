@@ -2,7 +2,7 @@
 
 ## Ownership
 
-Start with one worker. Add workers only for independently useful scopes with settled interfaces and separate write ownership, including shared state. Keep shared integration files with one writer; queue other edits until that owner hands them back. Prefer one owner for coupled implementation, tests and corrections. Workers may redelegate only with assigned permission, supported controls and the same model restrictions.
+Start with one worker. Add workers only for independently useful scopes with settled interfaces and separate write ownership, including shared state. Name the shared state/helper owner and reuse that implementation across consumers. Keep shared integration files with one writer; queue other edits until that owner hands them back. Prefer one owner for coupled implementation, tests and corrections. Workers may redelegate only with assigned permission, supported controls and the same model restrictions.
 
 Set model and effort explicitly, use minimal inherited history, and confirm effective settings when exposed. A full-history fork can inherit the coordinator's configuration. Report unavailable controls or mismatches rather than substituting silently. For isolated checkouts, specify the starting revision and needed uncommitted changes.
 
@@ -22,7 +22,7 @@ When an assignment requires repository exploration, including implementation, in
 
 > Context handling: Discover candidate files within the relevant paths and file types before reading bodies; exclude unrelated generated or captured content. Read matching functions or ranges. If output truncates, recover the missing relevant ranges instead of treating the partial return as complete. Widen the search when evidence or coverage requires it.
 
-Challenge consequential assumptions and whether the checks would detect their failure before dispatch. Leave local implementation choices with the owner. Following known test patterns with settled expectations can be mechanical; discovering unfamiliar failure cases is reasoning work. Diagnosis and review are read-only unless scoped reproduction or scratch edits are assigned.
+Challenge consequential assumptions and whether the checks would detect their failure before dispatch. For state-dependent behavior, supply compact input-to-behavior examples or existing contract tests covering consequential distinctions: status, permitted actions and side effects. Include conflicting flags or missing-versus-null fields where they change behavior; do not leave domain meaning to inference from field names. Leave local implementation choices with the owner. Following known test patterns with settled expectations can be mechanical; discovering unfamiliar failure cases is reasoning work. Diagnosis and review are read-only unless scoped reproduction or scratch edits are assigned.
 
 Do not investigate or implement an active worker's assignment in parallel. Work on independent responsibilities or wait. Handoffs link artifacts and preserve exact failures, constraints and decision-critical evidence. Absence claims need search scope; completeness claims need coverage or count reconciliation.
 
@@ -44,7 +44,7 @@ Finish when required checks and inspection support acceptance. Do not expand opt
 
 ## Recovery
 
-Return mechanical errors and bounded defects within a sound approach to the worker, with the failing case and expected behavior. The coordinator may handle a tiny integration fix when another handoff would cost more, after ownership is released. Local tool errors and expected failing regression tests are not assignment failure. Do not repeat an approach without new evidence.
+Return mechanical errors and bounded defects within a sound approach to the worker, with the failing case and expected behavior. Separate missed requirements from missing or changed contracts before judging worker suitability. For a contract change, send the changed example and recheck affected behavior; do not count the new requirement as an earlier failure. The coordinator may handle a tiny integration fix when another handoff would cost more, after ownership is released. Local tool errors and expected failing regression tests are not assignment failure. Do not repeat an approach without new evidence.
 
 - **Blocked:** Resolve missing decisions, evidence or access within authority; changing models is not the default fix.
 - **Partial:** A checkpoint, turn limit or budget ended. Preserve progress; continue only with a credible plan within user limits.
