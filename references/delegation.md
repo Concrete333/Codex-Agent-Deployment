@@ -44,6 +44,8 @@ Finish when required checks and inspection support acceptance. Do not expand opt
 
 ## Recovery
 
+After confirmed termination, a verified mechanical fix permits a safe rerun within existing scope and budget without renewed permission. Preserve failure evidence and announce the retry. Reassess repeated failures; ask before material extra spending or actions outside existing authority. Never retry with uncertain ownership or duplicate side effects.
+
 Return mechanical errors and bounded defects within a sound approach to the worker, with the failing case and expected behavior. Separate missed requirements from missing or changed contracts before judging worker suitability. For a contract change, send the changed example and recheck affected behavior; do not count the new requirement as an earlier failure. The coordinator may handle a tiny integration fix when another handoff would cost more, after ownership is released. Local tool errors and expected failing regression tests are not assignment failure. Do not repeat an approach without new evidence.
 
 - **Blocked:** Resolve missing decisions, evidence or access within authority; changing models is not the default fix.

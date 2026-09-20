@@ -36,11 +36,12 @@ Use absolute native executable paths on all platforms; Windows requires `.exe`, 
 
 The supervisor retains `stdout.log` and `stderr.log`, writes `process.json`, then attempts one notification on success or failure. `process.notification.json` records delivery. Queued means submission accepted, not successful work. The notification command returns nonzero for failed or uncertain delivery. An existing delivery record suppresses another attempt; do not automatically retry uncertainty or rerun work to repair delivery.
 
-On wake-up, inspect the receipt and relevant results once. Confirm execution and ownership are resolved before dependent work. Verify the task's actual outcome; process exit, worker claims and notification delivery are not acceptance. Report a failure or blocker without automatically relaunching. Continue only the authorized task.
+On wake-up, inspect the receipt and relevant results once. Confirm execution and ownership are resolved before dependent work. Verify the task's actual outcome; process exit, worker claims and notification delivery are not acceptance.
+
+After confirmed termination, a verified mechanical fix permits a safe rerun within existing scope and budget without renewed permission. Preserve failure evidence and announce the retry. Reassess repeated failures; ask before material extra spending or actions outside existing authority. Never retry with uncertain ownership or duplicate side effects.
 
 ## Without a usable notification route
 
 If independent work is exhausted, leave only safely persistent work running. State its result location, pending verification and rough remaining time or unknown. Say: "I'm stopping polling. Please check back with me to inspect the result and continue; I won't automatically resume." End the turn. If it cannot safely survive, explain the limitation instead.
 
 On return, inspect once: verify and continue if complete; otherwise report briefly and stop again. Do not repeatedly inspect unchanged logs, sleep and check, cancel or replace a job because a wait timed out, or create an automation unless requested. Preserve safety timeouts and higher-priority responsiveness requirements.
-

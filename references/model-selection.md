@@ -20,6 +20,16 @@ Choose Luna over Terra or Opus when the work mostly finds or transforms informat
 
 Examples: reconcile callers for a known API rename, or implement a UI state mapping with settled inputs, expected behavior and an existing pattern. Inferring domain semantics or designing interactions across consumers is not pattern-following work. If preparing a Luna assignment requires solving it, keep it local rather than writing a detailed solution for delegation.
 
+## GLM-5.3-Flash — bounded implementation through an external CLI
+
+**Model:** `glm-5.3-flash` · requires an authorized, compatible CLI/provider route, such as Kilo Code. Provider-qualified IDs vary; do not pass this ID to native Codex workers or the bundled Claude wrapper.
+
+Consider GLM for settled features, multi-file repairs and regression-backed implementation needing more local judgment than a pattern-following assignment. Its stronger agentic-coding results make it a candidate over Luna for this work; Luna remains useful for extraction and repetitive edits with inexpensive checks. GLM's lower token prices do not guarantee lower task cost: it can generate substantially more tokens.
+
+Use the route's supported reasoning configuration; do not translate Codex `max` into an assumed GLM effort setting. Verify the effective model and tool access. If the worker cannot execute tests, include coordinator-run checks in the assignment and cost estimate.
+
+Use an installed delegation skill or supported CLI procedure for permissions, isolation, completion delivery and handoff. Prefer an existing authorized route over setting up another for a small task. External billing is separate from Codex allowance; acceptance and integration remain with the coordinator.
+
 ## Terra — bounded native implementation
 
 **ID:** `gpt-5.6-terra` · **Starting effort for repository implementation:** `max`.

@@ -60,7 +60,9 @@ def notify(binary, thread, receipt):
         message = (heading + " Inspect the saved receipt at " + str(receipt)
                    + ". Verify completion and ownership before dependent work. "
                    "A failed or partial attempt is not accepted. Continue only the authorized task; "
-                   "do not relaunch automatically.")
+                   "after confirmed termination and a verified mechanical fix, a safe rerun within "
+                   "existing scope and budget needs no renewed permission. Preserve failure evidence; "
+                   "do not duplicate side effects or retry uncertain ownership or delivery.")
         completed = subprocess.run([binary, "queue", "--thread", thread, "--message", message],
                                    capture_output=True, text=True, timeout=30)
         result.update(status="queued" if completed.returncode == 0 else "failed",
