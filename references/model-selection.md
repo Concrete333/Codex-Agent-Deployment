@@ -1,6 +1,6 @@
 # Choose a worker and effort
 
-Choose only Luna, Terra, Sol or Opus 5. Keep Astra-level work with the orchestrator. These are alternatives for bounded assignments, not an escalation ladder.
+These are optional starting recommendations, not an allowlist. Use explicit user choices and available, authorized models; unlisted models are not excluded. Choose effort for the remaining uncertainty and verification needs, using comparable task outcomes where available. Keep work local when delegation would duplicate the coordinator's reasoning.
 
 ## Cost and acceptance
 
@@ -12,7 +12,7 @@ Match the worker to the uncertainty remaining: retrieval or a fixed transformati
 
 ## Luna — extraction and pattern-following implementation
 
-**ID:** `gpt-5.6-luna` · **Effort:** `max` only.
+**ID:** `gpt-5.6-luna` · **Suggested effort:** `max`.
 
 Use for bounded repository searches, caller maps, extracting supplied evidence, repetitive edits and small implementations following an established pattern. Supply search boundaries or the pattern, explicit behavior and objective checks.
 
@@ -37,7 +37,7 @@ Lower Terra efforts are not the starting recommendation for autonomous repositor
 - **Low (`low`):** a narrow analytical or scientific Python problem with supplied background and executable checks.
 - **Medium (`medium`):** multi-step derivation within that settled scope when Low lacks enough reasoning.
 - **High (`high`):** bounded diagnosis, professional analysis or independent review with an explicit question, evidence and checking standard.
-- **Max (`max`):** a specialist derivation or contained coding problem with a concrete extra reasoning need. Use only when the coordinator still saves work, not to replace an Astra worker.
+- **Max (`max`):** a specialist derivation or contained coding problem with a concrete extra reasoning need, when the coordinator still saves work.
 
 Choose Sol over Luna for deriving or evaluating a solution rather than extracting or mechanically editing. Choose it over Terra for supplied scientific/analytical work. Terra Max or Opus Low are initial candidates when autonomous implementation is the main requirement; Sol Low/Medium are not interchangeable cheap general developers.
 

@@ -50,13 +50,13 @@ Return mechanical errors and bounded defects within a sound approach to the work
 - **Partial:** A checkpoint, turn limit or budget ended. Preserve progress; continue only with a credible plan within user limits.
 - **Substantive failure:** The core approach fails the required behavior, or newly exposed design work exceeds the assignment. Return the decision to the orchestrator.
 
-After one substantive non-trivial Luna failure, do not repeat the assignment on Luna. Choose local completion or a revised bounded assignment to another allowed worker, not an automatic escalation ladder. Finding defects is successful review.
+After a substantive failure, reassess the contract and approach before retrying. Choose local completion or a revised assignment to a suitable worker based on the failure, not an automatic model ladder. Finding defects is successful review.
 
 Reuse suitable owners. Before transferring writes, confirm the previous worker and its writing commands stopped; pass the diff, failures and open questions. If termination is uncertain, keep successors read-only or non-overlapping. Preserve unrelated edits.
 
 ## Waiting and accounting
 
-For detached CLI work, use the [completion notifier](software-runner.md#completion-notification) to queue one follow-up after the process exits and its receipt is saved. Confirm the target task, retain delivery status and end the turn when independent work is exhausted. Do not prequeue status checks: queued input alone is not proof that a worker finished.
+For detached CLI work, use [waiting.md](waiting.md) to queue one follow-up after the process exits and its receipt is saved. Confirm the target task, retain delivery status and end the turn when independent work is exhausted. Do not prequeue status checks: queued input alone is not proof that a worker finished.
 
 Before dispatch likely to leave the coordinator idle, identify a supported completion notification or wait within host responsiveness rules. Otherwise confirm the job can safely survive the turn ending and explain that the user must check back. If neither is possible, stay local or report the limitation before dispatch. Reuse this finding until the runtime changes; timeout configuration alone does not prove availability.
 

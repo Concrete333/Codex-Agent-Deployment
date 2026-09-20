@@ -94,5 +94,58 @@ class NotificationTests(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertEqual(json.loads(result.stdout)["status"], "failed")
 
+    def test_bom_receipt(self):
+        self.receipt.write_text('{"status":"failed"}', encoding="utf-8-sig")
+        with patch.object(n.subprocess, "run", return_value=subprocess.CompletedProcess([], 0, "", "")) as run:
+            self.assertEqual(n.notify("codex", THREAD, self.receipt)["status"], "queued")
+        run.assert_called_once()
+
+    def test_invalid_claim_is_unknown_and_preserved(self):
+        claim = self.receipt.with_name("receipt.notification.json")
+        for content in ("", '{"status":', "[]", "null", "{}", '{"status":"invalid"}'):
+            with self.subTest(content=content):
+                claim.write_text(content, encoding="utf-8")
+                original = claim.read_bytes()
+                with patch.object(n.subprocess, "run") as run:
+                    self.assertEqual(n.notify("codex", THREAD, self.receipt)["status"], "unknown")
+                run.assert_not_called()
+                self.assertEqual(claim.read_bytes(), original)
+
+    def test_bom_existing_claim_is_not_retried(self):
+        self.receipt.with_name("receipt.notification.json").write_text(
+            '{"status":"queued"}', encoding="utf-8-sig")
+        with patch.object(n.subprocess, "run") as run:
+            self.assertEqual(n.notify("codex", THREAD, self.receipt)["status"], "queued")
+        run.assert_not_called()
+
+    def test_request_encodings(self):
+        for encoding in ("utf-8", "utf-8-sig"):
+            with self.subTest(encoding=encoding):
+                request = {"argv": [sys.executable], "cwd": str(self.root),
+                           "codex": "fake", "thread": THREAD}
+                source = self.root / "input.json"
+                source.write_text(json.dumps(request), encoding=encoding)
+                folder = self.root / encoding
+                with patch.object(sys, "argv", ["notify", "start", "--request",
+                        str(source), "--run-dir", str(folder)]), patch.object(
+                        n, "validate_target"), patch.object(n.subprocess, "Popen") as launch, patch("builtins.print"):
+                    launch.return_value.pid = 123
+                    n.main()
+                (folder / "request.json").write_text(json.dumps(request), encoding=encoding)
+                with patch.object(sys, "argv", ["notify", "_run", "--run-dir", str(folder)]), patch.object(
+                        n, "execute", return_value={"status": "queued"}) as execute:
+                    self.assertEqual(n.main(), 0)
+                execute.assert_called_once_with(request, folder)
+
+    def test_actual_cli_partial_claim_returns_unknown(self):
+        claim = self.receipt.with_name("receipt.notification.json")
+        claim.write_text('{"status":', encoding="utf-8")
+        result = subprocess.run([sys.executable, "-B", str(Path(n.__file__)), "notify",
+                                 "--codex", "missing", "--thread", THREAD,
+                                 "--receipt", str(self.receipt)], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(json.loads(result.stdout)["status"], "unknown")
+        self.assertEqual(claim.read_text(), '{"status":')
+
 if __name__ == "__main__":
     unittest.main()

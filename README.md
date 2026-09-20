@@ -1,10 +1,12 @@
 # Agent Deployment for Codex
 
-Delegate work your coordinator can stop doing—not work it will have to do again to check the answer. Use Luna, Terra, Sol or Opus 5 when a bounded assignment can reduce total cost, and keep hard, coupled reasoning with your current Codex agent.
+Delegate work your coordinator can stop doing—not work it will have to do again to check the answer. Choose a suitable worker when a bounded assignment can reduce total cost, and keep coupled work with one owner.
 
 This skill helps your current Codex agent decide **whether to delegate, which model and effort to use, and how to accept the result**. It offers starting recommendations rather than assigning every kind of work to a fixed model. A small task can stay with the coordinator; a difficult task does not automatically need a team.
 
-[Install](#install) · [Use](#use) · [Model guide](references/model-selection.md) · [Test results](#what-weve-measured)
+It also handles **waiting for long-running scripts, tests and database jobs**. A background helper can notify Codex when the command finishes, so the model doesn't need to keep checking the log. You can use this without delegating to another agent.
+
+[Install](#install) · [Use](#use) · [Script completion](#scripts-and-test-suites) · [Model guide](references/model-selection.md) · [Test results](#what-weve-measured)
 
 ## How it works
 
@@ -14,13 +16,13 @@ Your current agent remains the coordinator. It owns the required outcome and cro
 | --- | --- | --- |
 | Identify work removed from the coordinator and how to check it. Then choose a worker and define ownership and done. | Keep coupled implementation, tests and fixes together. Avoid duplicate investigation and unnecessary status polling. | Check the agreed behavior and affected interactions. Finish when acceptance is supported; reopen for new evidence or required review. |
 
-Worker choice is flexible within four families: **Luna, Terra, Sol and Opus 5**. Astra and Fable are not worker options. The coordinator cannot lower the acceptance standard to fit a budget.
+**There is no model allowlist in the core guidance.** Use your preferred available models and efforts. The optional model guide offers starting recommendations; it does not override your choices or lower the acceptance standard to fit a budget.
 
-**Your coordinator keeps its model and effort.** An Astra High coordinator handles difficult reasoning and final acceptance itself. It can delegate a bounded substantive review without repeating that review afterward; it does not spawn another Astra.
+**Your coordinator keeps its model and effort unless you ask otherwise.** It retains final acceptance and can delegate a bounded substantive review when that removes work without sacrificing required coverage.
 
 ## Choosing models
 
-The [model-selection guide](references/model-selection.md) explains when each worker is useful, which effort to start with, and how to compare the cost of a checked result. An allowed model is not automatically a worthwhile delegation.
+The optional [model-selection guide](references/model-selection.md) explains suggested task fits and efforts. Codex skips it when you have already chosen a model. Unlisted models can also be used through supported, authorized tools.
 
 A few starting points:
 
@@ -33,7 +35,7 @@ A few starting points:
 | Bounded implementation through an authorized Claude subscription | Opus 5 Low |
 | Open-ended diagnosis, architecture, difficult coupled work and final judgment | Current orchestrator; no worker |
 
-These are alternatives, not a sequence. **Luna uses Max only.** Terra Max is the starting candidate for native implementation; lower effort is not assumed sufficient. Sol and Opus may use more effort for a concrete bounded reasoning need, but not to outsource work that belongs with the orchestrator.
+These are starting recommendations, not a required sequence or effort restriction. Choose a different model or effort when your preferences or task evidence support it. Include checking and corrections when comparing cost.
 
 Choose Luna when the job mostly finds evidence or follows a fixed pattern. Choose Terra when implementation needs more local judgment. Sol fits supplied problems requiring derivation or evaluation. Opus 5 offers a Claude implementation route when its account access, retained context or task results justify the setup.
 
@@ -47,7 +49,7 @@ Claude is optional. Using two providers is not a goal in itself, and a provider 
 
 ## Install
 
-You need Git and a Codex environment that supports subagents with explicit model and reasoning-effort selection. The skill supplies instructions; it does not unlock models or change account access.
+Use Git to clone the skill. Agent delegation needs a Codex environment with explicit subagent model and reasoning-effort selection. Script completion needs Python 3.10+ and a native Codex CLI supporting `codex queue`; it does not require subagents. The skill does not unlock models or change account access.
 
 For a new user-level installation, use the skills location in [OpenAI's documentation](https://learn.chatgpt.com/docs/build-skills).
 
@@ -90,6 +92,20 @@ and acceptance checks. Do not start workers or edit files.
 ```
 
 Codex can select the skill when a request matches its description. Explicitly naming it is the clearest way to request it. Skill selection does not itself authorize delegation, edits or additional spending.
+
+## Scripts and test suites
+
+For a long-running command, ask:
+
+```text
+$agent-deployment Run the full test suite. Use completion notification
+instead of repeated status checks, preserve safety timeouts, and verify
+the results before continuing. No subagents are needed.
+```
+
+Codex can start a safely detached command, end its turn, and receive one queued message after the helper saves the result. The same mechanism works for a foreground worker CLI. This does not require changes to your global `AGENTS.md`.
+
+The [waiting guide](references/waiting.md) covers setup, receipts and recovery. Script-only tasks skip the model-selection guides. The command must have appropriate timeout and cleanup controls; a notification is not proof of success. If the host cannot deliver notifications, Codex tells you to check back rather than repeatedly polling. Already-running jobs are not restarted just to add notification.
 
 ## Optional software runner
 

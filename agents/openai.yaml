@@ -1,4 +1,4 @@
 interface:
   display_name: "Agent Deployment"
-  short_description: "Delegate bounded work to Luna, Terra, Sol or Opus 5"
-  default_prompt: "Use $agent-deployment to keep hard work with the orchestrator, delegate economical bounded assignments only to Luna, Terra, Sol or authorized Opus 5 workers, and verify results."
+  short_description: "Delegate work and await scripts without repeated polling"
+  default_prompt: "Use $agent-deployment to choose economical bounded workers or run long scripts with completion notifications, then verify the result."

@@ -1,6 +1,6 @@
 ---
 name: agent-deployment
-description: Guide Codex orchestrators in choosing Luna, Terra, Sol or Opus 5 workers, assigning bounded work and verifying results. Use when planning, executing or auditing authorized delegation.
+description: Reduce coordination overhead for authorized agent delegation and long-running scripts, tests, builds or database jobs. Use to choose bounded workers, arrange completion-triggered wake-up instead of polling, and verify results.
 ---
 
 # Agent Deployment
@@ -9,17 +9,19 @@ Minimize total cost to an accepted result, including coordinator context, worker
 
 ## Decide whether to delegate
 
+**For long-running scripts or commands without another model:** read [waiting.md](references/waiting.md) only. Use supported completion notifications or the included Codex queue helper; do not spawn an agent or load model-selection guidance just to wait. Short commands need no background setup. Do not load `docs/` for ordinary execution.
+
 Keep small work local. Keep tightly coupled work with one owner, which may be a worker owning the entire component; do not split its dependent steps across agents. Prefer commands and scripts for deterministic work. Before spawning, identify a bounded workload the coordinator will stop doing and how its result can be checked. Include necessary source reading, integration and likely repair in that comparison; a cheap worker alone does not establish savings. Do not solve the whole assignment merely to make it delegable.
 
 The coordinator owns consequential behavior, interfaces and acceptance. A worker can own a settled component through implementation, tests and corrections, or an independent evidence search. Large repositories, separate files and test-writing assignments are not inherently cheap or independent.
 
-**If staying local, stop here.** Do not load the references or write a delegation plan.
+**If staying local without a long-running job, stop here.** Do not load the references or write a delegation plan.
 
 ## When delegation is useful
 
-- Workers may use only **Luna, Terra, Sol or Opus 5**. Luna uses **Max only**. No Astra or Fable workers, including reviewers, forks or nested delegates. Keep the orchestrator's model and effort; retain open-ended diagnosis, architecture and difficult coupled reasoning locally.
-- If choosing a worker or effort, read [model-selection.md](references/model-selection.md). Skip it when both are already fixed within the allowed configurations. Read [delegation.md](references/delegation.md) for ownership, verification and waiting. Reuse guidance already read.
-- For authorized Opus 5 use, also read [claude-cli.md](references/claude-cli.md) and use its wrapper. Do not silently substitute unavailable configurations.
+- Use available, authorized models and efforts suited to the assignment and its checks. Follow explicit user preferences; compare total cost through acceptance. Keep the coordinator's model and effort unless asked to change them.
+- Read [delegation.md](references/delegation.md) for ownership, verification and waiting. Consult [model-selection.md](references/model-selection.md) only when model choice is unresolved and recommendations would help; skip it for an explicit choice. Reuse guidance already read.
+- For the bundled Claude wrapper, read [claude-cli.md](references/claude-cli.md); it supports Opus 5 only. Other models need a supported authorized route. Do not silently substitute or bypass adapter checks.
 - For a software-managed CLI attempt with predefined checks, read [software-runner.md](references/software-runner.md). Prefer native delegation when its completion wait already suffices.
 
 Workers receive their assignment and applicable project evidence, not routing policies or research. Do not load or search `docs/` during ordinary deployment; maintenance and audits may consult relevant documents.

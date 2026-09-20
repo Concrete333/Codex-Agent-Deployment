@@ -2,6 +2,8 @@
 
 Use `scripts/deployment_runner.py` when an authorized, bounded CLI worker and predefined checks would otherwise need coordinator supervision. Prefer the native subagent route when its completion wait already does the job. The runner does not choose models, retry, review meaning or accept results.
 
+This adapter supports Luna Max, Terra, Sol and Opus 5; these are adapter limits, not skill-wide restrictions. Use another supported authorized route for other configurations; do not bypass validation.
+
 Requires Python 3.10+, Codex CLI 0.153.4+ with ChatGPT login, or the configured Opus 5 route in [claude-cli.md](claude-cli.md). Check inherited project/CLI context before setting `trusted_context`. Windows executables must be native `.exe` files; pass `--codex` or `--claude` if discovery finds a shell shim. Unsupported settings are blockers, not permission to substitute.
 
 ## Request and run
@@ -86,30 +88,4 @@ Use a trusted coordinator and keep other writers out of protected files. This is
 
 ## Completion notification
 
-Use `scripts/completion_notify.py` to run a trusted, foreground command in a detached supervisor and queue one follow-up after it exits. The command must retain its own work timeout and child-process cleanup; do not wrap a launcher that returns before its worker finishes. The notifier does not replace sandboxing, ownership, checks or acceptance.
-
-Create a private JSON request outside worker write scope:
-
-```json
-{
-  "codex": "C:/path/to/codex.exe",
-  "thread": "CURRENT-TASK-UUID",
-  "cwd": "C:/work/project",
-  "argv": ["C:/Python313/python.exe", "C:/path/to/scripts/deployment_runner.py", "run", "C:/work/request.json", "--state-dir", "C:/work/state", "--codex", "C:/path/to/codex.exe"],
-  "receipt": "C:/work/state/attempt-id/receipt.json"
-}
-```
-
-Use the confirmed current task UUID (for example, `CODEX_THREAD_ID`), not a guessed name. Use absolute native executables and trusted argument arrays; no shell command strings. Keep the supervisor, request and run directory outside worker write scope.
-
-```powershell
-python C:/path/to/scripts/completion_notify.py start --request C:/work/notify.json --run-dir C:/work/notifications/unique-attempt
-```
-
-Start checks CLI queue support, requires a new run directory and returns immediately. End the turn when independent work is exhausted; tell the user notification is armed, where results will be saved and a rough remaining time or unknown. Keep the host available.
-
-The supervisor retains stdout/stderr, writes `process.json` and attempts one delivery for success or failure. `process.notification.json` records queued, failed or uncertain delivery; queued means submission accepted, not verified work. An existing notification record suppresses another attempt. Do not automatically retry uncertain delivery or rerun a job to send a notification. If delivery fails, inspect the saved result when the user checks back.
-
-The notification command returns nonzero unless delivery is recorded as queued. Keep notification failure separate from the worker result; do not rerun work to repair delivery.
-
-On wake-up, read the process and worker receipts, confirm the worker stopped, and apply normal verification and recovery rules. Resolve ownership or cleanup warnings before dependent work. If no usable notification route exists, use the handback in [delegation.md](delegation.md#waiting-and-accounting).
+Use [waiting.md](waiting.md) to run the foreground runner in a detached supervisor and wake the current task after it exits. Put the runner command in `argv` and its expected receipt path in the optional `receipt` field. Keep the runner's own timeouts, checks and ownership controls. Do not wrap a launcher that returns before its worker finishes.

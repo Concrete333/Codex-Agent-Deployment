@@ -1,6 +1,6 @@
 # Claude CLI workers
 
-Use this route only for Opus 5 when Claude delegation and its subscription use are authorized. Choose effort using [model-selection.md](model-selection.md); do not load another deployment skill.
+This wrapper supports Opus 5 when Claude delegation and its subscription use are authorized. Use the assigned effort; consult [model-selection.md](model-selection.md) only if selection is unresolved.
 
 ## Before dispatch
 

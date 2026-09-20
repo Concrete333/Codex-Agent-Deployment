@@ -38,13 +38,22 @@ def notify(binary, thread, receipt):
         with delivery.open("x", encoding="utf-8") as stream:
             json.dump({"status": "attempting", "thread": thread}, stream)
     except FileExistsError:
-        return json.loads(delivery.read_text(encoding="utf-8"))
+        try:
+            existing = json.loads(delivery.read_text(encoding="utf-8-sig"))
+            if not isinstance(existing, dict) or existing.get("status") not in {
+                    "attempting", "queued", "failed", "unknown"}:
+                raise ValueError("Invalid delivery claim")
+            return existing
+        except (OSError, UnicodeError, ValueError) as exc:
+            return {"status": "unknown", "thread": thread, "receipt": str(receipt),
+                    "error": f"Existing delivery claim is unreadable or incomplete: {exc}; "
+                             "do not retry automatically"}
     result = {"thread": thread, "receipt": str(receipt),
               "attempted_at": dt.datetime.now(dt.timezone.utc).isoformat()}
     try:
         if not receipt.is_file():
             raise ValueError("Completion receipt is missing")
-        state = json.loads(receipt.read_text(encoding="utf-8"))
+        state = json.loads(receipt.read_text(encoding="utf-8-sig"))
         heading = ("Background attempt needs intervention; worker termination or ownership is unresolved."
                    if state.get("ownership_check_required") or state.get("termination_unconfirmed")
                    else "Background supervisor reported a result.")
@@ -103,10 +112,10 @@ def main():
         return 0 if result.get("status") == "queued" else 1
     elif args.action == "_run":
         folder = Path(args.run_dir).resolve()
-        result = execute(json.loads((folder / "request.json").read_text(encoding="utf-8")), folder)
+        result = execute(json.loads((folder / "request.json").read_text(encoding="utf-8-sig")), folder)
         return 0 if result.get("status") == "queued" else 1
     else:
-        request = json.loads(Path(args.request).read_text(encoding="utf-8"))
+        request = json.loads(Path(args.request).read_text(encoding="utf-8-sig"))
         validate_target(request["codex"], request["thread"])
         argv = request["argv"]
         if (not isinstance(argv, list) or not argv or
