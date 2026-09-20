@@ -6,6 +6,7 @@ Use this for an authorized long-running script, test suite, build, database job 
 
 - Before a new job, establish its allowed side effects, result location, success checks and work timeout. Detach only when it can safely survive the turn ending without interactive input.
 - For a job already running, use its existing completion mechanism. Do not restart it, launch a duplicate or pass its launcher to the helper. If it has no supported completion route, use the manual fallback below.
+- If native completion already wakes the parent, do not add a second callback. For remote jobs such as CI, an authorized bounded watcher may wait in software; keep routine status checks out of model turns.
 - Use `scripts/completion_notify.py` when the host can run the command and `codex queue` for the current task. It waits in software, saves a process receipt, then submits one follow-up. Do not queue the follow-up before completion.
 - The command must enforce its own work timeout and child-process cleanup. The helper adds neither. If those controls are missing, establish an appropriate bounded execution method before detaching. Retain meaningful failure/progress checkpoints when the task requires intervention; do not replace them with repetitive model checks.
 
@@ -36,7 +37,7 @@ Use absolute native executable paths on all platforms; Windows requires `.exe`, 
 
 The supervisor retains `stdout.log` and `stderr.log`, writes `process.json`, then attempts one notification on success or failure. `process.notification.json` records delivery. Queued means submission accepted, not successful work. The notification command returns nonzero for failed or uncertain delivery. An existing delivery record suppresses another attempt; do not automatically retry uncertainty or rerun work to repair delivery.
 
-On wake-up, inspect the receipt and relevant results once. Confirm execution and ownership are resolved before dependent work. Verify the task's actual outcome; process exit, worker claims and notification delivery are not acceptance.
+On wake-up, correlate the event with its run directory or job ID and handle each terminal result once, even if native and queued events both arrive. Honor newer stop, pause or scope changes before continuing. Inspect the receipt and relevant results; confirm execution and ownership are resolved before dependent work. Verify the task's actual outcome; process exit, worker claims and notification delivery are not acceptance.
 
 After confirmed termination, a verified mechanical fix permits a safe rerun within existing scope and budget without renewed permission. Preserve failure evidence and announce the retry. Reassess repeated failures; ask before material extra spending or actions outside existing authority. Never retry with uncertain ownership or duplicate side effects.
 

@@ -6,14 +6,14 @@ Start with one worker. Add workers only for independently useful scopes with set
 
 Set model and effort explicitly, use minimal inherited history, and confirm effective settings when exposed. A full-history fork can inherit the coordinator's configuration. Report unavailable controls or mismatches rather than substituting silently. For isolated checkouts, specify the starting revision and needed uncommitted changes.
 
-Give a short, self-contained assignment:
+Give key entry points and enough context to start; leave local navigation to the worker:
 
 ```text
 Outcome, scope and non-goals:
 Owned files/resources, permissions and interfaces:
 Relevant evidence, search boundaries and project instructions:
 Settled decisions and rationale; choices left to the worker:
-Required behavior, failure cases, checks and verification owner:
+Required behavior, failure cases, shell/test command and verification owner:
 Budget or observable checkpoint; report blockers promptly:
 Return complete | partial | blocked, artifacts, checks/results and unresolved risks.
 ```
@@ -22,9 +22,11 @@ When an assignment requires repository exploration, including implementation, in
 
 > Context handling: Discover candidate files within the relevant paths and file types before reading bodies; exclude unrelated generated or captured content. Read matching functions or ranges. If output truncates, recover the missing relevant ranges instead of treating the partial return as complete. Widen the search when evidence or coverage requires it.
 
-Challenge consequential assumptions and whether the checks would detect their failure before dispatch. For state-dependent behavior, supply compact input-to-behavior examples or existing contract tests covering consequential distinctions: status, permitted actions and side effects. Include conflicting flags or missing-versus-null fields where they change behavior; do not leave domain meaning to inference from field names. Leave local implementation choices with the owner. Following known test patterns with settled expectations can be mechanical; discovering unfamiliar failure cases is reasoning work. Diagnosis and review are read-only unless scoped reproduction or scratch edits are assigned.
+Check consequential assumptions and whether acceptance checks would detect their failure. For state-dependent behavior, supply examples or existing contract tests distinguishing status, permitted actions and side effects, including conflicting flags or missing-versus-null values where relevant. Do not leave domain meaning to inference from field names. Leave implementation choices with the owner. Diagnosis and review are read-only unless scoped reproduction or scratch edits are assigned.
 
-Do not investigate or implement an active worker's assignment in parallel. Work on independent responsibilities or wait. Handoffs link artifacts and preserve exact failures, constraints and decision-critical evidence. Absence claims need search scope; completeness claims need coverage or count reconciliation.
+For uncertain repairs, assign a runnable reproduction, discriminating test or bounded diagnostic first. Do not require proof of a presumed cause. If necessary evidence is unavailable, return the exact gap and useful artifacts instead of continuing to search. Do not add coordinator check-ins for this intermediate work.
+
+Do not investigate an active worker's assignment in parallel or repeatedly inspect unfinished code. Review completed handoffs or agreed stable checkpoints; batch findings into one correction assignment. Intervene early for a concrete blocker, conflicting writes, an authorization issue or a user change, not to provide piecemeal suggestions. Handoffs preserve partial edits/tests, exact commands/results and unresolved questions. Absence claims need search scope; completeness claims need coverage or count reconciliation.
 
 ## Verification
 
@@ -38,7 +40,7 @@ The verification owner compares the artifact with the original sources or contra
 
 Return the checked artifact/revision, coverage and gaps, objective check results, and findings with location, trigger, impact and evidence. Route corrections using the recovery rules below; recheck changed risks and affected interactions, reusing valid evidence for unchanged work.
 
-The coordinator retains final acceptance. Inspect that evidence and unresolved findings without routinely repeating a qualified delegated review. Read underlying sources for gaps, contradictions, consequential disputed decisions or insufficient evidence. If full source review is necessary, account for it before dispatch; it is neither free nor automatically a reason to reject all delegation. Sampling cannot replace required full coverage.
+The coordinator retains final acceptance. Start with the diff, executable results and consequential judgment calls; do not routinely retrace the worker's investigation or repeat a qualified review. Read supporting source for gaps, contradictions or insufficient evidence. If full source review is necessary, account for it before dispatch. Sampling cannot replace required full coverage.
 
 Finish when required checks and inspection support acceptance. Do not expand optional hardening or housekeeping. Only the coordinator may revise acceptance criteria within user authority. Process success, passing self-checks and a review's completion status are not acceptance.
 
@@ -46,13 +48,13 @@ Finish when required checks and inspection support acceptance. Do not expand opt
 
 After confirmed termination, a verified mechanical fix permits a safe rerun within existing scope and budget without renewed permission. Preserve failure evidence and announce the retry. Reassess repeated failures; ask before material extra spending or actions outside existing authority. Never retry with uncertain ownership or duplicate side effects.
 
-Return mechanical errors and bounded defects within a sound approach to the worker, with the failing case and expected behavior. Separate missed requirements from missing or changed contracts before judging worker suitability. For a contract change, send the changed example and recheck affected behavior; do not count the new requirement as an earlier failure. The coordinator may handle a tiny integration fix when another handoff would cost more, after ownership is released. Local tool errors and expected failing regression tests are not assignment failure. Do not repeat an approach without new evidence.
+Return bounded defects within a sound approach to the worker with the failing case and expected behavior. Separate provider/runtime errors and changed requirements from implementation failures. For changed requirements, update the example and recheck affected behavior. After ownership is released, handle a tiny integration fix locally if another handoff costs more.
 
 - **Blocked:** Resolve missing decisions, evidence or access within authority; changing models is not the default fix.
-- **Partial:** A checkpoint, turn limit or budget ended. Preserve progress; continue only with a credible plan within user limits.
+- **Partial:** Preserve usable progress. If no usable artifact resulted, redispatch only when narrower scope, new evidence or a verified runtime fix addresses the failure; otherwise finish locally or report the blocker. A longer briefing or larger budget alone is insufficient.
 - **Substantive failure:** The core approach fails the required behavior, or newly exposed design work exceeds the assignment. Return the decision to the orchestrator.
 
-After a substantive failure, reassess the contract and approach before retrying. Choose local completion or a revised assignment to a suitable worker based on the failure, not an automatic model ladder. Finding defects is successful review.
+Reassess the contract and approach after substantive failure; do not follow an automatic model ladder. Finding defects is successful review.
 
 Reuse suitable owners. Before transferring writes, confirm the previous worker and its writing commands stopped; pass the diff, failures and open questions. If termination is uncertain, keep successors read-only or non-overlapping. Preserve unrelated edits.
 
