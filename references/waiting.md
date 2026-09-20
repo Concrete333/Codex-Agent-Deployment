@@ -5,6 +5,7 @@ Use this for an authorized long-running script, test suite, build, database job 
 ## Choose a completion route
 
 - Before a new job, establish its allowed side effects, result location, success checks and work timeout. Detach only when it can safely survive the turn ending without interactive input.
+- Choose and set up the completion route before launching full suites or other expected long jobs, including verification at the end of a coding task. A shell session ID or saved log alone does not establish automatic wake-up. Check native completion support or run the helper's `check` command below; reuse a verified result until the environment changes.
 - For a job already running, use its existing completion mechanism. Do not restart it, launch a duplicate or pass its launcher to the helper. If it has no supported completion route, use the manual fallback below.
 - If native completion already wakes the parent, do not add a second callback. For remote jobs such as CI, an authorized bounded watcher may wait in software; keep routine status checks out of model turns.
 - Use `scripts/completion_notify.py` when the host can run the command and `codex queue` for the current task. It waits in software, saves a process receipt, then submits one follow-up. Do not queue the follow-up before completion.
@@ -13,6 +14,14 @@ Use this for an authorized long-running script, test suite, build, database job 
 ## Start with completion notification
 
 Requires Python 3.10+ and a native Codex executable supporting `queue --thread --message`. Confirm the current task UUID, for example from `CODEX_THREAD_ID`; do not guess a session name. Keep supervisor files and private state outside the job's write scope. Do not bypass sandbox or approval requirements to reach the host.
+
+Locate the native executable (`Get-Command codex.exe` on Windows), then preflight without starting a job:
+
+```powershell
+python C:/path/to/agent-deployment/scripts/completion_notify.py check --codex C:/path/to/codex.exe --thread CURRENT-TASK-UUID
+```
+
+If supported, launch through `start` below rather than starting the command separately and planning to add notification later. A successful check confirms CLI support, not guaranteed delivery.
 
 Create a UTF-8 JSON request with absolute paths and a trusted argument array:
 
@@ -42,6 +51,8 @@ On wake-up, correlate the event with its run directory or job ID and handle each
 After confirmed termination, a verified mechanical fix permits a safe rerun within existing scope and budget without renewed permission. Preserve failure evidence and announce the retry. Reassess repeated failures; ask before material extra spending or actions outside existing authority. Never retry with uncertain ownership or duplicate side effects.
 
 ## Without a usable notification route
+
+State the concrete limitation: unavailable CLI support, missing target identity, host permissions, unsafe detachment, or an already-running job with no attachable completion route. Do not infer unavailability from a command still running or a tool wait timing out. If setup was missed, say so; do not restart existing work to repair the omission.
 
 If independent work is exhausted, leave only safely persistent work running. State its result location, pending verification and rough remaining time or unknown. Say: "I'm stopping polling. Please check back with me to inspect the result and continue; I won't automatically resume." End the turn. If it cannot safely survive, explain the limitation instead.
 
