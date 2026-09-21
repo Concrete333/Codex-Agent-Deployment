@@ -28,13 +28,13 @@ For a new user-level installation, use the skills location in [OpenAI's document
 macOS or Linux:
 
 ```bash
-git clone https://github.com/Concrete333/Codex-Agent-Deployment.git ~/.agents/skills/agent-deployment
+git clone https://github.com/Concrete333/Codex-Delegation-Deployment.git ~/.agents/skills/agent-deployment
 ```
 
 Windows PowerShell:
 
 ```powershell
-git clone https://github.com/Concrete333/Codex-Agent-Deployment.git "$env:USERPROFILE\.agents\skills\agent-deployment"
+git clone https://github.com/Concrete333/Codex-Delegation-Deployment.git "$env:USERPROFILE\.agents\skills\agent-deployment"
 ```
 
 If Codex already discovers an installation elsewhere, update that copy instead of creating a duplicate. Restart Codex if the skill does not appear.
@@ -106,7 +106,7 @@ The core guidance has no model allowlist. Your current agent keeps its model and
 
 ## Choosing models
 
-The optional [model-selection guide](references/model-selection.md) explains suggested task fits and efforts. Codex skips it when you have already chosen a model. Unlisted models can also be used through supported, authorized tools.
+The optional [model-selection guide](references/model-selection.md) explains suggested task fits and efforts, all based on current AI benchmarking. Codex skips it when you have already chosen a model. Unlisted models can also be used through supported, authorized tools.
 
 A few starting points:
 
