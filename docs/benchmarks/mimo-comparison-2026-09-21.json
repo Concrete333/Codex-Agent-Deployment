@@ -1,0 +1,991 @@
+{
+  "pages": [
+    {
+      "table": [
+        [
+          "",
+          "Xiaomi MiMo-V2.6-Pro",
+          "OpenAI GPT-5.6 Luna (max)",
+          "Add model"
+        ],
+        [
+          "Intelligence"
+        ],
+        [
+          "Intelligence Index",
+          "46",
+          "37",
+          ""
+        ],
+        [
+          "AA-Briefcase v1.1",
+          "1522",
+          "1345",
+          ""
+        ],
+        [
+          "GDPval-AA v2.1",
+          "1673",
+          "1443",
+          ""
+        ],
+        [
+          "AutomationBench-AA",
+          "59%",
+          "50%",
+          ""
+        ],
+        [
+          "Terminal-Bench 4.0",
+          "35%",
+          "12%",
+          ""
+        ],
+        [
+          "SciCode",
+          "61%",
+          "54%",
+          ""
+        ],
+        [
+          "Humanity's Last Exam",
+          "49%",
+          "39%",
+          ""
+        ],
+        [
+          "GDP.pdf",
+          "19%",
+          "24%",
+          ""
+        ],
+        [
+          "CritPt",
+          "27%",
+          "21%",
+          ""
+        ],
+        [
+          "AA-Omniscience",
+          "8",
+          "−10",
+          ""
+        ],
+        [
+          "AA-LCR v1.1",
+          "86%",
+          "84%",
+          ""
+        ],
+        [
+          "Cost"
+        ],
+        [
+          "Price per 1M Tokens",
+          "$0.1765",
+          "$0.174",
+          ""
+        ],
+        [
+          "Input Price per 1M Tokens",
+          "$0.435",
+          "$0.20",
+          ""
+        ],
+        [
+          "Output Price per 1M Tokens",
+          "$0.87",
+          "$1.20",
+          ""
+        ],
+        [
+          "Cache Hit Price per 1M Tokens",
+          "$0.0036",
+          "$0.02",
+          ""
+        ],
+        [
+          "Cost per Task",
+          "$0.13",
+          "$0.18",
+          ""
+        ],
+        [
+          "Cost to Run Intelligence Index",
+          "$207",
+          "$320",
+          ""
+        ],
+        [
+          "Token Use"
+        ],
+        [
+          "Output Tokens per Task",
+          "64k",
+          "41k",
+          ""
+        ],
+        [
+          "Reasoning Tokens per Task",
+          "38k",
+          "28k",
+          ""
+        ],
+        [
+          "Output Tokens to Run Intelligence Index",
+          "144M",
+          "154M",
+          ""
+        ],
+        [
+          "Performance"
+        ],
+        [
+          "Output Speed",
+          "134 tokens/s",
+          "162 tokens/s",
+          ""
+        ],
+        [
+          "Time to First Token",
+          "2.15s",
+          "126.10s",
+          ""
+        ],
+        [
+          "Time to First Answer Token",
+          "17.03s",
+          "126.10s",
+          ""
+        ],
+        [
+          "End-to-End Response Time",
+          "20.76s",
+          "129.19s",
+          ""
+        ],
+        [
+          "Time per Task",
+          "449.91s",
+          "253.65s",
+          ""
+        ],
+        [
+          "Technical specifications"
+        ],
+        [
+          "Context Window",
+          "1000k tokens ~1,500 A4 pages of size 12 Arial font",
+          "1000k tokens ~1,500 A4 pages of size 12 Arial font",
+          ""
+        ],
+        [
+          "Release Date",
+          "September 2026",
+          "July 2026",
+          ""
+        ],
+        [
+          "Total parameters",
+          "1.0T",
+          "",
+          ""
+        ],
+        [
+          "Active parameters",
+          "42B",
+          "",
+          ""
+        ],
+        [
+          "Reasoning",
+          "Yes",
+          "Yes",
+          ""
+        ],
+        [
+          "Input modality",
+          "Supports: text, image, speech, and video",
+          "Supports: text and image",
+          ""
+        ],
+        [
+          "Output modality",
+          "Supports: text",
+          "Supports: text",
+          ""
+        ],
+        [
+          "Open Source (Weights)",
+          "Yes",
+          "No",
+          ""
+        ],
+        [
+          "License",
+          "MIT",
+          "",
+          ""
+        ],
+        [
+          "License Supports Commercial Use Without Restrictions",
+          "Yes",
+          "",
+          ""
+        ]
+      ],
+      "benchmark": "Intelligence Index v4.3.2",
+      "url": "https://artificialanalysis.ai/models/comparisons/mimo-v2-6-pro-vs-gpt-5-6-luna"
+    },
+    {
+      "table": [
+        [
+          "",
+          "Xiaomi MiMo-V2.6-Pro",
+          "OpenAI GPT-5.6 Sol (high)",
+          "Add model"
+        ],
+        [
+          "Intelligence"
+        ],
+        [
+          "Intelligence Index",
+          "46",
+          "42",
+          ""
+        ],
+        [
+          "AA-Briefcase v1.1",
+          "1522",
+          "1370",
+          ""
+        ],
+        [
+          "GDPval-AA v2.1",
+          "1673",
+          "1480",
+          ""
+        ],
+        [
+          "AutomationBench-AA",
+          "59%",
+          "55%",
+          ""
+        ],
+        [
+          "Terminal-Bench 4.0",
+          "35%",
+          "21%",
+          ""
+        ],
+        [
+          "SciCode",
+          "61%",
+          "58%",
+          ""
+        ],
+        [
+          "Humanity's Last Exam",
+          "49%",
+          "46%",
+          ""
+        ],
+        [
+          "GDP.pdf",
+          "19%",
+          "28%",
+          ""
+        ],
+        [
+          "CritPt",
+          "27%",
+          "26%",
+          ""
+        ],
+        [
+          "AA-Omniscience",
+          "8",
+          "20",
+          ""
+        ],
+        [
+          "AA-LCR v1.1",
+          "86%",
+          "82%",
+          ""
+        ],
+        [
+          "Cost"
+        ],
+        [
+          "Price per 1M Tokens",
+          "$0.1765",
+          "$3.08",
+          ""
+        ],
+        [
+          "Input Price per 1M Tokens",
+          "$0.435",
+          "$4.00",
+          ""
+        ],
+        [
+          "Output Price per 1M Tokens",
+          "$0.87",
+          "$20.00",
+          ""
+        ],
+        [
+          "Cache Hit Price per 1M Tokens",
+          "$0.0036",
+          "$0.40",
+          ""
+        ],
+        [
+          "Cost per Task",
+          "$0.13",
+          "$0.81",
+          ""
+        ],
+        [
+          "Cost to Run Intelligence Index",
+          "$207",
+          "$1,487",
+          ""
+        ],
+        [
+          "Token Use"
+        ],
+        [
+          "Output Tokens per Task",
+          "64k",
+          "13k",
+          ""
+        ],
+        [
+          "Reasoning Tokens per Task",
+          "38k",
+          "6k",
+          ""
+        ],
+        [
+          "Output Tokens to Run Intelligence Index",
+          "144M",
+          "34M",
+          ""
+        ],
+        [
+          "Performance"
+        ],
+        [
+          "Output Speed",
+          "134 tokens/s",
+          "68 tokens/s",
+          ""
+        ],
+        [
+          "Time to First Token",
+          "2.15s",
+          "12.07s",
+          ""
+        ],
+        [
+          "Time to First Answer Token",
+          "17.03s",
+          "12.07s",
+          ""
+        ],
+        [
+          "End-to-End Response Time",
+          "20.76s",
+          "19.45s",
+          ""
+        ],
+        [
+          "Time per Task",
+          "449.91s",
+          "189.16s",
+          ""
+        ],
+        [
+          "Technical specifications"
+        ],
+        [
+          "Context Window",
+          "1000k tokens ~1,500 A4 pages of size 12 Arial font",
+          "1000k tokens ~1,500 A4 pages of size 12 Arial font",
+          ""
+        ],
+        [
+          "Release Date",
+          "September 2026",
+          "July 2026",
+          ""
+        ],
+        [
+          "Total parameters",
+          "1.0T",
+          "",
+          ""
+        ],
+        [
+          "Active parameters",
+          "42B",
+          "",
+          ""
+        ],
+        [
+          "Reasoning",
+          "Yes",
+          "Yes",
+          ""
+        ],
+        [
+          "Input modality",
+          "Supports: text, image, speech, and video",
+          "Supports: text and image",
+          ""
+        ],
+        [
+          "Output modality",
+          "Supports: text",
+          "Supports: text",
+          ""
+        ],
+        [
+          "Open Source (Weights)",
+          "Yes",
+          "No",
+          ""
+        ],
+        [
+          "License",
+          "MIT",
+          "",
+          ""
+        ],
+        [
+          "License Supports Commercial Use Without Restrictions",
+          "Yes",
+          "",
+          ""
+        ]
+      ],
+      "benchmark": "Intelligence Index v4.3.2",
+      "url": "https://artificialanalysis.ai/models/comparisons/mimo-v2-6-pro-vs-gpt-5-6-sol-high"
+    },
+    {
+      "table": [
+        [
+          "",
+          "Xiaomi MiMo-V2.6-Pro",
+          "Anthropic Claude Opus 5 (Adaptive Reasoning, Low Effort)",
+          "Add model"
+        ],
+        [
+          "Intelligence"
+        ],
+        [
+          "Intelligence Index",
+          "46",
+          "39",
+          ""
+        ],
+        [
+          "AA-Briefcase v1.1",
+          "1522",
+          "1210",
+          ""
+        ],
+        [
+          "GDPval-AA v2.1",
+          "1673",
+          "1294",
+          ""
+        ],
+        [
+          "AutomationBench-AA",
+          "59%",
+          "52%",
+          ""
+        ],
+        [
+          "Terminal-Bench 4.0",
+          "35%",
+          "26%",
+          ""
+        ],
+        [
+          "SciCode",
+          "61%",
+          "49%",
+          ""
+        ],
+        [
+          "Humanity's Last Exam",
+          "49%",
+          "43%",
+          ""
+        ],
+        [
+          "GDP.pdf",
+          "19%",
+          "17%",
+          ""
+        ],
+        [
+          "CritPt",
+          "27%",
+          "23%",
+          ""
+        ],
+        [
+          "AA-Omniscience",
+          "8",
+          "29",
+          ""
+        ],
+        [
+          "AA-LCR v1.1",
+          "86%",
+          "81%",
+          ""
+        ],
+        [
+          "Cost"
+        ],
+        [
+          "Price per 1M Tokens",
+          "$0.1765",
+          "$3.85",
+          ""
+        ],
+        [
+          "Input Price per 1M Tokens",
+          "$0.435",
+          "$5.00",
+          ""
+        ],
+        [
+          "Output Price per 1M Tokens",
+          "$0.87",
+          "$25.00",
+          ""
+        ],
+        [
+          "Cache Hit Price per 1M Tokens",
+          "$0.0036",
+          "$0.50",
+          ""
+        ],
+        [
+          "Cost per Task",
+          "$0.13",
+          "$1.10",
+          ""
+        ],
+        [
+          "Cost to Run Intelligence Index",
+          "$207",
+          "$1,561",
+          ""
+        ],
+        [
+          "Token Use"
+        ],
+        [
+          "Output Tokens per Task",
+          "64k",
+          "15k",
+          ""
+        ],
+        [
+          "Reasoning Tokens per Task",
+          "38k",
+          "7k",
+          ""
+        ],
+        [
+          "Output Tokens to Run Intelligence Index",
+          "144M",
+          "26M",
+          ""
+        ],
+        [
+          "Performance"
+        ],
+        [
+          "Output Speed",
+          "134 tokens/s",
+          "62 tokens/s",
+          ""
+        ],
+        [
+          "Time to First Token",
+          "2.15s",
+          "2.76s",
+          ""
+        ],
+        [
+          "Time to First Answer Token",
+          "17.03s",
+          "2.76s",
+          ""
+        ],
+        [
+          "End-to-End Response Time",
+          "20.76s",
+          "10.81s",
+          ""
+        ],
+        [
+          "Time per Task",
+          "449.91s",
+          "148.11s",
+          ""
+        ],
+        [
+          "Technical specifications"
+        ],
+        [
+          "Context Window",
+          "1000k tokens ~1,500 A4 pages of size 12 Arial font",
+          "1000k tokens ~1,500 A4 pages of size 12 Arial font",
+          ""
+        ],
+        [
+          "Release Date",
+          "September 2026",
+          "July 2026",
+          ""
+        ],
+        [
+          "Total parameters",
+          "1.0T",
+          "",
+          ""
+        ],
+        [
+          "Active parameters",
+          "42B",
+          "",
+          ""
+        ],
+        [
+          "Reasoning",
+          "Yes",
+          "Yes",
+          ""
+        ],
+        [
+          "Input modality",
+          "Supports: text, image, speech, and video",
+          "Supports: text and image",
+          ""
+        ],
+        [
+          "Output modality",
+          "Supports: text",
+          "Supports: text",
+          ""
+        ],
+        [
+          "Open Source (Weights)",
+          "Yes",
+          "No",
+          ""
+        ],
+        [
+          "License",
+          "MIT",
+          "",
+          ""
+        ],
+        [
+          "License Supports Commercial Use Without Restrictions",
+          "Yes",
+          "",
+          ""
+        ]
+      ],
+      "benchmark": "Intelligence Index v4.3.2",
+      "url": "https://artificialanalysis.ai/models/comparisons/mimo-v2-6-pro-vs-claude-opus-5-low"
+    },
+    {
+      "table": [
+        [
+          "",
+          "Xiaomi MiMo-V2.6-Pro",
+          "OpenAI GPT-6 Astra (high)",
+          "Add model"
+        ],
+        [
+          "Intelligence"
+        ],
+        [
+          "Intelligence Index",
+          "46",
+          "51",
+          ""
+        ],
+        [
+          "AA-Briefcase v1.1",
+          "1522",
+          "1507",
+          ""
+        ],
+        [
+          "GDPval-AA v2.1",
+          "1673",
+          "1485",
+          ""
+        ],
+        [
+          "AutomationBench-AA",
+          "59%",
+          "67%",
+          ""
+        ],
+        [
+          "Terminal-Bench 4.0",
+          "35%",
+          "54%",
+          ""
+        ],
+        [
+          "SciCode",
+          "61%",
+          "55%",
+          ""
+        ],
+        [
+          "Humanity's Last Exam",
+          "49%",
+          "53%",
+          ""
+        ],
+        [
+          "GDP.pdf",
+          "19%",
+          "31%",
+          ""
+        ],
+        [
+          "CritPt",
+          "27%",
+          "29%",
+          ""
+        ],
+        [
+          "AA-Omniscience",
+          "8",
+          "44",
+          ""
+        ],
+        [
+          "AA-LCR v1.1",
+          "86%",
+          "80%",
+          ""
+        ],
+        [
+          "Cost"
+        ],
+        [
+          "Price per 1M Tokens",
+          "$0.1765",
+          "$7.70",
+          ""
+        ],
+        [
+          "Input Price per 1M Tokens",
+          "$0.435",
+          "$10.00",
+          ""
+        ],
+        [
+          "Output Price per 1M Tokens",
+          "$0.87",
+          "$50.00",
+          ""
+        ],
+        [
+          "Cache Hit Price per 1M Tokens",
+          "$0.0036",
+          "$1.00",
+          ""
+        ],
+        [
+          "Cost per Task",
+          "$0.13",
+          "$1.73",
+          ""
+        ],
+        [
+          "Cost to Run Intelligence Index",
+          "$207",
+          "$2,925",
+          ""
+        ],
+        [
+          "Token Use"
+        ],
+        [
+          "Output Tokens per Task",
+          "64k",
+          "12k",
+          ""
+        ],
+        [
+          "Reasoning Tokens per Task",
+          "38k",
+          "5k",
+          ""
+        ],
+        [
+          "Output Tokens to Run Intelligence Index",
+          "144M",
+          "26M",
+          ""
+        ],
+        [
+          "Performance"
+        ],
+        [
+          "Output Speed",
+          "134 tokens/s",
+          "62 tokens/s",
+          ""
+        ],
+        [
+          "Time to First Token",
+          "2.15s",
+          "50.82s",
+          ""
+        ],
+        [
+          "Time to First Answer Token",
+          "17.03s",
+          "50.82s",
+          ""
+        ],
+        [
+          "End-to-End Response Time",
+          "20.76s",
+          "58.84s",
+          ""
+        ],
+        [
+          "Time per Task",
+          "449.91s",
+          "189.62s",
+          ""
+        ],
+        [
+          "Technical specifications"
+        ],
+        [
+          "Context Window",
+          "1000k tokens ~1,500 A4 pages of size 12 Arial font",
+          "1000k tokens ~1,500 A4 pages of size 12 Arial font",
+          ""
+        ],
+        [
+          "Release Date",
+          "September 2026",
+          "September 2026",
+          ""
+        ],
+        [
+          "Knowledge Cutoff",
+          "",
+          "April 2026",
+          ""
+        ],
+        [
+          "Total parameters",
+          "1.0T",
+          "",
+          ""
+        ],
+        [
+          "Active parameters",
+          "42B",
+          "",
+          ""
+        ],
+        [
+          "Reasoning",
+          "Yes",
+          "Yes",
+          ""
+        ],
+        [
+          "Input modality",
+          "Supports: text, image, speech, and video",
+          "Supports: text and image",
+          ""
+        ],
+        [
+          "Output modality",
+          "Supports: text",
+          "Supports: text",
+          ""
+        ],
+        [
+          "Open Source (Weights)",
+          "Yes",
+          "No",
+          ""
+        ],
+        [
+          "License",
+          "MIT",
+          "",
+          ""
+        ],
+        [
+          "License Supports Commercial Use Without Restrictions",
+          "Yes",
+          "",
+          ""
+        ]
+      ],
+      "benchmark": "Intelligence Index v4.3.2",
+      "url": "https://artificialanalysis.ai/models/comparisons/mimo-v2-6-pro-vs-gpt-6-astra-high"
+    }
+  ],
+  "model_page": "https://artificialanalysis.ai/models/mimo-v2-6-pro",
+  "captured_at_utc": "2026-09-21T21:56:44.4665523Z",
+  "precision": "Public table display precision; k/M values are rounded, not raw token counts.",
+  "kilo": {
+    "variants": {
+      "instant": {
+        "reasoning": {
+          "enabled": false,
+          "effort": "none"
+        }
+      },
+      "thinking": {
+        "reasoning": {
+          "enabled": true,
+          "effort": "high"
+        }
+      }
+    },
+    "cost": {
+      "input": 0.435,
+      "output": 0.87,
+      "cache": {
+        "read": 0.0036,
+        "write": 0
+      }
+    },
+    "limits": {
+      "context": 1048576,
+      "output": 131072
+    },
+    "cli_model": "kilo/xiaomi/mimo-v2.6-pro",
+    "status": "active"
+  }
+}

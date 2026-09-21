@@ -2,6 +2,8 @@
 
 Evidence snapshot: 8 September 2026. Combined reference prepared 9 September 2026. Maintenance/research only; do not load during operational skill use.
 
+For MiMo-V2.6-Pro and same-version worker comparisons, see the [21 September evidence](mimo-model-selection-2026-09-21.md) and [workbook](benchmarks/mimo-model-comparison-2026-09-21.xlsx). That capture uses v4.3.2 and is kept separate from this v4.3 snapshot.
+
 ## Sources and reconciliation
 
 22 GPT configurations from the raw chart capture, checked against the corrected GPT workbook, plus 16 configurations from the Claude-only workbook. All source configuration labels, including **with fallback**, are retained. The source is [Artificial Analysis](https://artificialanalysis.ai/models), Intelligence Index v4.3.

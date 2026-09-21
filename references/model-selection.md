@@ -20,6 +20,12 @@ Choose Luna over Terra or Opus when the work mostly finds or transforms informat
 
 Examples: reconcile callers for a known API rename, or implement a UI state mapping with settled inputs, expected behavior and an existing pattern. Inferring domain semantics or designing interactions across consumers is not pattern-following work. If preparing a Luna assignment requires solving it, keep it local rather than writing a detailed solution for delegation.
 
+## MiMo-V2.6-Pro — bounded work through Kilo
+
+**Kilo ID:** `kilo/xiaomi/mimo-v2.6-pro` · **Variant:** `thinking`.
+
+Use the installed `kilo-delegator` skill for mechanical batches, small pattern-following implementations and known-file extraction with executable or source-checkable acceptance. Choose this route when reducing Codex usage justifies separately billed Kilo calls and setup. Native Luna avoids that external setup; compare the complete attempt, including review and repair. Keep open-ended diagnosis, domain decisions and acceptance with the coordinator. Do not pass the Kilo ID to native Codex workers.
+
 ## GLM-5.3-Flash — bounded implementation through an external CLI
 
 **Model:** `glm-5.3-flash` · requires an authorized, compatible CLI/provider route, such as Kilo Code. Provider-qualified IDs vary; do not pass this ID to native Codex workers or the bundled Claude wrapper.

@@ -2,6 +2,8 @@
 
 These scripts are maintenance utilities, not operational skill context.
 
+- `capture-mimo-comparison.ps1` captures public comparison-table text and Kilo model metadata, without inference or graph-data downloads. Its dated JSON preserves displayed precision and benchmark version. `build-mimo-comparison.mjs <repo-root>` uses the bundled `@oai/artifact-tool` to produce the separate MiMo comparison workbook and evidence note from that capture; it does not rewrite the older workbooks. Run the builder in a temporary directory with the dependency available. Preview images are written beside the executing builder.
+
 - `combine-model-evidence.py` requires Python 3.10+ and `openpyxl`. It reads the raw GPT capture, corrected GPT workbook and copied Claude-only workbook, checks their reconciliation, and generates `docs/model-performance-comparison.md`. Pass `--check` to check reproducibility without writing. It does not alter the workbooks.
 
 The JavaScript utilities require Node.js and `@oai/artifact-tool`:

@@ -93,8 +93,10 @@ def ranked(rows, value, descending=False):
 
 def build():
     rows, evaluations = load_rows()
+    latest_note = "\n\nFor MiMo-V2.6-Pro and same-version worker comparisons, see the [21 September evidence](mimo-model-selection-2026-09-21.md) and [workbook](benchmarks/mimo-model-comparison-2026-09-21.xlsx). That capture uses v4.3.2 and is kept separate from this v4.3 snapshot."
     parts = ["# GPT and Claude model performance\n\nEvidence snapshot: 8 September 2026. Combined reference prepared 9 September 2026. Maintenance/research only; do not load during operational skill use.",
              "## Sources and reconciliation\n\n22 GPT configurations from the raw chart capture, checked against the corrected GPT workbook, plus 16 configurations from the Claude-only workbook. All source configuration labels, including **with fallback**, are retained. The source is [Artificial Analysis](https://artificialanalysis.ai/models), Intelligence Index v4.3."]
+    parts[0] += latest_note
     for p in (RAW, GPT, CLAUDE):
         parts.append(f"- [{p.name}](benchmarks/{p.name}) — SHA-256 `{hashlib.sha256(p.read_bytes()).hexdigest()}`")
     parts.append("\nThe older `agent-model-selection-2026-09-08.xlsx` is retained as historical material, not used to generate this comparison. Its Task Fit knowledge-reliability row ranks the conditional non-hallucination rate and must not be used as a cross-vendor fabrication ranking. This document recomputes wrong answers on a common denominator and avoids treating composite dominance as a universal task recommendation.")
