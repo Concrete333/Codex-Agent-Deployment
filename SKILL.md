@@ -9,7 +9,7 @@ Minimize total cost to an accepted result, including coordinator context, worker
 
 ## Decide whether to delegate
 
-**Before launching a full test suite or other expected long-running command:** read [waiting.md](references/waiting.md) and establish its completion route before starting it, even when verification is only the last step of a coding task. For command-only work, load no other reference. Use native completion or the included queue helper; do not add an agent just to wait. Short commands need no background setup. Do not load `docs/` for ordinary execution.
+**Before launching an expected long-running command, including a test suite:** read [waiting.md](references/waiting.md) and establish its completion route before starting it, even when verification is only the last step of a coding task. For command-only work, load no other reference. Use native completion or the included queue helper; do not add an agent just to wait. Known-short commands stay direct, even full suites; use existing timing evidence, not a separate timing run. Do not load `docs/` for ordinary execution.
 
 Keep small work local. Keep tightly coupled work with one owner, which may be a worker owning the entire component; do not split its dependent steps across agents. Prefer commands and scripts for deterministic work. Before spawning, identify a bounded workload the coordinator will stop doing and how its result can be checked. Include necessary source reading, integration and likely repair in that comparison; a cheap worker alone does not establish savings. Do not solve the whole assignment merely to make it delegable.
 

@@ -5,7 +5,7 @@ Use this for an authorized long-running script, test suite, build, database job 
 ## Choose a completion route
 
 - Before a new job, establish its allowed side effects, result location, success checks and work timeout. Detach only when it can safely survive the turn ending without interactive input.
-- Choose and set up the completion route before launching full suites or other expected long jobs, including verification at the end of a coding task. A shell session ID or saved log alone does not establish automatic wake-up. Check native completion support or run the helper's `check` command below; reuse a verified result until the environment changes.
+- Choose and set up the completion route before launching expected long jobs, including test suites at the end of a coding task. Known-short suites stay direct. A shell session ID or saved log alone does not establish automatic wake-up. Check native completion support or run the helper's `check` command below; reuse a verified result until the environment changes.
 - For a job already running, use its existing completion mechanism. Do not restart it, launch a duplicate or pass its launcher to the helper. If it has no supported completion route, use the manual fallback below.
 - If native completion already wakes the parent, do not add a second callback. For remote jobs such as CI, an authorized bounded watcher may wait in software; keep routine status checks out of model turns.
 - Use `scripts/completion_notify.py` when the host can run the command and `codex queue` for the current task. It waits in software, saves a process receipt, then submits one follow-up. Do not queue the follow-up before completion.
