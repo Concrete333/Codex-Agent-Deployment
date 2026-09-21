@@ -104,6 +104,22 @@ Before dispatch, Codex considers preparation, worker execution, review and likel
 
 The core guidance has no model allowlist. Your current agent keeps its model and effort unless you ask to change them, and worker choices respect your available tools and preferences. Required verification stays in place even when a cheaper worker is used.
 
+### Optional native-agent wait configuration
+
+To prevent short timeout loops when waiting for native subagents, add or merge this into your Codex `config.toml`:
+
+```toml
+[features.multi_agent_v2]
+enabled = true
+min_wait_timeout_ms = 1500000
+default_wait_timeout_ms = 1500000
+max_wait_timeout_ms = 1500000
+```
+
+This timeout (the 1500000) is 25 minutes; worker activity or user input can end the wait sooner. In our [CLI 0.153.4 probe], one wait returned after 50.13 seconds when the worker finished, without parent polling. We observed no downside in the tested runs, but did not isolate savings against default settings or verify future versions.
+
+Use native waiting for subagents when it works. Use the queue helper for suitable background commands or external workers without an equivalent completion route.
+
 ## Choosing models
 
 The optional [model-selection guide](references/model-selection.md) explains suggested task fits and efforts, all based on current AI benchmarking. Codex skips it when you have already chosen a model. Unlisted models can also be used through supported, authorized tools.
@@ -234,5 +250,7 @@ I got the initial idea from these posts and implemented their model-routing and 
 - [u/Icy_Piece6643: Before blaming GPT-6 Astra, read its prompting guide](https://www.reddit.com/r/codex/comments/1w7x57n/before_blaming_gpt6_astra_read_its_prompting_guide/).
 
 Further work drew on [tagorr's polling telemetry](https://github.com/openai/codex/issues/35259#issuecomment-5577073962), [u/PilgrimofHaqq2's parallel/sequential research discussion](https://www.reddit.com/r/claude/comments/1w7k9au/parallel_vs_sequential_agent_systems_research/), and the primary sources in the [reference list](docs/agent-coordination-references.md).
+
+The post [I investigated why GPT-6 Astra burns quota so fast](https://www.reddit.com/r/codex/comments/1wa9c9d/i_investigated_why_gpt6_astra_burns_quota_so_fast/) informed the native-agent wait configuration documented above.
 
 Model evidence comes from [Artificial Analysis](https://artificialanalysis.ai/models), with vendor context from [OpenAI](https://developers.openai.com/api/docs/guides/latest-model) and [Anthropic](https://platform.claude.com/docs/en/models/fable-5-1/overview). The deployment recommendations are this project's interpretation, to be tested against real accepted outcomes.
