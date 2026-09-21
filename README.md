@@ -73,11 +73,26 @@ and acceptance checks. Do not start workers or edit files.
 
 Codex can select the skill when a request matches its description. Explicitly naming it is the clearest way to request it. Skill selection does not itself authorize delegation, edits or additional spending.
 
+### Optional reminder in AGENTS.md
+
+Where you don't want to manually name the skill in every new chat, add this paragraph to your existing project or global `AGENTS.md` after installing it. It is the routing reminder used in this project's local setup:
+
+```text
+Before launching an expected long-running job, including a test suite, use the
+`agent-deployment` skill's waiting guide to establish native completion or preflight
+and arm its queue helper. Known-short commands stay direct, even full suites; use
+existing timing evidence, not a separate timing run. This applies without subagents.
+Do not launch first and default to manual check-in later; if notification is
+unavailable, state the specific limitation.
+```
+
+You can use the skill without editing `AGENTS.md`, the detailed waiting and recovery rules are already in the skill; this reminder makes the pre-launch instruction available during ordinary coding tasks. As with everything Codex, this still won't guarantee skill selection, instruction compliance or notification delivery, but it lines it up as well as we can.
+
 ## Scripts and test suites
 
 The same waiting guidance applies to builds, data-processing scripts and database jobs. No additional AI worker is needed.
 
-Where supported, Codex can start a command that safely continues in the background, end its turn, and receive one queued message after the helper saves the result. The same mechanism works for a foreground worker CLI. This does not require changes to your global `AGENTS.md`.
+Where supported, Codex can start a command that safely continues in the background, end its turn, and receive one queued message after the helper saves the result. The same mechanism works for a foreground worker CLI. The optional `AGENTS.md` reminder above helps Codex choose this route before launch.
 
 The [waiting guide](references/waiting.md) covers setup, saved execution records and recovery. Script-only tasks skip the model-selection guides. The command must have appropriate timeout and cleanup controls; a notification is not proof of success. If the host cannot deliver notifications, Codex tells you to check back rather than repeatedly polling. Already-running jobs are not restarted just to add notification.
 
