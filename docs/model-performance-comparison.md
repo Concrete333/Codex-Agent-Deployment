@@ -4,6 +4,21 @@ Evidence snapshot: 8 September 2026. Combined reference prepared 9 September 202
 
 For MiMo-V2.6-Pro and same-version worker comparisons, see the [21 September evidence](mimo-model-selection-2026-09-21.md) and [workbook](benchmarks/mimo-model-comparison-2026-09-21.xlsx). That capture uses v4.3.2 and is kept separate from this v4.3 snapshot.
 
+## Local implementation comparison — 22 September 2026
+
+These are observed costs for one frozen inventory-component task, not Artificial Analysis scores or benchmark-suite averages. Sorted by complete captured cost; failed-worker routes are excluded from the ranking.
+
+| Route | Worker / solo cost | Astra acceptance | Total | Independent methods before review |
+| --- | ---: | ---: | ---: | --- |
+| DeepSeek V4.1 Flash Max + Astra High | $0.046131 | $0.538194 | $0.584325 | 27/27 |
+| Luna Max + Astra High (earlier control) | $0.041546 | $0.640958 | $0.682504 | 27/27 |
+| GLM 5.3 Flash Max + Astra High | $0.071707 | $0.656320 | $0.728027 | 27/27 |
+| Astra High solo (earlier control) | $0.755888 | Included | $0.755888 | 27/27; no separate review |
+
+One run per route; no fresh solo/Luna controls in the external-worker batch. Prices combine API-equivalent Codex estimates and Kilo-reported costs, not subscription bills or quota savings. Shared preparation, supervision and analysis are excluded. Astra changed none of the successful workers' implementation code. DeepSeek had the cheapest accepted pipeline here; its worker alone cost more than Luna's, and review dominated both.
+
+MiMo returned no implementation; its latest captured total of at least $0.689846 includes Astra doing the implementation instead and omits unknown failed-request usage. It is not an accepted worker result. See [full external-worker evidence](benchmarks/inventory-events/external-workers-results-2026-09-22.md) and [solo/Luna controls](benchmarks/inventory-events/three-arm-results-2026-09-22.md). The dated AA tables below remain unchanged.
+
 ## Sources and reconciliation
 
 22 GPT configurations from the raw chart capture, checked against the corrected GPT workbook, plus 16 configurations from the Claude-only workbook. All source configuration labels, including **with fallback**, are retained. The source is [Artificial Analysis](https://artificialanalysis.ai/models), Intelligence Index v4.3.

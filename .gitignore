@@ -17,6 +17,7 @@ docs/benchmarks/inventory-events/local-fixture.json
 docs/benchmarks/inventory-events/local-acceptance.json
 docs/benchmarks/inventory-events/local-pipeline.json
 docs/benchmarks/inventory-events/local-three-arm.json
+docs/benchmarks/inventory-events/local-external-workers.json
 docs/benchmarks/kilo-sol/local-fixture.json
 docs/benchmarks/kilo-sol/local-luna.json
 docs/benchmarks/kilo-sol/local-uncapped.json

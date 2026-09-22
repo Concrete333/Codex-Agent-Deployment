@@ -127,11 +127,14 @@ A few starting points:
 | Supplied analytical or scientific subproblem | Sol Low/Medium |
 | Bounded diagnosis, analysis or independently justified review | Sol High |
 | Bounded implementation through an authorized Claude subscription | Opus 5 Low |
+| Small self-contained implementation with executable checks through an authorized Kilo CLI | DeepSeek V4.1 Flash Max |
 | Open-ended diagnosis, architecture, difficult coupled work and final judgment | Current Codex agent; no worker |
 
 These are starting candidates, not a required sequence. Choose for the uncertainty remaining, available checks and consequences of a missed defect. The guide explains relative costs and alternatives; benchmark averages cannot price your assignment or establish reviewer reliability.
 
 Compare the complete accepted result, including preparation and corrections, against local completion. Lower effort does not itself lower per-token prices. Use commands and scripts for exact work that needs no additional model, and keep provider changes optional.
+
+For external workers, the separate [Kilo Delegator skill](https://github.com/Concrete333/Codex-Kilo-Delegation) supplies isolated worktrees, completion notifications and saved handoffs. Its default is DeepSeek V4.1 Flash Max; GLM 5.3 Flash Max also passed the implementation test below. Kilo needs its own authenticated account and authorized billing. Neither model is a native Codex worker, and this skill does not require Kilo.
 
 ## Optional software runner
 
@@ -188,7 +191,18 @@ On 22 September 2026, each route received the same inventory-component implement
 
 The checks included an 80-scenario lifecycle matrix within one test method. Before the runs, the grader passed the correct controls and rejected the starter and nine defective variants. Passing this suite is evidence for the tested behavior, not proof of defect-free code. [Full results and protocol](docs/benchmarks/inventory-events/three-arm-results-2026-09-22.md).
 
-*The same comparison included MiMo (the newest "most efficient" model as of this writing, routed through Kilo Code). It failed with a provider/runtime stream error before producing edits, tests or a handoff. Astra then implemented the task itself. Captured cost was **at least $0.877**, with failed-request usage unknown. This route did not save money in that run; the evidence cannot isolate Kilo from the provider or judge MiMo's coding ability.
+### External workers through Kilo
+
+A follow-up used the same frozen task and Astra High acceptance with three external workers:
+
+| Worker | Worker cost | Astra acceptance | Total | Independent checks before review |
+| --- | ---: | ---: | ---: | --- |
+| DeepSeek V4.1 Flash Max | $0.046 | $0.538 | **$0.584** | 27/27 methods |
+| GLM 5.3 Flash Max | $0.072 | $0.656 | **$0.728** | 27/27 methods |
+
+Astra added acceptance tests but changed neither implementation. DeepSeek's pipeline was **22.7% cheaper than the earlier solo run** and **14.4% cheaper than Luna + Astra**. It was the cheapest accepted route observed here, not a demonstrated winner across tasks: each route ran once, and solo/Luna were historical controls. Review still accounted for 92% of DeepSeek's total.
+
+MiMo produced no implementation in either attempt. The follow-up reported an upstream-provider timeout, and Astra completed the task locally. Unknown failed-request usage prevents a complete cost comparison or a conclusion about MiMo's coding ability. [External-worker results, configuration and failure analysis](docs/benchmarks/inventory-events/external-workers-results-2026-09-22.md).
 
 ### Other results worth knowing
 

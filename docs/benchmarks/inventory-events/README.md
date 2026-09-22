@@ -1,5 +1,11 @@
 # Inventory events: solo owner versus one component worker
 
+[External worker comparison — 22 September](external-workers-results-2026-09-22.md):
+DeepSeek V4.1 Flash Max + Astra High cost $0.584; GLM 5.3 Flash Max + Astra High
+cost $0.728. Both workers passed 27/27 methods before acceptance, with no
+implementation repairs. MiMo hit an upstream-provider timeout with no edits;
+Astra completed locally. Solo/Luna comparisons use the earlier runs, not fresh controls.
+
 [Fresh three-arm comparison — 22 September](three-arm-results-2026-09-22.md):
 Astra High solo cost $0.756; Luna Max plus Astra acceptance cost $0.683 (9.71%
 less), with 27/27 independent methods passing. MiMo failed with a provider stream
