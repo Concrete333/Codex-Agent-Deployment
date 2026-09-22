@@ -5,11 +5,11 @@ description: Reduce coordination overhead for authorized agent delegation and lo
 
 # Agent Deployment
 
-Minimize total cost to an accepted result, including coordinator context, workers, checks and corrections. Preserve required accuracy; speed is not the goal. This skill does not authorize delegation, extra spending, billing changes or paid overflow.
+Minimize total cost to an accepted result, including coordinator context, workers, checks and corrections. Preserve required accuracy; speed is not the goal. This skill does not authorize delegation, extra spending, billing changes or paid overflow. During ordinary use, exclude this skill's `docs/` from reads and searches.
 
 ## Decide whether to delegate
 
-**Before launching an expected long-running command, including a test suite:** read [waiting.md](references/waiting.md) and establish its completion route before starting it, even when verification is only the last step of a coding task. For command-only work, load no other reference. Use native completion or the included queue helper; do not add an agent just to wait. Known-short commands stay direct, even full suites; use existing timing evidence, not a separate timing run. Do not load `docs/` for ordinary execution.
+**Before launching an expected long-running command, including a test suite:** read [waiting.md](references/waiting.md) and establish its completion route before starting it, even when verification is only the last step of a coding task. For command-only work, load no other reference. Use native completion or the included queue helper; do not add an agent just to wait. Known-short commands stay direct, even full suites; use existing timing evidence, not a separate timing run.
 
 Keep small work local. Keep tightly coupled work with one owner, which may be a worker owning the entire component; do not split its dependent steps across agents. Prefer commands and scripts for deterministic work. Before spawning, identify a bounded workload the coordinator will stop doing and how its result can be checked. Include necessary source reading, integration and likely repair in that comparison; a cheap worker alone does not establish savings. Do not solve the whole assignment merely to make it delegable.
 
@@ -26,4 +26,4 @@ When reassessing prior results, verify the target identities and provenance firs
 - For the bundled Claude wrapper, read [claude-cli.md](references/claude-cli.md); it supports Opus 5 only. Other models need a supported authorized route. Do not silently substitute or bypass adapter checks.
 - For a software-managed CLI attempt with predefined checks, read [software-runner.md](references/software-runner.md). Prefer native delegation when its completion wait already suffices.
 
-Workers receive their assignment and applicable project evidence, not routing policies or research. Do not load or search `docs/` during ordinary deployment; maintenance and audits may consult relevant documents.
+Workers receive their assignment and applicable project evidence, not this skill's routing policies or benchmark material.

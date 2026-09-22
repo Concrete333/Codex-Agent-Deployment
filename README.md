@@ -206,6 +206,10 @@ The successful implementation comparisons fixed the worker assignment. They do n
 
 Further evidence: [earlier test summary](docs/claude-orchestration-findings-2026-09-12.md), [model comparisons](docs/model-performance-comparison.md), [selection analysis](docs/model-selection-analysis.md) and [coordination research](docs/agent-coordination-references.md). Benchmark captures are dated; use comparable accepted task results to evaluate your own setup.
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) to improve or audit the skill. Runtime instructions live in `SKILL.md` and `references/`; contributor guidance and research stay outside ordinary skill use. The repository's `AGENTS.md` is for working on this repository, not a file to copy into your project. Use the [optional reminder](#optional-reminder-in-agentsmd) above instead.
+
 ## Credits
 
 I got the initial idea from these posts and implemented their model-routing and delegation ideas in this skill. Neither post is mine:
