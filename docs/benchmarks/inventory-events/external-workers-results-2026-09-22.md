@@ -1,5 +1,9 @@
 # External worker comparison: GLM, DeepSeek and MiMo
 
+Follow-up: a [single MiMo retry](mimo-retry-protocol-2026-09-22.md) repeated the
+upstream timeout after 640 seconds with no edits. Its cost and outcome are recorded
+separately and do not change the original comparison below.
+
 DeepSeek V4.1 Flash Max and GLM 5.3 Flash Max both produced implementations that
 passed all 27 independent test methods before Astra review. Astra High accepted
 both without changing implementation code. MiMo again produced no implementation;

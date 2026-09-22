@@ -26,7 +26,7 @@ Check consequential assumptions and whether acceptance checks would detect their
 
 For uncertain repairs, assign a runnable reproduction, discriminating test or bounded diagnostic first. Do not require proof of a presumed cause. If necessary evidence is unavailable, return the exact gap and useful artifacts instead of continuing to search. Do not add coordinator check-ins for this intermediate work.
 
-Do not investigate an active worker's assignment in parallel or repeatedly inspect unfinished code. Review completed handoffs or agreed stable checkpoints; batch findings into one correction assignment. Intervene early for a concrete blocker, conflicting writes, an authorization issue or a user change, not to provide piecemeal suggestions. Handoffs preserve partial edits/tests, exact commands/results and unresolved questions. Absence claims need search scope; completeness claims need coverage or count reconciliation.
+Do not investigate an active worker's assignment in parallel or repeatedly inspect unfinished code. Review completed handoffs or agreed stable checkpoints; batch findings into one correction assignment. Intervene early for a concrete blocker, conflicting writes, an authorization issue or a user change, not to provide piecemeal suggestions. Handoffs preserve partial edits/tests, exact commands/results and unresolved questions. Absence claims need search scope; completeness claims need coverage or count reconciliation. Report actual truncation, not merely a configured limit.
 
 ## Verification
 
