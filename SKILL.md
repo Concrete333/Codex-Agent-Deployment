@@ -15,6 +15,8 @@ Keep small work local. Keep tightly coupled work with one owner, which may be a 
 
 The coordinator owns consequential behavior, interfaces and acceptance. A worker can own a settled component through implementation, tests and corrections, or an independent evidence search. Large repositories, separate files and test-writing assignments are not inherently cheap or independent.
 
+When reassessing prior results, verify the target identities and provenance first. Retain decision-level evidence on disk, not just aggregates. Reuse it when inputs are unchanged and it supports the new classification; do not rebuild merely to match an expected count. Matching totals do not establish historical membership.
+
 **If staying local without a long-running job, stop here.** Do not load the references or write a delegation plan.
 
 ## When delegation is useful

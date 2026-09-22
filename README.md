@@ -1,10 +1,10 @@
 # Agent Deployment for Codex
 
-Reduce unnecessary Codex usage while waiting for commands or coordinating other agents. This skill covers long-running commands as well as work handed to other AI agents. **You do not need subagents to use it.**
+Reduce unnecessary Codex usage while waiting for commands or coordinating other agents. **You do not need subagents to use it.**
 
 If Codex starts a slow test suite, build or database script, it can keep calling tools to ask whether the job has finished. Each model turn adds overhead. The skill guides Codex to use a completion notification, let the command run, and check its saved result when it finishes.
 
-For larger tasks, it also helps Codex decide whether another agent would save work. It keeps assignments bounded, avoids overlapping investigation, and batches reviews after completed work. Delegation is optional; checking and correcting a worker can cost more than doing the task directly.
+For larger tasks, it helps Codex hand over bounded work and review completed results without duplicating the worker's investigation. Delegation is optional: checking and correcting a worker can cost more than doing the task yourself.
 
 [Install](#install) · [Use](#use) · [Scripts and test suites](#scripts-and-test-suites) · [Agent delegation](#agent-delegation) · [Choosing models](#choosing-models) · [Test results](#what-weve-measured)
 
@@ -17,7 +17,7 @@ For larger tasks, it also helps Codex decide whether another agent would save wo
 | Waiting for a worker | Leave unfinished edits alone, do independent useful work, and review completed handoffs or agreed checkpoints. |
 | Receiving a result | Check saved evidence before continuing. A notification or a worker saying “done” does not establish success. |
 
-Short commands need no background setup. For longer work, the skill prefers an existing native completion mechanism. Its bundled helper can save the command's result and send Codex one follow-up message when supported. If neither route is available, Codex explains what is running and asks you to check back.
+Short commands stay direct. Longer work uses native completion or the bundled notification helper where supported. If neither is available, Codex explains what is running and asks you to check back.
 
 ## Install
 
@@ -64,18 +64,11 @@ for this task. Choose appropriate models and efforts, and verify the result.
 Do not enable paid overflow.
 ```
 
-For a plan only:
-
-```text
-$agent-deployment Plan this migration. Include models, efforts, ownership
-and acceptance checks. Do not start workers or edit files.
-```
-
 Codex can select the skill when a request matches its description. Explicitly naming it is the clearest way to request it. Skill selection does not itself authorize delegation, edits or additional spending.
 
 ### Optional reminder in AGENTS.md
 
-Where you don't want to manually name the skill in every new chat, add this paragraph to your existing project or global `AGENTS.md` after installing it. It is the routing reminder used in this project's local setup:
+To make the pre-launch reminder available in ordinary coding tasks, add this paragraph to your project or global `AGENTS.md` after installing the skill:
 
 ```text
 Before launching an expected long-running job, including a test suite, use the
@@ -86,23 +79,13 @@ Do not launch first and default to manual check-in later; if notification is
 unavailable, state the specific limitation.
 ```
 
-You can use the skill without editing `AGENTS.md`, the detailed waiting and recovery rules are already in the skill; this reminder makes the pre-launch instruction available during ordinary coding tasks. As with everything Codex, this still won't guarantee skill selection, instruction compliance or notification delivery, but it lines it up as well as we can.
+The skill contains the full waiting and recovery rules; this reminder helps Codex select them before launch. Neither file guarantees instruction compliance or notification delivery.
 
 ## Scripts and test suites
 
-The same waiting guidance applies to builds, data-processing scripts and database jobs. No additional AI worker is needed.
+Codex can launch a command that safely continues in the background, end its turn, and receive one queued message after the helper saves the terminal result. This works for tests, builds, data-processing jobs and external worker CLIs where the host supports it.
 
-Where supported, Codex can start a command that safely continues in the background, end its turn, and receive one queued message after the helper saves the result. The same mechanism works for a foreground worker CLI. The optional `AGENTS.md` reminder above helps Codex choose this route before launch.
-
-The [waiting guide](references/waiting.md) covers setup, saved execution records and recovery. Script-only tasks skip the model-selection guides. The command must have appropriate timeout and cleanup controls; a notification is not proof of success. If the host cannot deliver notifications, Codex tells you to check back rather than repeatedly polling. Already-running jobs are not restarted just to add notification.
-
-## Agent delegation
-
-Your current Codex agent is the coordinator: it defines the outcome, owns consequential decisions and checks the final result. A worker is another AI agent given a bounded assignment, such as implementing a component with settled interfaces or searching specified source files.
-
-Before dispatch, Codex considers preparation, worker execution, review and likely corrections. It should hand over work it can stop doing itself. The worker owns implementation and tests within its assignment; the coordinator reviews completed work and sends corrections together instead of repeatedly inspecting partial edits.
-
-The core guidance has no model allowlist. Your current agent keeps its model and effort unless you ask to change them, and worker choices respect your available tools and preferences. Required verification stays in place even when a cheaper worker is used.
+The [waiting guide](references/waiting.md) covers setup and recovery. Commands retain safety timeouts and cleanup controls. Codex verifies saved results before continuing; a notification alone does not establish success. Already-running jobs are not restarted just to add notifications. Script-only tasks skip the delegation and model-selection guides.
 
 ### Optional native-agent wait configuration
 
@@ -116,13 +99,24 @@ default_wait_timeout_ms = 1500000
 max_wait_timeout_ms = 1500000
 ```
 
-This timeout (the 1500000) is 25 minutes; worker activity or user input can end the wait sooner. In our [CLI 0.153.4 probe], one wait returned after 50.13 seconds when the worker finished, without parent polling. We observed no downside in the tested runs, but did not isolate savings against default settings or verify future versions.
+The timeout is 25 minutes; supported completion events can end the wait sooner. In our [CLI 0.153.4 probe](docs/benchmarks/waiting/README.md), one wait returned after 50.13 seconds when the worker finished, without parent polling. That verifies early completion in the tested runtime, not savings against default settings or compatibility with future versions. Respect your host's wait limits.
 
 Use native waiting for subagents when it works. Use the queue helper for suitable background commands or external workers without an equivalent completion route.
 
+## Agent delegation
+
+Your current Codex agent is the coordinator: it defines the outcome, owns consequential decisions and checks the final result. A worker is another AI agent given a bounded assignment, such as implementing a component with settled interfaces or searching specified source files.
+
+Before dispatch, Codex considers preparation, worker execution, review and likely corrections. The worker should remove work from the coordinator, owning implementation and tests within settled boundaries. The coordinator leaves partial edits alone and batches corrections after completed handoffs or agreed checkpoints.
+
+Keep shared integration files with one writer. Review evidence against the task's requirements; passing worker-written tests alone is insufficient. Bounded defects can go back to the worker, while failed approaches and newly exposed design decisions return to the coordinator. Small or tightly coupled work often costs less to finish locally.
+
+The core guidance has no model allowlist. Your current agent keeps its model and effort unless you ask to change them, and worker choices respect your available tools and preferences. Required verification stays in place even when a cheaper worker is used.
+
+
 ## Choosing models
 
-The optional [model-selection guide](references/model-selection.md) explains suggested task fits and efforts, all based on current AI benchmarking. Codex skips it when you have already chosen a model. Unlisted models can also be used through supported, authorized tools.
+The optional [model-selection guide](references/model-selection.md) explains task fits and efforts using captured benchmarks and local task results. Codex skips it when you have already chosen the worker model and effort. Unlisted models can also be used through supported, authorized tools.
 
 A few starting points:
 
@@ -135,17 +129,9 @@ A few starting points:
 | Bounded implementation through an authorized Claude subscription | Opus 5 Low |
 | Open-ended diagnosis, architecture, difficult coupled work and final judgment | Current Codex agent; no worker |
 
-These are starting recommendations, not a required sequence or effort restriction. Choose a different model or effort when your preferences or task evidence support it. Include checking and corrections when comparing cost.
+These are starting candidates, not a required sequence. Choose for the uncertainty remaining, available checks and consequences of a missed defect. The guide explains relative costs and alternatives; benchmark averages cannot price your assignment or establish reviewer reliability.
 
-Choose Luna when the job mostly finds evidence or follows a fixed pattern. Choose Terra when implementation needs more local judgment. Sol fits supplied problems requiring derivation or evaluation. Opus 5 offers a Claude implementation route when its account access, retained context or task results justify the setup.
-
-For scale, captured suite-average costs are $0.18 for Luna Max, $0.50 for Sol Medium, $1.10 for Opus 5 Low and $1.40 for Terra Max. These are not prices for your particular assignment. Compare the worker, preparation and review together against keeping the work local; lowering effort does not itself lower a model's per-token price.
-
-“Accepted” means the requested outcome is supported by appropriate evidence: reconciled source coverage for extraction, a discriminating reproduction for diagnosis, or behavior and integration checks for implementation. A worker reporting completion is not enough.
-
-The goal is lower total cost while meeting the required correctness standard, not faster completion. The choice depends on uncertainty, available checks, the consequences of a missed defect, context already held by a worker and your authorized account preferences. Commands and scripts come first for exact work that does not need another model.
-
-Claude is optional. Using two providers is not a goal in itself, and a provider switch does not automatically improve a result.
+Compare the complete accepted result, including preparation and corrections, against local completion. Lower effort does not itself lower per-token prices. Use commands and scripts for exact work that needs no additional model, and keep provider changes optional.
 
 ## Optional software runner
 
@@ -153,9 +139,7 @@ The included [deployment runner](references/software-runner.md) handles one conf
 
 The runner prevents accidental repeats of the same request, keeps full logs out of routine model context, detects changes to declared checker files and retains ownership after interrupted work. It does not choose models, retry automatically or treat passing tests as acceptance.
 
-This route is experimental and optional. A [host-managed adapter replication](docs/benchmarks/runner-comparison/results-host-pipeline-replication-2026-09-11.md) cost 22.9% less than one native-delegation baseline, including an acceptance-stage code repair. That comparison does not isolate waiting as the cause. Use native subagents when their event-driven completion wait is already sufficient. The [design and qualification notes](docs/software-runner-design.md) explain the runner's scope and its use of OpenAI's Symphony orchestration project as a design reference.
-
-A one-shot host bridge also supports Codex coordinators whose sandbox cannot access CLI authentication. One live Luna Max smoke test passed with sandboxed checks; the coordinator still owns acceptance. Setup is in the [runner guide](references/software-runner.md#sandboxed-coordinator-without-cli-authentication).
+This route is experimental and optional. Use native subagents when their completion wait is sufficient. The [runner guide](references/software-runner.md#sandboxed-coordinator-without-cli-authentication) also covers coordinators whose sandbox cannot access CLI authentication. See the [design notes](docs/software-runner-design.md) for scope and qualification, including the use of OpenAI's Symphony as a design reference.
 
 ## Claude CLI workers
 
@@ -163,9 +147,7 @@ Codex calls your installed Claude Code CLI through the included Python wrapper; 
 
 Requirements: Python 3.10+, Claude Code 2.1.108+ and a logged-in Claude subscription with access to the selected model. The wrapper supports `low`, `medium`, `high`, `xhigh` and `max`; the selected model and installed CLI must support the requested setting.
 
-Workers use five-minute caching and disabled skill discovery while retaining Claude's default coding prompt. The wrapper requests no automatic model fallback or API billing fallback. Compact results link to complete local execution records.
-
-See [the Claude CLI guide](references/claude-cli.md) for setup, request format, permission profiles and continuation.
+See [the Claude CLI guide](references/claude-cli.md) for setup, context controls, request format and session continuation. Compact results link to complete local execution records.
 
 Important limits:
 
@@ -173,59 +155,6 @@ Important limits:
 - Usage records contain estimates, not remaining subscription allowance. The wrapper cannot disable account-side paid overflow.
 - A successful CLI exit is not accepted work. The coordinator still checks results, artifacts and unresolved risks.
 - Concurrent editing jobs need separate checkouts and independent shared state. A worker timeout terminates work; a coordinator wait timeout does not.
-
-## Where the savings should come from
-
-For script-only work, the skill loads just the waiting guide. Waiting moves into software where supported, avoiding repeated model turns to inspect unchanged status.
-
-For agent work, the skill first asks whether to delegate at all. The coordinator identifies work it can hand over and how to check the result, including any necessary source rereading. If preparation, checking and likely repairs erase the benefit, it works locally without loading the operational references or model guide.
-
-A repository search can spare the coordinator a large amount of source context. A settled component can give a worker useful ownership of implementation, tests and corrections. Splitting tightly coupled work between an implementer and a test writer may instead make both agents learn the same behavior and leave the coordinator to reconcile them. Independent test design or review is useful when it addresses a specific risk.
-
-“Write tests” is not automatically cheap work. Extending an existing test setup with agreed expected results is different from discovering which regression cases expose unfamiliar behavior. Model choice follows the uncertainty, not the type of file being written.
-
-Choose who verifies the result before dispatch. Reuse independent checks for objective requirements; worker-written tests can supplement them, but passing a self-check is not acceptance. Exact quotations do not prove that a claim is supported. A cheaper reviewer can replace substantive coordinator review only with a basis for trusting it on the relevant errors, not merely because it reports full coverage. The coordinator retains final acceptance and inspects unresolved risks without routinely duplicating a qualified review. Required full coverage cannot be replaced with spot checks.
-
-Workers receive focused assignments and return concise evidence, not their entire investigation. The coordinator does not duplicate active worker work. It uses supported completion waits instead of repeated status checks; if suitable waiting is unavailable, it keeps the work local or reports the limitation.
-
-Mechanical errors and bounded defects within a sound approach can go back to the worker. A failed core approach or newly exposed design work returns to the coordinator; do not repeat that failed assignment on Luna. There is no mandatory model ladder.
-
-## What we've measured
-
-A cheap worker helps only if its handoff, review and repairs cost less than the work it replaces. We test that with frozen tasks, saved usage and independent checks.
-
-Our latest inventory test gave Luna Max a complete component to implement, then used a separate Astra High session for acceptance. Software handled the transitions, so no coordinating model sat waiting between stages.
-
-| Inventory pipeline | Implementation | Read-only acceptance | Total |
-| --- | ---: | ---: | ---: |
-| Astra High implementation + Astra High acceptance | $0.560 | $0.263 | $0.822 |
-| Luna Max implementation + Astra High acceptance | $0.058 | $0.537 | $0.595 |
-
-**27.65% lower execution cost with the same separate-review requirement.** Both implementations passed all 21 public/independent test methods and their added tests. Both reviews accepted without findings, edits or a correction round. Totals use unrounded values. [Full results and protocol](docs/benchmarks/inventory-events/pipeline-results-2026-09-12.md).
-
-The baseline matters: if Astra's implementation needs no separate review, Luna plus acceptance costs **6.31% more**. Acceptance accounts for 90.28% of the Luna path. This clean pair cannot tell us whether the extra review is necessary or whether a cheaper reviewer would be adequate. The comparison explicitly selected Astra for review; it does not require that model for everyday use.
-
-### Other results worth knowing
-
-| Test | Observed result | What passed, and the limit |
-| --- | --- | --- |
-| [Saved inventory implementations with fresh acceptance](docs/benchmarks/inventory-events/acceptance-results-2026-09-12.md) | $1.047 versus $0.545: 47.98% lower | Both passed 21 checks and separate reviews. Retrospective accounting on the same inventory task, not a second fresh pipeline. |
-| [Six-adapter pair and repeat](docs/benchmarks/adapter-batch/results-replication-02-2026-09-10.md) | Team cost 18.4% and 10.4% less than solo | All four passed 226 frozen cases. A later large-CSV probe exposed a defect in the first pair and reference; both repeat submissions passed it. |
-| [Repository search: Luna Max with/without scoped-search guidance](docs/benchmarks/context-scope/replication-results-2026-09-12.md) | Combined worker cost 24.9% lower | All four runs returned the exact required matches. Two small searches; excludes coordinator acceptance. |
-| [Reservation implementation: same guidance, three pairs](docs/benchmarks/reservation-component/unattended-results-2026-09-12.md) | Effectively tied across repeats | All six accepted. Two initial savings reversed in the third pair; search guidance did not establish cheaper implementation. |
-| [Earlier cattrs feature](docs/benchmarks/cattrs-self/results-2026-09-10.md) | Solo $1.44; unguided team $2.45; skill team at least $3.02 | Saved code passed the checks, but the skill run timed out. Its worker cost only $0.05; coordinator work dominated. |
-
-These are historical API-equivalent estimates, **not subscription bills or quota savings**. Execution comparisons exclude shared research preparation and later analysis of disputed results. For the latest pipeline, the four sessions together cost $1.417; adding measured setup and a partial record of that analysis brought research spending to at least $4.005. Full accounting is in each report.
-
-The successful team comparisons fixed the worker assignment. They do not show that the skill reliably chooses when to delegate. Trials are small, often one run per condition, with uncontrolled cache/order effects. Lower dollar cost can also mean more tokens: the latest Luna implementation used about seven times Astra's input tokens.
-
-### What this means for your work
-
-Give a worker a settled component it can own through tests and bounded corrections. Keep shared integration files with one writer, and use completion notifications instead of status polling. Retain the review your task needs; our tests do not justify removing it simply to improve the cost result.
-
-In a [real catalogue implementation](docs/ccu-target-selection-delegation-audit-2026-09-12.md), Luna handled target selection and several review corrections for about $0.50. The integrated application ran 2,567 tests with one skipped. There was no solo comparison, and the parent handled substantial other work, so we make no savings claim for that run.
-
-The [test summary](docs/claude-orchestration-findings-2026-09-12.md) collects methods, failures and follow-up questions. The [combined model evidence](docs/model-performance-comparison.md) covers 38 GPT/Claude configurations from the 8 September 2026 Artificial Analysis capture; [analysis notes](docs/model-selection-analysis.md) and [coordination research](docs/agent-coordination-references.md) explain the reasoning behind the guidance. Suite averages help choose candidates; they cannot price your task or establish reviewer reliability.
 
 ## What agents load
 
@@ -241,6 +170,41 @@ The [test summary](docs/claude-orchestration-findings-2026-09-12.md) collects me
 Workers receive their assignment and relevant project evidence, not the entire routing guide or benchmark collection. Audits and maintenance may read the relevant material in `docs/`.
 
 For a Claude Code coordinator instead of Codex, see [Claude Agent Deployment](https://github.com/Concrete333/Claude-Agent-Deployment).
+
+## What we've measured
+
+A cheap worker helps only if its handoff, review and repairs cost less than the work it replaces. We test that with frozen tasks, saved usage and independent checks.
+
+### Comparison Test: Astra alone versus Astra + Luna
+
+On 22 September 2026, each route received the same inventory-component implementation task in a fresh checkout. The solo baseline used one Astra High session with no added reviewer. The delegated route used Luna Max for implementation, followed by Astra High for acceptance. Software supplied the brief and handled completion, so no model spent turns waiting or rewriting the assignment.
+
+| Route | Implementation | Astra acceptance | Total | Independent checks |
+| --- | ---: | ---: | ---: | --- |
+| Astra High alone | $0.756 | Included | **$0.756** | 27/27 methods |
+| Luna Max + Astra High | $0.042 | $0.641 | **$0.683** | 27/27 methods |
+
+**The delegated route cost 9.7% less, saving about $0.073.** Luna passed all independent checks before review. Astra added six acceptance tests and made no changes to Luna's implementation. Acceptance accounted for 94% of the delegated cost, so this result does not justify skipping review or assuming a cheaper reviewer would preserve accuracy.
+
+The checks included an 80-scenario lifecycle matrix within one test method. Before the runs, the grader passed the correct controls and rejected the starter and nine defective variants. Passing this suite is evidence for the tested behavior, not proof of defect-free code. [Full results and protocol](docs/benchmarks/inventory-events/three-arm-results-2026-09-22.md).
+
+*The same comparison included MiMo (the newest "most efficient" model as of this writing, routed through Kilo Code). It failed with a provider/runtime stream error before producing edits, tests or a handoff. Astra then implemented the task itself. Captured cost was **at least $0.877**, with failed-request usage unknown. This route did not save money in that run; the evidence cannot isolate Kilo from the provider or judge MiMo's coding ability.
+
+### Other results worth knowing
+
+| Test | Observed result | What passed, and the limit |
+| --- | --- | --- |
+| [Earlier inventory pair with separate reviews for both](docs/benchmarks/inventory-events/pipeline-results-2026-09-12.md) | Astra + Astra $0.822; Luna + Astra $0.595: 27.65% lower | Both passed 21 methods. Without the extra Astra-only review, delegation cost 6.31% more. Different protocol from the fresh solo comparison above. |
+| [Six-adapter pair and repeat](docs/benchmarks/adapter-batch/results-replication-02-2026-09-10.md) | Team cost 18.4% and 10.4% less than solo | All four passed 226 frozen cases. A later large-CSV probe exposed a defect in the first pair and reference; both repeat submissions passed it. |
+| [Repository search: Luna Max with/without scoped-search guidance](docs/benchmarks/context-scope/replication-results-2026-09-12.md) | Combined worker cost 24.9% lower | All four runs returned the exact required matches. Two small searches; excludes coordinator acceptance. |
+| [Reservation implementation: same guidance, three pairs](docs/benchmarks/reservation-component/unattended-results-2026-09-12.md) | Effectively tied across repeats | All six accepted. Two initial savings reversed in the third pair; search guidance did not establish cheaper implementation. |
+| [Earlier cattrs feature](docs/benchmarks/cattrs-self/results-2026-09-10.md) | Solo $1.44; unguided team $2.45; skill team at least $3.02 | Saved code passed the checks, but the skill run timed out. Its worker cost only $0.05; coordinator work dominated. |
+
+These are API-equivalent estimates and, for Kilo, reported costs, **not subscription bills or quota savings**. Totals use unrounded values and exclude shared research setup, supervision and later analysis. The latest comparison has one run per route. Earlier trials are also small, with cache and run-order effects that limit generalization.
+
+The successful implementation comparisons fixed the worker assignment. They do not show that the skill chooses when to delegate better than an unguided agent. The latest Luna route also used more raw tokens than solo despite its lower estimated cost.
+
+Further evidence: [earlier test summary](docs/claude-orchestration-findings-2026-09-12.md), [model comparisons](docs/model-performance-comparison.md), [selection analysis](docs/model-selection-analysis.md) and [coordination research](docs/agent-coordination-references.md). Benchmark captures are dated; use comparable accepted task results to evaluate your own setup.
 
 ## Credits
 

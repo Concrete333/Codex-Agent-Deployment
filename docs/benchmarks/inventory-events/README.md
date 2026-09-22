@@ -1,5 +1,14 @@
 # Inventory events: solo owner versus one component worker
 
+[Fresh three-arm comparison — 22 September](three-arm-results-2026-09-22.md):
+Astra High solo cost $0.756; Luna Max plus Astra acceptance cost $0.683 (9.71%
+less), with 27/27 independent methods passing. MiMo failed with a provider stream
+error and no edits; Astra completed locally, for at least $0.877 captured cost.
+No separate reviewer was added to solo. Expanded coverage and permitted repairs
+make this a new comparison, not a directly pooled repeat of the earlier pairs.
+
+## Earlier experiments
+
 [Results — 12 September 2026](results-2026-09-12.md): both accepted without
 corrections. Luna implementation cost $0.042757 versus Astra solo $0.775724.
 Joint acceptance cost was captured separately; per-arm end-to-end savings
