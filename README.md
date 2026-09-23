@@ -178,31 +178,32 @@ For a Claude Code coordinator instead of Codex, see [Claude Agent Deployment](ht
 
 A cheap worker helps only if its handoff, review and repairs cost less than the work it replaces. We test that with frozen tasks, saved usage and independent checks.
 
-### Comparison Test: Astra alone versus Astra + Luna
+### Astra alone versus Astra + Luna
 
-On 22 September 2026, each route received the same inventory-component implementation task in a fresh checkout. The solo baseline used one Astra High session with no added reviewer. The delegated route used Luna Max for implementation, followed by Astra High for acceptance. Software supplied the brief and handled completion, so no model spent turns waiting or rewriting the assignment.
+Each route implemented the same inventory component in a fresh checkout. Delegated routes used Luna Max for implementation and Astra High for acceptance. Software handled dispatch and completion without model polling; solo used one Astra High session with no extra reviewer.
 
 | Route | Implementation | Astra acceptance | Total | Independent checks |
 | --- | ---: | ---: | ---: | --- |
 | Astra High alone | $0.756 | Included | **$0.756** | 27/27 methods |
-| Luna Max + Astra High | $0.042 | $0.641 | **$0.683** | 27/27 methods |
+| GPT-5.6 Luna Max + Astra High | $0.036 | $0.564 | **$0.600** | 27/27 methods |
+| GPT-6 Luna Max + Astra High | $0.017 | $0.507 | **$0.524** | 27/27 methods |
 
-**The delegated route cost 9.7% less, saving about $0.073.** Luna passed all independent checks before review. Astra added six acceptance tests and made no changes to Luna's implementation. Acceptance accounted for 94% of the delegated cost, so this result does not justify skipping review or assuming a cheaper reviewer would preserve accuracy.
+Both Luna workers passed all independent checks before review. Astra added acceptance tests without repairing either implementation. GPT-6 Luna's worker cost was **52.7% lower** than GPT-5.6 Luna's; the complete pipeline cost was **12.6% lower**. Review accounted for 75% of that saving, so it cannot all be attributed to the worker model.
 
-The checks included an 80-scenario lifecycle matrix within one test method. Before the runs, the grader passed the correct controls and rejected the starter and nine defective variants. Passing this suite is evidence for the tested behavior, not proof of defect-free code. [Full results and protocol](docs/benchmarks/inventory-events/three-arm-results-2026-09-22.md).
+The Luna runs used the same CLI on 23 September. Solo ran on 22 September with an earlier CLI. These are single runs on one task, not average savings or proof of defect-free code. [Results and protocol](docs/benchmarks/inventory-events/luna56-repeat-results-2026-09-23.md).
 
 ### External workers through Kilo
 
-A follow-up used the same frozen task and Astra High acceptance with three external workers:
+The same task was tested on 22 September with external workers and Astra High acceptance:
 
 | Worker | Worker cost | Astra acceptance | Total | Independent checks before review |
 | --- | ---: | ---: | ---: | --- |
 | DeepSeek V4.1 Flash Max | $0.046 | $0.538 | **$0.584** | 27/27 methods |
 | GLM 5.3 Flash Max | $0.072 | $0.656 | **$0.728** | 27/27 methods |
 
-Astra added acceptance tests but changed neither implementation. DeepSeek's pipeline was **22.7% cheaper than the earlier solo run** and **14.4% cheaper than Luna + Astra**. It was the cheapest accepted route observed here, not a demonstrated winner across tasks: each route ran once, and solo/Luna were historical controls. Review still accounted for 92% of DeepSeek's total.
+Astra added acceptance tests without changing either implementation. Review accounted for 92% of DeepSeek's total. Each external worker ran once; these were not simultaneous controls for the newer Luna runs.
 
-MiMo produced no implementation in either attempt. The follow-up reported an upstream-provider timeout, and Astra completed the task locally. Unknown failed-request usage prevents a complete cost comparison or a conclusion about MiMo's coding ability. [External-worker results, configuration and failure analysis](docs/benchmarks/inventory-events/external-workers-results-2026-09-22.md).
+MiMo produced no implementation after provider failures. Missing failed-request usage prevents a complete cost comparison or a conclusion about its coding ability. [External-worker results and failure analysis](docs/benchmarks/inventory-events/external-workers-results-2026-09-22.md).
 
 ### Other results worth knowing
 
@@ -214,9 +215,9 @@ MiMo produced no implementation in either attempt. The follow-up reported an ups
 | [Reservation implementation: same guidance, three pairs](docs/benchmarks/reservation-component/unattended-results-2026-09-12.md) | Effectively tied across repeats | All six accepted. Two initial savings reversed in the third pair; search guidance did not establish cheaper implementation. |
 | [Earlier cattrs feature](docs/benchmarks/cattrs-self/results-2026-09-10.md) | Solo $1.44; unguided team $2.45; skill team at least $3.02 | Saved code passed the checks, but the skill run timed out. Its worker cost only $0.05; coordinator work dominated. |
 
-These are API-equivalent estimates and, for Kilo, reported costs, **not subscription bills or quota savings**. Totals use unrounded values and exclude shared research setup, supervision and later analysis. The latest comparison has one run per route. Earlier trials are also small, with cache and run-order effects that limit generalization.
+Costs are API-equivalent estimates and, for Kilo, reported costs, **not subscription bills or quota savings**. They exclude shared research setup, supervision and analysis. Small samples, caching and run order limit generalization.
 
-The successful implementation comparisons fixed the worker assignment. They do not show that the skill chooses when to delegate better than an unguided agent. The latest Luna route also used more raw tokens than solo despite its lower estimated cost.
+Worker assignments were fixed. These tests do not establish that the skill chooses when to delegate better than an unguided agent. Lower cost also need not mean fewer tokens: GPT-6 Luna used more input but less output than GPT-5.6 Luna.
 
 Further evidence: [earlier test summary](docs/claude-orchestration-findings-2026-09-12.md), [model comparisons](docs/model-performance-comparison.md), [selection analysis](docs/model-selection-analysis.md) and [coordination research](docs/agent-coordination-references.md). Benchmark captures are dated; use comparable accepted task results to evaluate your own setup.
 

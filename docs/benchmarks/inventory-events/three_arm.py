@@ -170,7 +170,7 @@ def run_arm(root, m, kind):
             result['sessions']['astra'] = pair.sol(arm, m, 'delegated', 'implement', prompt, schema=root/'handoff-schema.json')
         else:
             if kind == 'luna':
-                wm = {**m, 'model': 'gpt-5.6-luna', 'config': [v.replace('model_reasoning_effort="high"', 'model_reasoning_effort="max"') for v in m['config']]}
+                wm = {**m, 'model': m.get('luna_model', 'gpt-5.6-luna'), 'config': [v.replace('model_reasoning_effort="high"', 'model_reasoning_effort="max"') for v in m['config']]}
                 try:
                     result['sessions']['luna'] = pair.sol(arm, wm, 'worker', 'implement', prompt, schema=root/'handoff-schema.json')
                 except (RuntimeError, ValueError, AssertionError) as exc:

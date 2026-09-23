@@ -8,6 +8,25 @@ import three_arm as trial
 
 
 class Bounds(unittest.TestCase):
+    def test_luna_model_override_preserves_max_and_old_default(self):
+        for model in (None, 'gpt-6-luna', 'gpt-5.6-luna'):
+            with self.subTest(model=model), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                (root/'luna/worker/task').mkdir(parents=True)
+                (root/'implement-prompt.txt').write_text('fixture')
+                trial.save(root/'luna/worker/implement-process.json',
+                           {'ownership_check_required': True, 'exit_code': None})
+                manifest = {'config': ['-c', 'model_reasoning_effort="high"']}
+                if model:
+                    manifest['luna_model'] = model
+                with patch.object(trial.pair, 'sol', return_value='session') as call:
+                    result = trial.run_arm(root, manifest, 'luna')
+                call.assert_called_once()
+                request = call.call_args.args[1]
+                self.assertEqual(request['model'], model or 'gpt-5.6-luna')
+                self.assertIn('model_reasoning_effort="max"', request['config'])
+                self.assertEqual(result['status'], 'failed')
+
     def test_solo_gets_one_session_and_partial_is_not_qualified(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

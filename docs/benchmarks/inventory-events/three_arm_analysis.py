@@ -28,7 +28,7 @@ def main(root=None):
         worker, worker_cost, worker_receipt, gap = None, 0, None, None
         completed_step_tokens = None
         if kind == 'luna':
-            assert agents['luna']['configurations'] == [('gpt-5.6-luna', 'max')]
+            assert agents['luna']['configurations'] == [(m.get('luna_model', 'gpt-5.6-luna'), 'max')]
             stages.append(('worker', 'implement'))
             worker = arm/'worker/task'
             worker_cost = agents['luna']['api_equivalent_usd']

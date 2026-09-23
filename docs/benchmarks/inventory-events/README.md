@@ -1,17 +1,21 @@
 # Inventory events: solo owner versus one component worker
 
+[Same-CLI Luna comparison — 23 September](luna56-repeat-results-2026-09-23.md):
+GPT-6 Luna Max plus Astra High cost $0.524 versus $0.600 for GPT-5.6 Luna Max
+plus Astra High. Both workers passed 27/27 methods before review; neither needed
+implementation repairs. Worker cost fell 52.72%, but total cost fell 12.58%;
+75% of that reduction came from different review usage. One run per model on
+the current CLI; the $0.756 Astra-only baseline remains historical.
+
 [External worker comparison — 22 September](external-workers-results-2026-09-22.md):
 DeepSeek V4.1 Flash Max + Astra High cost $0.584; GLM 5.3 Flash Max + Astra High
 cost $0.728. Both workers passed 27/27 methods before acceptance, with no
 implementation repairs. MiMo hit an upstream-provider timeout with no edits;
 Astra completed locally. Solo/Luna comparisons use the earlier runs, not fresh controls.
 
-[Fresh three-arm comparison — 22 September](three-arm-results-2026-09-22.md):
-Astra High solo cost $0.756; Luna Max plus Astra acceptance cost $0.683 (9.71%
-less), with 27/27 independent methods passing. MiMo failed with a provider stream
-error and no edits; Astra completed locally, for at least $0.877 captured cost.
-No separate reviewer was added to solo. Expanded coverage and permitted repairs
-make this a new comparison, not a directly pooled repeat of the earlier pairs.
+[Solo baseline and original three-arm results](three-arm-results-2026-09-22.md):
+Astra High solo cost $0.756 and passed 27/27 methods, without a separate reviewer.
+The report retains the original Luna run and failed MiMo attempt.
 
 ## Earlier experiments
 
@@ -30,6 +34,8 @@ it is not yet an uninterrupted pipeline replication.
 without corrections. Luna plus review cost $0.594902 versus Astra plus review
 $0.822284 (27.65% less). Without a separate solo review, Luna's reviewed path
 would instead cost 6.31% more. Research overhead is reported separately.
+
+## Original 12 September protocol
 
 Test whether a cheap component owner plus acceptance costs less than a capable
 solo implementation under the same correctness requirements. New synthetic
